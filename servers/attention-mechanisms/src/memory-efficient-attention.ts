@@ -4,38 +4,38 @@ export interface MemoryEfficientConfig {
   id: string;
   name: string;
   algorithm: 'flash_attention' | 'memory_efficient_attention' | 'chunked_attention' | 'gradient_checkpointing' | 'reversible_attention' | 'linear_attention';
-  
+
   // Memory optimization parameters
   maxMemoryUsage: number; // bytes
   chunkSize: number;
   overlapping: boolean;
   overlapSize?: number;
-  
+
   // Flash attention parameters
   flashBlockSize?: number;
   flashCausal?: boolean;
   flashDropout?: number;
-  
+
   // Gradient checkpointing parameters
   checkpointLayers?: number[];
   checkpointFrequency?: number;
-  
+
   // Linear attention parameters
   projectionDim?: number;
   kernelType?: 'elu' | 'relu' | 'softmax' | 'cosine';
-  
+
   // Performance tuning
   useMixedPrecision: boolean;
   precisionType: 'fp16' | 'bf16' | 'fp32';
   enableFusion: boolean;
   parallelization: 'none' | 'tensor' | 'sequence' | 'batch';
-  
+
   // Memory management
   enableMemoryPool: boolean;
   poolSize?: number;
   memoryReuse: boolean;
   garbageCollection: 'aggressive' | 'standard' | 'lazy';
-  
+
   createdAt: Date;
   updatedAt: Date;
 }
@@ -47,7 +47,7 @@ export interface MemoryProfile {
   batchSize: number;
   hiddenSize: number;
   numHeads: number;
-  
+
   // Memory measurements
   peakMemoryUsage: number;
   averageMemoryUsage: number;
@@ -55,18 +55,18 @@ export interface MemoryProfile {
   allocationCount: number;
   deallocationCount: number;
   fragmentationLevel: number;
-  
+
   // Performance metrics
   computeTime: number;
   throughput: number;
   memoryBandwidth: number;
   cacheHitRate: number;
-  
+
   // Optimization results
   memoryReduction: number;
   speedup: number;
   qualityRetention: number;
-  
+
   timestamp: Date;
 }
 
@@ -85,7 +85,7 @@ export interface MemoryOptimizationSession {
   sessionId: string;
   configId: string;
   status: 'active' | 'paused' | 'completed' | 'failed';
-  
+
   // Input specifications
   inputShape: [number, number, number]; // [batch, seq_len, hidden_dim]
   modelSpecs: {
@@ -94,27 +94,27 @@ export interface MemoryOptimizationSession {
     hiddenSize: number;
     intermediateSize: number;
   };
-  
+
   // Optimization state
   currentStep: number;
   totalSteps: number;
   processedLayers: number;
-  
+
   // Memory tracking
   memoryProfiles: Map<string, MemoryProfile>;
   chunks: Map<string, AttentionChunk>;
   memoryTimeline: MemorySnapshot[];
-  
+
   // Results
   originalMemoryUsage: number;
   optimizedMemoryUsage: number;
   memoryReduction: number;
   performanceImpact: number;
-  
+
   // Analysis
   bottlenecks: MemoryBottleneck[];
   recommendations: OptimizationRecommendation[];
-  
+
   createdAt: Date;
   lastUpdated: Date;
 }
@@ -133,19 +133,19 @@ export interface MemoryBottleneck {
   bottleneckId: string;
   type: 'memory_fragmentation' | 'excessive_allocation' | 'cache_misses' | 'bandwidth_limit' | 'synchronization_overhead';
   severity: 'low' | 'medium' | 'high' | 'critical';
-  
+
   location: {
     layerIndex?: number;
     operation?: string;
     timeRange?: [Date, Date];
   };
-  
+
   impact: {
     memoryOverhead: number;
     performanceDegrade: number;
     throughputLoss: number;
   };
-  
+
   description: string;
   rootCause: string;
   suggestedFixes: string[];
@@ -155,23 +155,23 @@ export interface OptimizationRecommendation {
   recommendationId: string;
   type: 'algorithm_change' | 'parameter_tuning' | 'memory_layout' | 'scheduling' | 'hardware_optimization';
   priority: 'high' | 'medium' | 'low';
-  
+
   title: string;
   description: string;
   rationale: string;
-  
+
   implementation: {
     changes: string[];
     effort: 'low' | 'medium' | 'high';
     risk: 'low' | 'medium' | 'high';
   };
-  
+
   expectedBenefits: {
     memoryReduction?: number;
     speedupFactor?: number;
     throughputIncrease?: number;
   };
-  
+
   tradeoffs: string[];
   validation: string[];
 }
@@ -180,23 +180,28 @@ export interface LinearAttentionApproximation {
   approximationId: string;
   kernelType: string;
   projectionDim: number;
-  
+
   // Quality metrics
   approximationError: number;
   attentionSimilarity: number;
   outputSimilarity: number;
-  
+
   // Performance metrics
   memoryReduction: number;
   computeReduction: number;
   actualSpeedup: number;
-  
+
   // Stability metrics
   numericalStability: number;
   gradientStability: number;
 }
 
 export class MemoryEfficientAttention extends BaseMCPServer {
+  static async main() {
+    const server = new MemoryEfficientAttention();
+    await server.start();
+  }
+
   private configs: Map<string, MemoryEfficientConfig> = new Map();
   private sessions: Map<string, MemoryOptimizationSession> = new Map();
   private profiles: Map<string, MemoryProfile> = new Map();
@@ -207,6 +212,31 @@ export class MemoryEfficientAttention extends BaseMCPServer {
     super('memory-efficient-attention', 'Memory-efficient attention mechanisms for large-scale transformer processing');
     this.initializeStandardConfigs();
     this.setupTools();
+  }
+
+  async handleRequest(method: string, params: any): Promise<any> {
+    this.logOperation(method, params);
+
+    switch (method) {
+      case 'create_memory_efficient_config':
+        return this.createMemoryEfficientConfig(params);
+      case 'start_memory_optimization_session':
+        return this.startMemoryOptimizationSession(params);
+      case 'profile_memory_usage':
+        return this.profileMemoryUsage(params);
+      case 'optimize_attention_chunks':
+        return this.optimizeAttentionChunks(params);
+      case 'analyze_memory_bottlenecks':
+        return this.analyzeMemoryBottlenecks(params);
+      case 'compare_memory_algorithms':
+        return this.compareMemoryAlgorithms(params);
+      case 'linear_attention_approximation':
+        return this.linearAttentionApproximation(params);
+      case 'memory_pool_management':
+        return this.memoryPoolManagement(params);
+      default:
+        throw new Error(`Method ${method} not implemented`);
+    }
   }
 
   private initializeStandardConfigs() {
@@ -346,10 +376,10 @@ export class MemoryEfficientAttention extends BaseMCPServer {
         type: 'object',
         properties: {
           name: { type: 'string', description: 'Name for the configuration' },
-          algorithm: { 
-            type: 'string', 
+          algorithm: {
+            type: 'string',
             enum: ['flash_attention', 'memory_efficient_attention', 'chunked_attention', 'gradient_checkpointing', 'reversible_attention', 'linear_attention'],
-            description: 'Memory optimization algorithm' 
+            description: 'Memory optimization algorithm'
           },
           maxMemoryUsage: { type: 'number', description: 'Maximum memory usage in bytes' },
           optimizationParams: { type: 'object', description: 'Algorithm-specific optimization parameters' },
@@ -396,7 +426,7 @@ export class MemoryEfficientAttention extends BaseMCPServer {
         type: 'object',
         properties: {
           sessionId: { type: 'string', description: 'Session to optimize' },
-          chunkingStrategy: { 
+          chunkingStrategy: {
             type: 'string',
             enum: ['fixed_size', 'adaptive', 'content_aware', 'memory_aware'],
             description: 'Chunking strategy to use'
@@ -415,7 +445,7 @@ export class MemoryEfficientAttention extends BaseMCPServer {
         type: 'object',
         properties: {
           sessionId: { type: 'string', description: 'Session to analyze' },
-          analysisDepth: { 
+          analysisDepth: {
             type: 'string',
             enum: ['basic', 'detailed', 'comprehensive'],
             description: 'Depth of bottleneck analysis'
@@ -435,10 +465,10 @@ export class MemoryEfficientAttention extends BaseMCPServer {
         properties: {
           configIds: { type: 'array', items: { type: 'string' }, description: 'Configurations to compare' },
           testScenarios: { type: 'array', items: { type: 'object' }, description: 'Test scenarios' },
-          comparisonMetrics: { 
-            type: 'array', 
+          comparisonMetrics: {
+            type: 'array',
             items: { type: 'string' },
-            description: 'Metrics to compare (memory, speed, quality)' 
+            description: 'Metrics to compare (memory, speed, quality)'
           },
           generateReport: { type: 'boolean', description: 'Generate detailed comparison report' }
         },
@@ -454,10 +484,10 @@ export class MemoryEfficientAttention extends BaseMCPServer {
         properties: {
           sessionId: { type: 'string', description: 'Session ID' },
           approximationConfig: { type: 'object', description: 'Linear approximation configuration' },
-          qualityMetrics: { 
-            type: 'array', 
+          qualityMetrics: {
+            type: 'array',
             items: { type: 'string' },
-            description: 'Quality metrics to compute' 
+            description: 'Quality metrics to compute'
           },
           baselineComparison: { type: 'boolean', description: 'Compare with full attention baseline' }
         },
@@ -471,14 +501,14 @@ export class MemoryEfficientAttention extends BaseMCPServer {
       inputSchema: {
         type: 'object',
         properties: {
-          action: { 
+          action: {
             type: 'string',
             enum: ['create', 'resize', 'defragment', 'statistics', 'optimize'],
             description: 'Memory pool action'
           },
           poolId: { type: 'string', description: 'Memory pool identifier' },
           poolSize: { type: 'number', description: 'Pool size in bytes' },
-          allocationStrategy: { 
+          allocationStrategy: {
             type: 'string',
             enum: ['first_fit', 'best_fit', 'buddy_system', 'slab_allocator'],
             description: 'Allocation strategy'
@@ -491,11 +521,11 @@ export class MemoryEfficientAttention extends BaseMCPServer {
 
   async createMemoryEfficientConfig(params: any): Promise<any> {
     const { name, algorithm, maxMemoryUsage, optimizationParams = {}, performanceTargets = {} } = params;
-    
+
     this.validateRequired(params, ['name', 'algorithm', 'maxMemoryUsage']);
-    
+
     const configId = this.generateId();
-    
+
     const config: MemoryEfficientConfig = {
       id: configId,
       name,
@@ -534,9 +564,9 @@ export class MemoryEfficientAttention extends BaseMCPServer {
 
   async startMemoryOptimizationSession(params: any): Promise<any> {
     const { configId, inputShape, modelSpecs, optimizationObjectives = ['memory_reduction'] } = params;
-    
+
     this.validateRequired(params, ['configId', 'inputShape', 'modelSpecs']);
-    
+
     if (!this.configs.has(configId)) {
       throw new Error(`Configuration ${configId} not found`);
     }
@@ -591,9 +621,9 @@ export class MemoryEfficientAttention extends BaseMCPServer {
 
   async profileMemoryUsage(params: any): Promise<any> {
     const { sessionId, operationType, measurementPoints = [], includeTimeline = false } = params;
-    
+
     this.validateRequired(params, ['sessionId', 'operationType']);
-    
+
     if (!this.sessions.has(sessionId)) {
       throw new Error(`Session ${sessionId} not found`);
     }
@@ -603,10 +633,10 @@ export class MemoryEfficientAttention extends BaseMCPServer {
 
     // Simulate memory profiling based on the operation type and configuration
     const profile = await this.performMemoryProfiling(session, config, operationType, measurementPoints);
-    
+
     const profileId = this.generateId();
     profile.profileId = profileId;
-    
+
     this.profiles.set(profileId, profile);
     session.memoryProfiles.set(operationType, profile);
 
@@ -639,9 +669,9 @@ export class MemoryEfficientAttention extends BaseMCPServer {
 
   async optimizeAttentionChunks(params: any): Promise<any> {
     const { sessionId, chunkingStrategy, targetMemoryUsage, qualityThreshold = 0.95 } = params;
-    
+
     this.validateRequired(params, ['sessionId', 'chunkingStrategy']);
-    
+
     if (!this.sessions.has(sessionId)) {
       throw new Error(`Session ${sessionId} not found`);
     }
@@ -690,9 +720,9 @@ export class MemoryEfficientAttention extends BaseMCPServer {
 
   async analyzeMemoryBottlenecks(params: any): Promise<any> {
     const { sessionId, analysisDepth = 'detailed', timeWindow, includeRecommendations = true } = params;
-    
+
     this.validateRequired(params, ['sessionId']);
-    
+
     if (!this.sessions.has(sessionId)) {
       throw new Error(`Session ${sessionId} not found`);
     }
@@ -702,7 +732,7 @@ export class MemoryEfficientAttention extends BaseMCPServer {
 
     // Analyze bottlenecks at different levels
     const bottlenecks = await this.performBottleneckAnalysis(session, config, analysisDepth, timeWindow);
-    
+
     // Update session with identified bottlenecks
     session.bottlenecks.push(...bottlenecks);
 
@@ -744,9 +774,9 @@ export class MemoryEfficientAttention extends BaseMCPServer {
 
   async compareMemoryAlgorithms(params: any): Promise<any> {
     const { configIds, testScenarios = [], comparisonMetrics, generateReport = false } = params;
-    
+
     this.validateRequired(params, ['configIds', 'comparisonMetrics']);
-    
+
     const comparison: any = {
       configs: configIds,
       testScenarios,
@@ -766,7 +796,7 @@ export class MemoryEfficientAttention extends BaseMCPServer {
     // Run comparison for each metric
     for (const metric of comparisonMetrics) {
       comparison.metrics[metric] = {};
-      
+
       for (const configId of configIds) {
         if (this.configs.has(configId)) {
           const config = this.configs.get(configId)!;
@@ -813,15 +843,15 @@ export class MemoryEfficientAttention extends BaseMCPServer {
     if (config.chunkSize <= 0) {
       throw new Error('Chunk size must be positive');
     }
-    
+
     if (config.maxMemoryUsage <= 0) {
       throw new Error('Max memory usage must be positive');
     }
-    
+
     if (config.overlapping && !config.overlapSize) {
       config.overlapSize = Math.floor(config.chunkSize / 4);
     }
-    
+
     if (config.algorithm === 'linear_attention' && config.projectionDim! <= 0) {
       throw new Error('Projection dimension must be positive for linear attention');
     }
@@ -830,23 +860,23 @@ export class MemoryEfficientAttention extends BaseMCPServer {
   private calculateOriginalMemoryUsage(inputShape: number[], modelSpecs: any): number {
     const [batchSize, seqLen, hiddenSize] = inputShape;
     const { numLayers, numHeads } = modelSpecs;
-    
+
     // Attention weights: batch_size * num_heads * seq_len * seq_len * num_layers
     const attentionMemory = batchSize * numHeads * seqLen * seqLen * numLayers * 4; // 4 bytes per float
-    
+
     // Hidden states: batch_size * seq_len * hidden_size * num_layers
     const hiddenStateMemory = batchSize * seqLen * hiddenSize * numLayers * 4;
-    
+
     // Gradients (approximately same as forward)
     const gradientMemory = attentionMemory + hiddenStateMemory;
-    
+
     return attentionMemory + hiddenStateMemory + gradientMemory;
   }
 
   private calculateOptimizationSteps(config: MemoryEfficientConfig, modelSpecs: any): number {
     // Calculate steps based on algorithm and model size
     const baseSteps = modelSpecs.numLayers || 12;
-    
+
     switch (config.algorithm) {
       case 'flash_attention':
         return baseSteps * 2; // forward + backward
@@ -864,7 +894,7 @@ export class MemoryEfficientAttention extends BaseMCPServer {
   private async initializeMemoryPool(session: MemoryOptimizationSession, config: MemoryEfficientConfig): Promise<void> {
     const poolId = `pool_${session.sessionId}`;
     const poolSize = config.poolSize || 1024 * 1024 * 1024; // 1GB default
-    
+
     this.memoryPools.set(poolId, {
       poolId,
       size: poolSize,
@@ -1161,7 +1191,7 @@ export class MemoryEfficientAttention extends BaseMCPServer {
       const profiles = Array.from(session.memoryProfiles.values());
       if (profiles.length > 0) {
         const avgAllocations = profiles.reduce((sum, p) => sum + p.allocationCount, 0) / profiles.length;
-        
+
         if (avgAllocations > 200) {
           bottlenecks.push({
             bottleneckId: this.generateId(),
@@ -1186,7 +1216,7 @@ export class MemoryEfficientAttention extends BaseMCPServer {
       const timeline = session.memoryTimeline;
       if (timeline.length > 5) {
         const bandwidthUtilization = this.calculateBandwidthUtilization(timeline);
-        
+
         if (bandwidthUtilization > 0.9) {
           bottlenecks.push({
             bottleneckId: this.generateId(),
@@ -1210,7 +1240,7 @@ export class MemoryEfficientAttention extends BaseMCPServer {
       // Check for synchronization overhead
       if (config.parallelization !== 'none') {
         const syncOverhead = Math.random() * 0.2; // simulated overhead
-        
+
         if (syncOverhead > 0.1) {
           bottlenecks.push({
             bottleneckId: this.generateId(),
@@ -1245,7 +1275,7 @@ export class MemoryEfficientAttention extends BaseMCPServer {
 
     for (const type of bottleneckTypes) {
       const typeBottlenecks = bottlenecks.filter(b => b.type === type);
-      const severity = typeBottlenecks.some(b => b.severity === 'critical') ? 'high' : 
+      const severity = typeBottlenecks.some(b => b.severity === 'critical') ? 'high' :
                      typeBottlenecks.some(b => b.severity === 'high') ? 'medium' : 'low';
 
       switch (type) {
@@ -1424,7 +1454,7 @@ export class MemoryEfficientAttention extends BaseMCPServer {
 
     for (const [metric, results] of Object.entries(metrics)) {
       summary[metric] = {};
-      
+
       // Find best and worst performers
       const allValues = Object.values(results as Record<string, any>);
       const configValues = configIds.map(id => {
@@ -1581,33 +1611,12 @@ export class MemoryEfficientAttention extends BaseMCPServer {
     return allocatedMemory / totalMemory;
   }
 
-  async handleRequest(method: string, params: any): Promise<any> {
-    switch (method) {
-      case 'create_memory_efficient_config':
-        return this.createMemoryEfficientConfig(params);
-      case 'start_memory_optimization_session':
-        return this.startMemoryOptimizationSession(params);
-      case 'profile_memory_usage':
-        return this.profileMemoryUsage(params);
-      case 'optimize_attention_chunks':
-        return this.optimizeAttentionChunks(params);
-      case 'analyze_memory_bottlenecks':
-        return this.analyzeMemoryBottlenecks(params);
-      case 'compare_memory_algorithms':
-        return this.compareMemoryAlgorithms(params);
-      case 'linear_attention_approximation':
-        return this.linearAttentionApproximation(params);
-      case 'memory_pool_management':
-        return this.memoryPoolManagement(params);
-      default:
-        throw new Error(`Unknown method: ${method}`);
-    }
-  }
+  // This method is already implemented above
 
   // Additional methods for remaining tools
   private async linearAttentionApproximation(params: any): Promise<any> {
     const { sessionId, approximationConfig, qualityMetrics = [], baselineComparison = false } = params;
-    
+
     if (!this.sessions.has(sessionId)) {
       throw new Error(`Session ${sessionId} not found`);
     }
@@ -1662,7 +1671,7 @@ export class MemoryEfficientAttention extends BaseMCPServer {
         if (!poolId || !poolSize) {
           throw new Error('Pool ID and size required for creation');
         }
-        
+
         const newPool = {
           poolId,
           size: poolSize,
@@ -1673,9 +1682,9 @@ export class MemoryEfficientAttention extends BaseMCPServer {
           createdAt: new Date(),
           allocations: []
         };
-        
+
         this.memoryPools.set(poolId, newPool);
-        
+
         return {
           poolId,
           status: 'created',
@@ -1703,7 +1712,7 @@ export class MemoryEfficientAttention extends BaseMCPServer {
             utilization: `${((pool.allocated / pool.size) * 100).toFixed(1)}%`,
             fragments: pool.fragments.length
           }));
-          
+
           return {
             totalPools: this.memoryPools.size,
             poolStatistics: allStats
@@ -1714,11 +1723,11 @@ export class MemoryEfficientAttention extends BaseMCPServer {
         if (poolId && this.memoryPools.has(poolId)) {
           const pool = this.memoryPools.get(poolId)!;
           const originalFragments = pool.fragments.length;
-          
+
           // Simulate defragmentation
           pool.fragments = pool.fragments.filter(() => Math.random() > 0.7);
           const removedFragments = originalFragments - pool.fragments.length;
-          
+
           return {
             poolId,
             fragmentsRemoved: removedFragments,
@@ -1731,7 +1740,7 @@ export class MemoryEfficientAttention extends BaseMCPServer {
       case 'optimize':
         // Optimize all pools
         let totalOptimizations = 0;
-        
+
         for (const [id, pool] of this.memoryPools.entries()) {
           // Simulate optimization
           if (pool.fragments.length > 5) {
@@ -1739,7 +1748,7 @@ export class MemoryEfficientAttention extends BaseMCPServer {
             totalOptimizations++;
           }
         }
-        
+
         return {
           optimizedPools: totalOptimizations,
           totalPools: this.memoryPools.size,
@@ -1775,4 +1784,12 @@ export class MemoryEfficientAttention extends BaseMCPServer {
 
     return recommendations;
   }
+}
+
+// Start the server if this file is executed directly
+if (process.argv[1] === import.meta.url.substring(7)) {
+  MemoryEfficientAttention.main().catch(error => {
+    console.error('Error starting server:', error);
+    process.exit(1);
+  });
 }

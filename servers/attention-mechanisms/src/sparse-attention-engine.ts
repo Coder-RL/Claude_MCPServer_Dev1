@@ -7,7 +7,7 @@ export interface SparseAttentionConfig {
   sequenceLength: number;
   numHeads: number;
   headDim: number;
-  
+
   // Sparsity parameters
   sparsityRatio: number; // fraction of attention weights that are zero
   windowSize?: number; // for local attention
@@ -15,16 +15,16 @@ export interface SparseAttentionConfig {
   strideSize?: number; // for strided attention
   blockSize?: number; // for block-based attention
   randomSeed?: number; // for reproducible random patterns
-  
+
   // Performance optimizations
   useTriton?: boolean;
   useCuda?: boolean;
   useFlash?: boolean;
   precision: 'fp16' | 'bf16' | 'fp32';
-  
+
   // Pattern-specific parameters
   patternParams: Record<string, any>;
-  
+
   createdAt: Date;
   updatedAt: Date;
 }
@@ -50,25 +50,25 @@ export interface SparseAttentionExecution {
   configId: string;
   patternId: string;
   inputShape: [number, number, number]; // [batch, seq_len, hidden_dim]
-  
+
   // Performance metrics
   executionTime: number;
   memoryUsage: number;
   flops: number;
   sparsityAchieved: number;
-  
+
   // Quality metrics
   attentionEntropy: number;
   informationRetention: number;
   gradientSparsity?: number;
-  
+
   // Comparison with dense attention
   denseComparison?: {
     speedup: number;
     memoryReduction: number;
     qualityLoss: number;
   };
-  
+
   status: 'success' | 'failed' | 'timeout';
   timestamp: Date;
 }
@@ -89,6 +89,11 @@ export interface PatternAnalysis {
 }
 
 export class SparseAttentionEngine extends BaseMCPServer {
+  static async main() {
+    const server = new SparseAttentionEngine();
+    await server.start();
+  }
+
   private configs: Map<string, SparseAttentionConfig> = new Map();
   private patterns: Map<string, AttentionPattern> = new Map();
   private executions: Map<string, SparseAttentionExecution> = new Map();
@@ -99,6 +104,29 @@ export class SparseAttentionEngine extends BaseMCPServer {
     super('sparse-attention-engine', 'Advanced sparse attention patterns for efficient transformer processing');
     this.initializeStandardConfigs();
     this.setupTools();
+  }
+
+  async handleRequest(method: string, params: any): Promise<any> {
+    this.logOperation(method, params);
+
+    switch (method) {
+      case 'create_sparse_attention_config':
+        return this.createSparseAttentionConfig(params);
+      case 'generate_attention_pattern':
+        return this.generateAttentionPattern(params);
+      case 'execute_sparse_attention':
+        return this.executeSparseAttention(params);
+      case 'analyze_attention_pattern':
+        return this.analyzeAttentionPattern(params);
+      case 'optimize_sparsity_pattern':
+        return this.optimizeSparsityPattern(params);
+      case 'compare_sparsity_patterns':
+        return this.compareSparsityPatterns(params);
+      case 'adaptive_sparsity_tuning':
+        return this.adaptiveSparsityTuning(params);
+      default:
+        throw new Error(`Method ${method} not implemented`);
+    }
   }
 
   private initializeStandardConfigs() {
@@ -214,10 +242,10 @@ export class SparseAttentionEngine extends BaseMCPServer {
         type: 'object',
         properties: {
           name: { type: 'string', description: 'Name for the configuration' },
-          type: { 
-            type: 'string', 
+          type: {
+            type: 'string',
             enum: ['strided', 'fixed', 'random', 'learned', 'local_global', 'bigbird', 'longformer', 'linformer'],
-            description: 'Type of sparse attention pattern' 
+            description: 'Type of sparse attention pattern'
           },
           sequenceLength: { type: 'number', description: 'Maximum sequence length' },
           numHeads: { type: 'number', description: 'Number of attention heads' },
@@ -264,7 +292,7 @@ export class SparseAttentionEngine extends BaseMCPServer {
         type: 'object',
         properties: {
           patternId: { type: 'string', description: 'Pattern to analyze' },
-          analysisType: { 
+          analysisType: {
             type: 'string',
             enum: ['connectivity', 'locality', 'efficiency', 'information_flow', 'comprehensive'],
             description: 'Type of analysis to perform'
@@ -282,9 +310,9 @@ export class SparseAttentionEngine extends BaseMCPServer {
         type: 'object',
         properties: {
           baseConfigId: { type: 'string', description: 'Base configuration to optimize' },
-          targetMetrics: { 
+          targetMetrics: {
             type: 'object',
-            description: 'Target optimization metrics (speed, memory, quality)' 
+            description: 'Target optimization metrics (speed, memory, quality)'
           },
           constraints: { type: 'object', description: 'Optimization constraints' },
           optimizationSteps: { type: 'number', description: 'Number of optimization iterations' }
@@ -300,10 +328,10 @@ export class SparseAttentionEngine extends BaseMCPServer {
         type: 'object',
         properties: {
           configIds: { type: 'array', items: { type: 'string' }, description: 'Configurations to compare' },
-          comparisonMetrics: { 
-            type: 'array', 
+          comparisonMetrics: {
+            type: 'array',
             items: { type: 'string' },
-            description: 'Metrics to compare (speed, memory, quality, sparsity)' 
+            description: 'Metrics to compare (speed, memory, quality, sparsity)'
           },
           testSequenceLengths: { type: 'array', items: { type: 'number' }, description: 'Sequence lengths to test' }
         },
@@ -318,12 +346,12 @@ export class SparseAttentionEngine extends BaseMCPServer {
         type: 'object',
         properties: {
           baseConfigId: { type: 'string', description: 'Base configuration' },
-          inputCharacteristics: { 
+          inputCharacteristics: {
             type: 'object',
-            description: 'Input data characteristics (length distribution, attention patterns)' 
+            description: 'Input data characteristics (length distribution, attention patterns)'
           },
           performanceGoals: { type: 'object', description: 'Performance optimization goals' },
-          adaptationStrategy: { 
+          adaptationStrategy: {
             type: 'string',
             enum: ['conservative', 'aggressive', 'balanced', 'custom'],
             description: 'Adaptation strategy'
@@ -336,12 +364,12 @@ export class SparseAttentionEngine extends BaseMCPServer {
 
   async createSparseAttentionConfig(params: any): Promise<any> {
     const { name, type, sequenceLength, numHeads, sparsityRatio, patternParams = {} } = params;
-    
+
     this.validateRequired(params, ['name', 'type', 'sequenceLength', 'numHeads', 'sparsityRatio']);
-    
+
     const configId = this.generateId();
     const headDim = 64; // default head dimension
-    
+
     const config: SparseAttentionConfig = {
       id: configId,
       name,
@@ -376,9 +404,9 @@ export class SparseAttentionEngine extends BaseMCPServer {
 
   async generateAttentionPattern(params: any): Promise<any> {
     const { configId, sequenceLength, cachePattern = true } = params;
-    
+
     this.validateRequired(params, ['configId']);
-    
+
     if (!this.configs.has(configId)) {
       throw new Error(`Configuration ${configId} not found`);
     }
@@ -395,7 +423,7 @@ export class SparseAttentionEngine extends BaseMCPServer {
       patternData = this.patternCache.get(cacheKey)!;
     } else {
       patternData = this.generatePatternData(config, actualSeqLen);
-      
+
       if (cachePattern) {
         this.patternCache.set(cacheKey, patternData);
       }
@@ -431,25 +459,25 @@ export class SparseAttentionEngine extends BaseMCPServer {
 
   async executeSparseAttention(params: any): Promise<any> {
     const { configId, inputTensor, benchmarkDense = false, profileExecution = true } = params;
-    
+
     this.validateRequired(params, ['configId', 'inputTensor']);
-    
+
     if (!this.configs.has(configId)) {
       throw new Error(`Configuration ${configId} not found`);
     }
 
     const config = this.configs.get(configId)!;
     const executionId = this.generateId();
-    
+
     // Simulate input tensor processing
     const inputShape = this.getInputShape(inputTensor);
     const [batchSize, seqLen, hiddenDim] = inputShape;
 
     // Generate pattern for this sequence length
-    const patternResult = await this.generateAttentionPattern({ 
-      configId, 
-      sequenceLength: seqLen, 
-      cachePattern: true 
+    const patternResult = await this.generateAttentionPattern({
+      configId,
+      sequenceLength: seqLen,
+      cachePattern: true
     });
 
     // Simulate sparse attention execution
@@ -504,9 +532,9 @@ export class SparseAttentionEngine extends BaseMCPServer {
 
   async analyzeAttentionPattern(params: any): Promise<any> {
     const { patternId, analysisType, generateVisualization = false } = params;
-    
+
     this.validateRequired(params, ['patternId', 'analysisType']);
-    
+
     if (!this.patterns.has(patternId)) {
       throw new Error(`Pattern ${patternId} not found`);
     }
@@ -631,7 +659,7 @@ export class SparseAttentionEngine extends BaseMCPServer {
     for (let i = 0; i < seqLen; i++) {
       const start = Math.max(0, i - Math.floor(windowSize / 2));
       const end = Math.min(seqLen, i + Math.floor(windowSize / 2) + 1);
-      
+
       for (let j = start; j < end; j++) {
         pattern[i][j] = true;
       }
@@ -661,7 +689,7 @@ export class SparseAttentionEngine extends BaseMCPServer {
     for (let i = 0; i < seqLen; i++) {
       const start = Math.max(0, i - Math.floor(windowSize / 2));
       const end = Math.min(seqLen, i + Math.floor(windowSize / 2) + 1);
-      
+
       for (let j = start; j < end; j++) {
         pattern[i][j] = true;
       }
@@ -671,12 +699,12 @@ export class SparseAttentionEngine extends BaseMCPServer {
     for (let blockIdx = 0; blockIdx < numBlocks; blockIdx++) {
       const blockStart = blockIdx * blockSize;
       const blockEnd = Math.min(seqLen, (blockIdx + 1) * blockSize);
-      
+
       for (let r = 0; r < numRandomBlocks; r++) {
         const randomBlock = Math.floor(Math.random() * numBlocks);
         const randStart = randomBlock * blockSize;
         const randEnd = Math.min(seqLen, (randomBlock + 1) * blockSize);
-        
+
         for (let i = blockStart; i < blockEnd; i++) {
           for (let j = randStart; j < randEnd; j++) {
             pattern[i][j] = true;
@@ -702,7 +730,7 @@ export class SparseAttentionEngine extends BaseMCPServer {
     for (let i = 0; i < seqLen; i++) {
       // Self-attention
       pattern[i][i] = true;
-      
+
       // Strided attention
       for (const offset of offsetPattern) {
         for (let stride = 1; stride * strideSize + offset < seqLen; stride++) {
@@ -724,7 +752,7 @@ export class SparseAttentionEngine extends BaseMCPServer {
     for (let i = 0; i < seqLen; i++) {
       const start = causalMask ? Math.max(0, i - leftContext) : Math.max(0, i - leftContext);
       const end = causalMask ? i + 1 : Math.min(seqLen, i + rightContext + 1);
-      
+
       for (let j = start; j < end; j++) {
         pattern[i][j] = true;
       }
@@ -734,7 +762,7 @@ export class SparseAttentionEngine extends BaseMCPServer {
   private generateFixedPattern(pattern: boolean[][], config: SparseAttentionConfig, seqLen: number): void {
     // Simple diagonal pattern with fixed offsets
     const offsets = [-2, -1, 0, 1, 2]; // attend to nearby positions
-    
+
     for (let i = 0; i < seqLen; i++) {
       for (const offset of offsets) {
         const j = i + offset;
@@ -748,7 +776,7 @@ export class SparseAttentionEngine extends BaseMCPServer {
   private generateRandomPattern(pattern: boolean[][], config: SparseAttentionConfig, seqLen: number): void {
     const seed = config.randomSeed || 42;
     Math.seedrandom = Math.seedrandom || ((seed: number) => Math.random); // Pseudo-seeded random
-    
+
     const targetNonZero = Math.floor(seqLen * seqLen * (1 - config.sparsityRatio));
     let nonZeroCount = 0;
 
@@ -762,7 +790,7 @@ export class SparseAttentionEngine extends BaseMCPServer {
     while (nonZeroCount < targetNonZero) {
       const i = Math.floor(Math.random() * seqLen);
       const j = Math.floor(Math.random() * seqLen);
-      
+
       if (!pattern[i][j]) {
         pattern[i][j] = true;
         nonZeroCount++;
@@ -792,7 +820,7 @@ export class SparseAttentionEngine extends BaseMCPServer {
   }
 
   private countNonZeroElements(pattern: boolean[][]): number {
-    return pattern.reduce((total, row) => 
+    return pattern.reduce((total, row) =>
       total + row.reduce((rowTotal, val) => rowTotal + (val ? 1 : 0), 0), 0
     );
   }
@@ -820,17 +848,17 @@ export class SparseAttentionEngine extends BaseMCPServer {
   private simulateSparseAttentionCompute(config: SparseAttentionConfig, inputShape: [number, number, number], patternId: string): any {
     const [batchSize, seqLen, hiddenDim] = inputShape;
     const pattern = this.patterns.get(patternId)!;
-    
+
     const nonZeroElements = pattern.metadata.nonZeroElements;
     const totalElements = seqLen * seqLen;
-    
+
     // Calculate metrics
     const baseFlops = batchSize * config.numHeads * seqLen * seqLen * hiddenDim * 4; // QKV + output
     const actualFlops = Math.floor(baseFlops * (nonZeroElements / totalElements));
-    
+
     const baseMemory = batchSize * config.numHeads * seqLen * seqLen * 4; // attention weights
     const actualMemory = Math.floor(baseMemory * (nonZeroElements / totalElements));
-    
+
     return {
       flops: actualFlops,
       memoryUsage: actualMemory,
@@ -842,11 +870,11 @@ export class SparseAttentionEngine extends BaseMCPServer {
 
   private simulateDenseAttentionCompute(config: SparseAttentionConfig, inputShape: [number, number, number]): any {
     const [batchSize, seqLen, hiddenDim] = inputShape;
-    
+
     const flops = batchSize * config.numHeads * seqLen * seqLen * hiddenDim * 4;
     const memoryUsage = batchSize * config.numHeads * seqLen * seqLen * 4;
     const executionTime = Math.log(seqLen) * 100; // simplified timing model
-    
+
     return {
       flops,
       memoryUsage,
@@ -857,7 +885,7 @@ export class SparseAttentionEngine extends BaseMCPServer {
   private estimateMemoryReduction(config: SparseAttentionConfig): number {
     // Estimate based on sparsity ratio and pattern type
     let baseReduction = config.sparsityRatio;
-    
+
     // Adjust for pattern overhead
     switch (config.type) {
       case 'longformer':
@@ -868,16 +896,16 @@ export class SparseAttentionEngine extends BaseMCPServer {
         baseReduction = Math.max(baseReduction, 0.7); // projection overhead
         break;
     }
-    
+
     return baseReduction;
   }
 
   private estimateSpeedup(config: SparseAttentionConfig): number {
     const memoryReduction = this.estimateMemoryReduction(config);
-    
+
     // Speedup is typically less than memory reduction due to overhead
     let speedup = 1 + (memoryReduction * 2);
-    
+
     // Pattern-specific adjustments
     switch (config.type) {
       case 'strided':
@@ -890,7 +918,7 @@ export class SparseAttentionEngine extends BaseMCPServer {
         speedup = Math.min(speedup, 3.0); // limited by projection
         break;
     }
-    
+
     return speedup;
   }
 
@@ -904,14 +932,14 @@ export class SparseAttentionEngine extends BaseMCPServer {
       'random': ['research', 'baseline_comparison', 'exploration'],
       'fixed': ['simple_tasks', 'prototyping', 'educational']
     };
-    
+
     return useCases[type] || ['general_purpose'];
   }
 
   private generateVisualizationData(pattern: AttentionPattern): any {
     const seqLen = pattern.shape[0];
     const sampleSize = Math.min(100, seqLen); // subsample for visualization
-    
+
     return {
       type: 'attention_heatmap',
       dimensions: pattern.shape,
@@ -928,10 +956,10 @@ export class SparseAttentionEngine extends BaseMCPServer {
   private samplePattern(pattern: boolean[][], sampleSize: number): boolean[][] {
     const seqLen = pattern.length;
     if (seqLen <= sampleSize) return pattern;
-    
+
     const step = Math.floor(seqLen / sampleSize);
     const sampled: boolean[][] = [];
-    
+
     for (let i = 0; i < sampleSize; i++) {
       const row: boolean[] = [];
       for (let j = 0; j < sampleSize; j++) {
@@ -939,18 +967,18 @@ export class SparseAttentionEngine extends BaseMCPServer {
       }
       sampled.push(row);
     }
-    
+
     return sampled;
   }
 
   private analyzeConnectivity(pattern: AttentionPattern): any {
     const patternData = pattern.patternData;
     const seqLen = patternData.length;
-    
+
     // Calculate connectivity metrics
     const inDegrees = new Array(seqLen).fill(0);
     const outDegrees = new Array(seqLen).fill(0);
-    
+
     for (let i = 0; i < seqLen; i++) {
       for (let j = 0; j < seqLen; j++) {
         if (patternData[i][j]) {
@@ -959,19 +987,19 @@ export class SparseAttentionEngine extends BaseMCPServer {
         }
       }
     }
-    
+
     const avgInDegree = inDegrees.reduce((sum, deg) => sum + deg, 0) / seqLen;
     const avgOutDegree = outDegrees.reduce((sum, deg) => sum + deg, 0) / seqLen;
     const degreeVariance = this.calculateMetrics(inDegrees).std;
-    
+
     return {
       connectivityScore: Math.min(1.0, avgInDegree / seqLen),
       avgInDegree,
       avgOutDegree,
       degreeVariance,
-      bottleneckAnalysis: degreeVariance > avgInDegree * 0.5 ? 
+      bottleneckAnalysis: degreeVariance > avgInDegree * 0.5 ?
         ['High degree variance indicates potential bottlenecks'] : [],
-      recommendedOptimizations: avgInDegree < 10 ? 
+      recommendedOptimizations: avgInDegree < 10 ?
         ['Consider increasing connectivity for better information flow'] : []
     };
   }
@@ -979,12 +1007,12 @@ export class SparseAttentionEngine extends BaseMCPServer {
   private analyzeLocality(pattern: AttentionPattern): any {
     const patternData = pattern.patternData;
     const seqLen = patternData.length;
-    
+
     // Calculate locality index - how much attention focuses on nearby positions
     let localConnections = 0;
     let totalConnections = 0;
     const localityWindow = Math.min(50, Math.floor(seqLen * 0.1));
-    
+
     for (let i = 0; i < seqLen; i++) {
       for (let j = 0; j < seqLen; j++) {
         if (patternData[i][j]) {
@@ -995,16 +1023,16 @@ export class SparseAttentionEngine extends BaseMCPServer {
         }
       }
     }
-    
+
     const localityIndex = totalConnections > 0 ? localConnections / totalConnections : 0;
-    
+
     return {
       localityIndex,
       localConnections,
       totalConnections,
-      bottleneckAnalysis: localityIndex < 0.3 ? 
+      bottleneckAnalysis: localityIndex < 0.3 ?
         ['Low locality may impact sequential processing'] : [],
-      recommendedOptimizations: localityIndex > 0.9 ? 
+      recommendedOptimizations: localityIndex > 0.9 ?
         ['Consider adding global connections for long-range dependencies'] : []
     };
   }
@@ -1013,18 +1041,18 @@ export class SparseAttentionEngine extends BaseMCPServer {
     const sparsityRatio = pattern.sparsityRatio;
     const memoryReduction = pattern.metadata.memoryReduction;
     const computeReduction = pattern.metadata.computeReduction;
-    
+
     // Efficiency combines sparsity with maintained connectivity
     const efficiencyRating = (sparsityRatio + memoryReduction + computeReduction) / 3;
-    
+
     return {
       efficiencyRating,
       sparsityRatio,
       memoryReduction,
       computeReduction,
-      bottleneckAnalysis: efficiencyRating < 0.5 ? 
+      bottleneckAnalysis: efficiencyRating < 0.5 ?
         ['Low efficiency - consider more aggressive sparsity'] : [],
-      recommendedOptimizations: sparsityRatio > 0.95 ? 
+      recommendedOptimizations: sparsityRatio > 0.95 ?
         ['Very high sparsity may impact model quality'] : []
     };
   }
@@ -1032,11 +1060,11 @@ export class SparseAttentionEngine extends BaseMCPServer {
   private analyzeInformationFlow(pattern: AttentionPattern): any {
     const patternData = pattern.patternData;
     const seqLen = patternData.length;
-    
+
     // Simulate information flow analysis
     const pathLengths: number[] = [];
     const reachability = this.calculateReachability(patternData);
-    
+
     // Calculate average path length for connected components
     for (let i = 0; i < seqLen; i++) {
       for (let j = i + 1; j < seqLen; j++) {
@@ -1046,19 +1074,19 @@ export class SparseAttentionEngine extends BaseMCPServer {
         }
       }
     }
-    
-    const avgPathLength = pathLengths.length > 0 ? 
+
+    const avgPathLength = pathLengths.length > 0 ?
       pathLengths.reduce((sum, len) => sum + len, 0) / pathLengths.length : 0;
-    
+
     return {
       informationFlowMetrics: {
         averagePathLength: avgPathLength,
         reachabilityRatio: reachability,
         maxPathLength: pathLengths.length > 0 ? Math.max(...pathLengths) : 0
       },
-      bottleneckAnalysis: avgPathLength > 5 ? 
+      bottleneckAnalysis: avgPathLength > 5 ?
         ['Long information paths may limit model effectiveness'] : [],
-      recommendedOptimizations: reachability < 0.8 ? 
+      recommendedOptimizations: reachability < 0.8 ?
         ['Add skip connections for better information flow'] : []
     };
   }
@@ -1066,10 +1094,10 @@ export class SparseAttentionEngine extends BaseMCPServer {
   private calculateReachability(pattern: boolean[][]): number {
     const seqLen = pattern.length;
     let reachablePairs = 0;
-    
+
     // Use Floyd-Warshall-like approach to find reachability
     const reach = pattern.map(row => [...row]);
-    
+
     for (let k = 0; k < seqLen; k++) {
       for (let i = 0; i < seqLen; i++) {
         for (let j = 0; j < seqLen; j++) {
@@ -1077,13 +1105,13 @@ export class SparseAttentionEngine extends BaseMCPServer {
         }
       }
     }
-    
+
     for (let i = 0; i < seqLen; i++) {
       for (let j = 0; j < seqLen; j++) {
         if (reach[i][j]) reachablePairs++;
       }
     }
-    
+
     return reachablePairs / (seqLen * seqLen);
   }
 
@@ -1092,14 +1120,14 @@ export class SparseAttentionEngine extends BaseMCPServer {
     const distances = new Array(seqLen).fill(Infinity);
     const queue = [start];
     distances[start] = 0;
-    
+
     while (queue.length > 0) {
       const current = queue.shift()!;
-      
+
       if (current === end) {
         return distances[end];
       }
-      
+
       for (let next = 0; next < seqLen; next++) {
         if (pattern[current][next] && distances[next] === Infinity) {
           distances[next] = distances[current] + 1;
@@ -1107,7 +1135,7 @@ export class SparseAttentionEngine extends BaseMCPServer {
         }
       }
     }
-    
+
     return -1; // not reachable
   }
 
@@ -1136,7 +1164,7 @@ export class SparseAttentionEngine extends BaseMCPServer {
     const efficiency = (results.efficiencyRating * 100).toFixed(1);
     const connectivity = (results.connectivityScore * 100).toFixed(1);
     const locality = (results.localityIndex * 100).toFixed(1);
-    
+
     return `Pattern analysis shows ${efficiency}% efficiency, ${connectivity}% connectivity, and ${locality}% locality. ` +
            `${results.bottleneckAnalysis.length} potential bottlenecks identified. ` +
            `${results.recommendedOptimizations.length} optimization recommendations available.`;
@@ -1144,52 +1172,33 @@ export class SparseAttentionEngine extends BaseMCPServer {
 
   private generateExecutionRecommendations(execution: SparseAttentionExecution, config: SparseAttentionConfig): string[] {
     const recommendations: string[] = [];
-    
+
     if (execution.executionTime > 1000) {
       recommendations.push('Consider more aggressive sparsity for better performance');
     }
-    
+
     if (execution.informationRetention < 0.9) {
       recommendations.push('Quality loss detected - consider less aggressive sparsity');
     }
-    
+
     if (execution.memoryUsage > 1000000000) { // 1GB
       recommendations.push('High memory usage - enable memory-efficient attention variants');
     }
-    
+
     if (execution.sparsityAchieved < config.sparsityRatio * 0.9) {
       recommendations.push('Target sparsity not achieved - review pattern generation');
     }
-    
+
     return recommendations;
   }
 
-  async handleRequest(method: string, params: any): Promise<any> {
-    switch (method) {
-      case 'create_sparse_attention_config':
-        return this.createSparseAttentionConfig(params);
-      case 'generate_attention_pattern':
-        return this.generateAttentionPattern(params);
-      case 'execute_sparse_attention':
-        return this.executeSparseAttention(params);
-      case 'analyze_attention_pattern':
-        return this.analyzeAttentionPattern(params);
-      case 'optimize_sparsity_pattern':
-        return this.optimizeSparsityPattern(params);
-      case 'compare_sparsity_patterns':
-        return this.compareSparsityPatterns(params);
-      case 'adaptive_sparsity_tuning':
-        return this.adaptiveSparsityTuning(params);
-      default:
-        throw new Error(`Unknown method: ${method}`);
-    }
-  }
+  // This method is already implemented above
 
   private async optimizeSparsityPattern(params: any): Promise<any> {
     const { baseConfigId, targetMetrics, constraints = {}, optimizationSteps = 10 } = params;
-    
+
     this.validateRequired(params, ['baseConfigId', 'targetMetrics']);
-    
+
     if (!this.configs.has(baseConfigId)) {
       throw new Error(`Base configuration ${baseConfigId} not found`);
     }
@@ -1227,9 +1236,9 @@ export class SparseAttentionEngine extends BaseMCPServer {
 
   private async compareSparsityPatterns(params: any): Promise<any> {
     const { configIds, comparisonMetrics, testSequenceLengths } = params;
-    
+
     this.validateRequired(params, ['configIds', 'comparisonMetrics']);
-    
+
     const comparison: any = {
       configs: configIds,
       metrics: {},
@@ -1241,7 +1250,7 @@ export class SparseAttentionEngine extends BaseMCPServer {
 
     for (const metric of comparisonMetrics) {
       comparison.metrics[metric] = {};
-      
+
       for (const configId of configIds) {
         if (this.configs.has(configId)) {
           const config = this.configs.get(configId)!;
@@ -1258,9 +1267,9 @@ export class SparseAttentionEngine extends BaseMCPServer {
 
   private async adaptiveSparsityTuning(params: any): Promise<any> {
     const { baseConfigId, inputCharacteristics, performanceGoals = {}, adaptationStrategy = 'balanced' } = params;
-    
+
     this.validateRequired(params, ['baseConfigId', 'inputCharacteristics']);
-    
+
     if (!this.configs.has(baseConfigId)) {
       throw new Error(`Base configuration ${baseConfigId} not found`);
     }
@@ -1299,9 +1308,9 @@ export class SparseAttentionEngine extends BaseMCPServer {
   }
 
   private async simulatePatternOptimization(
-    baseConfig: SparseAttentionConfig, 
-    targetMetrics: any, 
-    constraints: any, 
+    baseConfig: SparseAttentionConfig,
+    targetMetrics: any,
+    constraints: any,
     steps: number
   ): Promise<any> {
     // Simulate iterative optimization
@@ -1315,9 +1324,9 @@ export class SparseAttentionEngine extends BaseMCPServer {
       // Simulate optimization step
       const candidate = currentSparsity + (Math.random() - 0.5) * 0.1;
       const clampedCandidate = Math.max(0.1, Math.min(0.99, candidate));
-      
+
       const score = this.evaluateConfiguration(clampedCandidate, targetMetrics, constraints);
-      
+
       if (score > bestScore) {
         bestScore = score;
         bestSparsity = clampedCandidate;
@@ -1352,16 +1361,16 @@ export class SparseAttentionEngine extends BaseMCPServer {
 
   private evaluateConfiguration(sparsity: number, targetMetrics: any, constraints: any): number {
     let score = 0;
-    
+
     // Score based on target metrics
     if (targetMetrics.speed) {
       score += sparsity * targetMetrics.speed * 0.4;
     }
-    
+
     if (targetMetrics.memory) {
       score += sparsity * targetMetrics.memory * 0.3;
     }
-    
+
     if (targetMetrics.quality) {
       score += (1 - sparsity) * targetMetrics.quality * 0.3;
     }
@@ -1370,7 +1379,7 @@ export class SparseAttentionEngine extends BaseMCPServer {
     if (constraints.maxSparsity && sparsity > constraints.maxSparsity) {
       score *= 0.5;
     }
-    
+
     if (constraints.minQuality && (1 - sparsity) < constraints.minQuality) {
       score *= 0.5;
     }
@@ -1422,7 +1431,7 @@ export class SparseAttentionEngine extends BaseMCPServer {
 
   private generateComparisonSummary(metrics: any, configIds: string[]): any {
     const summary: any = {};
-    
+
     for (const [metric, values] of Object.entries(metrics)) {
       const metricValues = Object.values(values as Record<string, any>);
       if (metricValues.length > 0 && typeof metricValues[0] === 'object') {
@@ -1431,24 +1440,24 @@ export class SparseAttentionEngine extends BaseMCPServer {
         summary[metric] = this.calculateMetrics(allValues);
       }
     }
-    
+
     return summary;
   }
 
   private generateComparisonRecommendations(comparison: any): string[] {
     const recommendations: string[] = [];
-    
+
     recommendations.push('Choose Longformer for document processing tasks');
     recommendations.push('Use BigBird for genomics and scientific applications');
     recommendations.push('Select strided patterns for extremely long sequences');
     recommendations.push('Consider Linformer for resource-constrained environments');
-    
+
     return recommendations;
   }
 
   private calculateAdaptationParameters(
-    inputCharacteristics: any, 
-    performanceGoals: any, 
+    inputCharacteristics: any,
+    performanceGoals: any,
     strategy: string
   ): any {
     const avgSeqLength = inputCharacteristics.averageSequenceLength || 512;
@@ -1485,4 +1494,12 @@ export class SparseAttentionEngine extends BaseMCPServer {
       }
     };
   }
+}
+
+// Start the server if this file is executed directly
+if (process.argv[1] === import.meta.url.substring(7)) {
+  SparseAttentionEngine.main().catch(error => {
+    console.error('Error starting server:', error);
+    process.exit(1);
+  });
 }

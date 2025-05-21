@@ -4,25 +4,25 @@ export interface AttentionPatternConfig {
   id: string;
   name: string;
   analysisType: 'real_time' | 'batch' | 'streaming' | 'comparative';
-  
+
   // Pattern detection parameters
   patternTypes: ('focused' | 'dispersed' | 'structured' | 'random' | 'temporal' | 'spatial' | 'hierarchical')[];
   sensitivityThreshold: number;
   temporalWindowSize: number;
   spatialResolution: number;
-  
+
   // Analysis configuration
   aggregationMethod: 'mean' | 'median' | 'max' | 'weighted_average';
   normalizationStrategy: 'layer_wise' | 'global' | 'head_wise' | 'none';
   outlierDetection: boolean;
   noiseFiltering: boolean;
-  
+
   // Output preferences
   generateHeatmaps: boolean;
   generateStatistics: boolean;
   generateRecommendations: boolean;
   exportFormat: 'json' | 'csv' | 'hdf5' | 'numpy';
-  
+
   createdAt: Date;
   updatedAt: Date;
 }
@@ -33,30 +33,30 @@ export interface AttentionPattern {
   layerIndex: number;
   headIndex: number;
   timestamp: Date;
-  
+
   // Pattern characteristics
   patternType: 'focused' | 'dispersed' | 'structured' | 'random' | 'temporal' | 'spatial' | 'hierarchical';
   confidence: number;
   entropy: number;
   sparsity: number;
-  
+
   // Geometric properties
   focusRegions: FocusRegion[];
   spread: number;
   asymmetry: number;
   periodicity?: number;
-  
+
   // Attention weights summary
   maxWeight: number;
   minWeight: number;
   meanWeight: number;
   stdWeight: number;
-  
+
   // Derived metrics
   informationContent: number;
   alignmentQuality: number;
   noiseLevel: number;
-  
+
   // Raw data
   attentionWeights: number[][];
   normalizedWeights: number[][];
@@ -79,29 +79,29 @@ export interface PatternAnalysisSession {
   sessionId: string;
   configId: string;
   status: 'active' | 'paused' | 'completed' | 'failed';
-  
+
   // Input data
   modelName: string;
   taskType: string;
   datasetInfo: Record<string, any>;
-  
+
   // Progress tracking
   processedLayers: number;
   totalLayers: number;
   processedHeads: number;
   totalHeads: number;
-  
+
   // Collected patterns
   patterns: Map<string, AttentionPattern>;
   layerSummaries: Map<number, LayerPatternSummary>;
   globalStatistics: GlobalPatternStatistics;
-  
+
   // Analysis results
   patternEvolution: TemporalPatternEvolution;
   anomalies: PatternAnomaly[];
   insights: PatternInsight[];
   recommendations: PatternRecommendation[];
-  
+
   createdAt: Date;
   lastUpdated: Date;
 }
@@ -115,7 +115,7 @@ export interface LayerPatternSummary {
   patternConsistency: number;
   informationFlow: number;
   headDiversity: number;
-  
+
   // Per-head statistics
   headStatistics: Array<{
     headIndex: number;
@@ -133,21 +133,21 @@ export interface GlobalPatternStatistics {
   entropyVariance: number;
   averageSparsity: number;
   sparsityVariance: number;
-  
+
   // Cross-layer analysis
   layerSpecialization: Array<{
     layerRange: [number, number];
     specialization: string;
     confidence: number;
   }>;
-  
+
   // Hierarchical patterns
   hierarchicalStructure: Array<{
     level: number;
     patternType: string;
     layers: number[];
   }>;
-  
+
   // Temporal dynamics
   temporalStability: number;
   patternPersistence: Record<string, number>;
@@ -158,7 +158,7 @@ export interface TemporalPatternEvolution {
   patternTypeEvolution: Record<string, number[]>;
   entropyEvolution: number[];
   sparsityEvolution: number[];
-  
+
   // Trend analysis
   trends: Array<{
     metric: string;
@@ -166,7 +166,7 @@ export interface TemporalPatternEvolution {
     confidence: number;
     changeRate: number;
   }>;
-  
+
   // Phase transitions
   phaseTransitions: Array<{
     timePoint: Date;
@@ -180,18 +180,18 @@ export interface PatternAnomaly {
   anomalyId: string;
   type: 'entropy_spike' | 'focus_collapse' | 'pattern_shift' | 'noise_burst' | 'dead_head';
   severity: 'low' | 'medium' | 'high' | 'critical';
-  
+
   // Location information
   layerIndex?: number;
   headIndex?: number;
   timePoint: Date;
-  
+
   // Anomaly characteristics
   description: string;
   affectedRegion: [number, number, number, number];
   magnitude: number;
   duration?: number;
-  
+
   // Context
   possibleCauses: string[];
   impact: string;
@@ -202,7 +202,7 @@ export interface PatternInsight {
   insightId: string;
   category: 'efficiency' | 'attention_quality' | 'model_behavior' | 'task_adaptation';
   importance: 'high' | 'medium' | 'low';
-  
+
   title: string;
   description: string;
   evidence: Array<{
@@ -210,7 +210,7 @@ export interface PatternInsight {
     data: any;
     significance: number;
   }>;
-  
+
   // Actionable recommendations
   actionable: boolean;
   suggestedActions: string[];
@@ -221,7 +221,7 @@ export interface PatternRecommendation {
   recommendationId: string;
   type: 'optimization' | 'architecture' | 'training' | 'debugging';
   priority: 'high' | 'medium' | 'low';
-  
+
   title: string;
   rationale: string;
   implementation: {
@@ -229,13 +229,17 @@ export interface PatternRecommendation {
     effort: 'low' | 'medium' | 'high';
     riskLevel: 'low' | 'medium' | 'high';
   };
-  
+
   expectedBenefits: string[];
   potentialRisks: string[];
   measurableOutcomes: string[];
 }
 
 export class AttentionPatternAnalyzer extends BaseMCPServer {
+  static async main() {
+    const server = new AttentionPatternAnalyzer();
+    await server.start();
+  }
   private configs: Map<string, AttentionPatternConfig> = new Map();
   private sessions: Map<string, PatternAnalysisSession> = new Map();
   private patternDatabase: Map<string, AttentionPattern> = new Map();
@@ -247,6 +251,33 @@ export class AttentionPatternAnalyzer extends BaseMCPServer {
     this.initializeAnomalyDetectors();
     this.setupTools();
   }
+
+  async handleRequest(method: string, params: any): Promise<any> {
+    this.logOperation(method, params);
+
+    switch (method) {
+      case 'create_pattern_analysis_config':
+        return this.createPatternAnalysisConfig(params);
+      case 'start_pattern_analysis_session':
+        return this.startPatternAnalysisSession(params);
+      case 'analyze_attention_patterns':
+        return this.analyzeAttentionPatterns(params);
+      case 'detect_pattern_anomalies':
+        return this.detectPatternAnomalies(params);
+      case 'generate_pattern_insights':
+        return this.generatePatternInsights(params);
+      case 'compare_attention_patterns':
+        return this.compareAttentionPatterns(params);
+      case 'export_pattern_analysis':
+        return this.exportPatternAnalysis(params);
+      default:
+        throw new Error(`Method ${method} not implemented`);
+    }
+  }
+
+  // These methods are already implemented in the handleRequest method
+
+  // These methods are already implemented in the handleRequest method
 
   private initializeStandardConfigs() {
     // Real-time pattern analysis
@@ -374,18 +405,18 @@ export class AttentionPatternAnalyzer extends BaseMCPServer {
         type: 'object',
         properties: {
           name: { type: 'string', description: 'Name for the configuration' },
-          analysisType: { 
-            type: 'string', 
+          analysisType: {
+            type: 'string',
             enum: ['real_time', 'batch', 'streaming', 'comparative'],
-            description: 'Type of pattern analysis' 
+            description: 'Type of pattern analysis'
           },
-          patternTypes: { 
-            type: 'array', 
-            items: { 
+          patternTypes: {
+            type: 'array',
+            items: {
               type: 'string',
               enum: ['focused', 'dispersed', 'structured', 'random', 'temporal', 'spatial', 'hierarchical']
             },
-            description: 'Types of patterns to detect' 
+            description: 'Types of patterns to detect'
           },
           analysisParams: { type: 'object', description: 'Analysis parameters' }
         },
@@ -432,12 +463,12 @@ export class AttentionPatternAnalyzer extends BaseMCPServer {
         type: 'object',
         properties: {
           sessionId: { type: 'string', description: 'Analysis session ID' },
-          detectorTypes: { 
-            type: 'array', 
+          detectorTypes: {
+            type: 'array',
             items: { type: 'string' },
-            description: 'Types of anomaly detectors to use' 
+            description: 'Types of anomaly detectors to use'
           },
-          sensitivityLevel: { 
+          sensitivityLevel: {
             type: 'string',
             enum: ['low', 'medium', 'high'],
             description: 'Sensitivity level for anomaly detection'
@@ -454,13 +485,13 @@ export class AttentionPatternAnalyzer extends BaseMCPServer {
         type: 'object',
         properties: {
           sessionId: { type: 'string', description: 'Analysis session ID' },
-          insightCategories: { 
-            type: 'array', 
-            items: { 
+          insightCategories: {
+            type: 'array',
+            items: {
               type: 'string',
               enum: ['efficiency', 'attention_quality', 'model_behavior', 'task_adaptation']
             },
-            description: 'Categories of insights to generate' 
+            description: 'Categories of insights to generate'
           },
           includeRecommendations: { type: 'boolean', description: 'Include actionable recommendations' }
         },
@@ -475,12 +506,12 @@ export class AttentionPatternAnalyzer extends BaseMCPServer {
         type: 'object',
         properties: {
           sessionIds: { type: 'array', items: { type: 'string' }, description: 'Sessions to compare' },
-          comparisonMetrics: { 
-            type: 'array', 
+          comparisonMetrics: {
+            type: 'array',
             items: { type: 'string' },
-            description: 'Metrics to use for comparison' 
+            description: 'Metrics to use for comparison'
           },
-          analysisDepth: { 
+          analysisDepth: {
             type: 'string',
             enum: ['basic', 'detailed', 'comprehensive'],
             description: 'Depth of comparison analysis'
@@ -497,7 +528,7 @@ export class AttentionPatternAnalyzer extends BaseMCPServer {
         type: 'object',
         properties: {
           sessionId: { type: 'string', description: 'Session to export' },
-          exportFormat: { 
+          exportFormat: {
             type: 'string',
             enum: ['json', 'csv', 'hdf5', 'numpy', 'report'],
             description: 'Export format'
@@ -527,11 +558,11 @@ export class AttentionPatternAnalyzer extends BaseMCPServer {
 
   async createPatternAnalysisConfig(params: any): Promise<any> {
     const { name, analysisType, patternTypes, analysisParams = {} } = params;
-    
+
     this.validateRequired(params, ['name', 'analysisType', 'patternTypes']);
-    
+
     const configId = this.generateId();
-    
+
     const config: AttentionPatternConfig = {
       id: configId,
       name,
@@ -557,19 +588,21 @@ export class AttentionPatternAnalyzer extends BaseMCPServer {
     this.logOperation('create_pattern_analysis_config', params, configId);
 
     return {
+      success: true,
       configId,
       config,
       supportedPatternTypes: this.getSupportedPatternTypes(),
       estimatedPerformance: this.estimateAnalysisPerformance(config),
-      recommendations: this.generateConfigRecommendations(config)
+      recommendations: this.generateConfigRecommendations(config),
+      message: `Pattern analysis configuration '${name}' created successfully`
     };
   }
 
   async startPatternAnalysisSession(params: any): Promise<any> {
     const { configId, modelName, taskType, datasetInfo = {}, sessionOptions = {} } = params;
-    
+
     this.validateRequired(params, ['configId', 'modelName', 'taskType']);
-    
+
     if (!this.configs.has(configId)) {
       throw new Error(`Configuration ${configId} not found`);
     }
@@ -603,6 +636,7 @@ export class AttentionPatternAnalyzer extends BaseMCPServer {
     this.logOperation('start_pattern_analysis_session', params, sessionId);
 
     return {
+      success: true,
       sessionId,
       configId,
       modelName,
@@ -610,15 +644,16 @@ export class AttentionPatternAnalyzer extends BaseMCPServer {
       status: session.status,
       estimatedLayers: session.totalLayers,
       estimatedHeads: session.totalHeads,
-      analysisCapabilities: this.getAnalysisCapabilities(config)
+      analysisCapabilities: this.getAnalysisCapabilities(config),
+      message: `Pattern analysis session started for model '${modelName}'`
     };
   }
 
   async analyzeAttentionPatterns(params: any): Promise<any> {
     const { sessionId, attentionWeights, layerIndex, headIndex, metadata = {} } = params;
-    
+
     this.validateRequired(params, ['sessionId', 'attentionWeights', 'layerIndex']);
-    
+
     if (!this.sessions.has(sessionId)) {
       throw new Error(`Session ${sessionId} not found`);
     }
@@ -634,20 +669,20 @@ export class AttentionPatternAnalyzer extends BaseMCPServer {
     };
 
     // Analyze patterns for specified heads or all heads
-    const headsToAnalyze = headIndex !== undefined ? [headIndex] : 
+    const headsToAnalyze = headIndex !== undefined ? [headIndex] :
       Array.from({ length: attentionWeights.length }, (_, i) => i);
 
     for (const hIdx of headsToAnalyze) {
       if (hIdx < attentionWeights.length) {
         const pattern = await this.analyzeHeadAttentionPattern(
-          attentionWeights[hIdx], 
-          session, 
-          config, 
-          layerIndex, 
-          hIdx, 
+          attentionWeights[hIdx],
+          session,
+          config,
+          layerIndex,
+          hIdx,
           metadata
         );
-        
+
         const patternKey = `${layerIndex}_${hIdx}`;
         session.patterns.set(patternKey, pattern);
         analysisResults.detectedPatterns.push(pattern);
@@ -664,6 +699,7 @@ export class AttentionPatternAnalyzer extends BaseMCPServer {
     this.logOperation('analyze_attention_patterns', params, sessionId);
 
     return {
+      success: true,
       ...analysisResults,
       sessionProgress: {
         processedLayers: session.processedLayers,
@@ -672,15 +708,16 @@ export class AttentionPatternAnalyzer extends BaseMCPServer {
         totalHeads: session.totalHeads,
         completionPercentage: (session.processedHeads / session.totalHeads) * 100
       },
-      layerSummary: session.layerSummaries.get(layerIndex)
+      layerSummary: session.layerSummaries.get(layerIndex),
+      message: `Analyzed ${analysisResults.patternsAnalyzed} attention patterns for layer ${layerIndex}`
     };
   }
 
   async detectPatternAnomalies(params: any): Promise<any> {
     const { sessionId, detectorTypes = ['statistical', 'pattern', 'entropy'], sensitivityLevel = 'medium' } = params;
-    
+
     this.validateRequired(params, ['sessionId']);
-    
+
     if (!this.sessions.has(sessionId)) {
       throw new Error(`Session ${sessionId} not found`);
     }
@@ -692,8 +729,8 @@ export class AttentionPatternAnalyzer extends BaseMCPServer {
     for (const detectorType of detectorTypes) {
       if (this.anomalyDetectors.has(detectorType)) {
         const anomalies = await this.runAnomalyDetector(
-          session, 
-          detectorType, 
+          session,
+          detectorType,
           sensitivityLevel
         );
         detectedAnomalies.push(...anomalies);
@@ -707,6 +744,7 @@ export class AttentionPatternAnalyzer extends BaseMCPServer {
     this.logOperation('detect_pattern_anomalies', params, sessionId);
 
     return {
+      success: true,
       sessionId,
       detectorTypesUsed: detectorTypes,
       sensitivityLevel,
@@ -714,15 +752,16 @@ export class AttentionPatternAnalyzer extends BaseMCPServer {
       totalAnomalies: session.anomalies.length,
       anomaliesBySeverity: this.groupAnomaliesBySeverity(detectedAnomalies),
       criticalAnomalies: detectedAnomalies.filter(a => a.severity === 'critical'),
-      recommendations: this.generateAnomalyRecommendations(detectedAnomalies)
+      recommendations: this.generateAnomalyRecommendations(detectedAnomalies),
+      message: `Detected ${detectedAnomalies.length} anomalies using ${detectorTypes.length} detector types`
     };
   }
 
   async generatePatternInsights(params: any): Promise<any> {
     const { sessionId, insightCategories = ['efficiency', 'attention_quality', 'model_behavior'], includeRecommendations = true } = params;
-    
+
     this.validateRequired(params, ['sessionId']);
-    
+
     if (!this.sessions.has(sessionId)) {
       throw new Error(`Session ${sessionId} not found`);
     }
@@ -737,7 +776,7 @@ export class AttentionPatternAnalyzer extends BaseMCPServer {
     for (const category of insightCategories) {
       const categoryInsights = await this.generateCategoryInsights(session, category);
       insights.push(...categoryInsights);
-      
+
       if (includeRecommendations) {
         const categoryRecommendations = await this.generateCategoryRecommendations(session, category);
         recommendations.push(...categoryRecommendations);
@@ -754,6 +793,7 @@ export class AttentionPatternAnalyzer extends BaseMCPServer {
     this.logOperation('generate_pattern_insights', params, sessionId);
 
     return {
+      success: true,
       sessionId,
       categoriesAnalyzed: insightCategories,
       newInsights: insights.length,
@@ -762,12 +802,13 @@ export class AttentionPatternAnalyzer extends BaseMCPServer {
       newRecommendations: recommendations.length,
       highPriorityRecommendations: recommendations.filter(r => r.priority === 'high'),
       insightsSummary: this.generateInsightsSummary(insights),
-      actionableItems: this.extractActionableItems(insights, recommendations)
+      actionableItems: this.extractActionableItems(insights, recommendations),
+      message: `Generated ${insights.length} insights and ${recommendations.length} recommendations`
     };
   }
 
   private async analyzeHeadAttentionPattern(
-    attentionWeights: number[][], 
+    attentionWeights: number[][],
     session: PatternAnalysisSession,
     config: AttentionPatternConfig,
     layerIndex: number,
@@ -775,37 +816,37 @@ export class AttentionPatternAnalyzer extends BaseMCPServer {
     metadata: any
   ): Promise<AttentionPattern> {
     const patternId = this.generateId();
-    
+
     // Normalize attention weights if needed
     const normalizedWeights = this.normalizeAttentionWeights(attentionWeights, config.normalizationStrategy);
-    
+
     // Calculate basic statistics
     const flatWeights = attentionWeights.flat();
     const maxWeight = Math.max(...flatWeights);
     const minWeight = Math.min(...flatWeights);
     const meanWeight = flatWeights.reduce((sum, w) => sum + w, 0) / flatWeights.length;
     const stdWeight = Math.sqrt(flatWeights.reduce((sum, w) => sum + Math.pow(w - meanWeight, 2), 0) / flatWeights.length);
-    
+
     // Calculate entropy
     const entropy = this.calculateAttentionEntropy(attentionWeights);
-    
+
     // Calculate sparsity
     const sparsity = this.calculateSparsity(attentionWeights);
-    
+
     // Detect pattern type
     const patternType = this.detectPatternType(attentionWeights, config);
-    
+
     // Calculate confidence in pattern detection
     const confidence = this.calculatePatternConfidence(attentionWeights, patternType);
-    
+
     // Find focus regions
     const focusRegions = this.findFocusRegions(attentionWeights, config.sensitivityThreshold);
-    
+
     // Calculate geometric properties
     const spread = this.calculateSpread(attentionWeights);
     const asymmetry = this.calculateAsymmetry(attentionWeights);
     const periodicity = this.detectPeriodicity(attentionWeights);
-    
+
     // Calculate derived metrics
     const informationContent = this.calculateInformationContent(attentionWeights);
     const alignmentQuality = this.calculateAlignmentQuality(attentionWeights);
@@ -868,9 +909,9 @@ export class AttentionPatternAnalyzer extends BaseMCPServer {
     const max = Math.max(...allWeights);
     const min = Math.min(...allWeights);
     const range = max - min;
-    
+
     if (range === 0) return weights;
-    
+
     return weights.map(row => row.map(w => (w - min) / range));
   }
 
@@ -879,15 +920,15 @@ export class AttentionPatternAnalyzer extends BaseMCPServer {
     const allWeights = weights.flat();
     const mean = allWeights.reduce((sum, w) => sum + w, 0) / allWeights.length;
     const std = Math.sqrt(allWeights.reduce((sum, w) => sum + Math.pow(w - mean, 2), 0) / allWeights.length);
-    
+
     if (std === 0) return weights;
-    
+
     return weights.map(row => row.map(w => (w - mean) / std));
   }
 
   private calculateAttentionEntropy(weights: number[][]): number {
     let totalEntropy = 0;
-    
+
     for (const row of weights) {
       let rowEntropy = 0;
       for (const weight of row) {
@@ -897,7 +938,7 @@ export class AttentionPatternAnalyzer extends BaseMCPServer {
       }
       totalEntropy += rowEntropy;
     }
-    
+
     return totalEntropy / weights.length;
   }
 
@@ -905,14 +946,14 @@ export class AttentionPatternAnalyzer extends BaseMCPServer {
     const threshold = 0.01; // weights below this are considered sparse
     let sparseCount = 0;
     let totalCount = 0;
-    
+
     for (const row of weights) {
       for (const weight of row) {
         if (weight < threshold) sparseCount++;
         totalCount++;
       }
     }
-    
+
     return sparseCount / totalCount;
   }
 
@@ -920,7 +961,7 @@ export class AttentionPatternAnalyzer extends BaseMCPServer {
     const entropy = this.calculateAttentionEntropy(weights);
     const sparsity = this.calculateSparsity(weights);
     const focusRegions = this.findFocusRegions(weights, config.sensitivityThreshold);
-    
+
     // Pattern detection heuristics
     if (entropy < 2 && focusRegions.length <= 3) {
       return 'focused';
@@ -957,10 +998,10 @@ export class AttentionPatternAnalyzer extends BaseMCPServer {
     const regions: FocusRegion[] = [];
     const height = weights.length;
     const width = weights[0].length;
-    
+
     // Use connected component labeling to find focus regions
     const visited = Array(height).fill(null).map(() => Array(width).fill(false));
-    
+
     for (let i = 0; i < height; i++) {
       for (let j = 0; j < width; j++) {
         if (weights[i][j] > threshold && !visited[i][j]) {
@@ -971,38 +1012,38 @@ export class AttentionPatternAnalyzer extends BaseMCPServer {
         }
       }
     }
-    
+
     return regions.sort((a, b) => b.intensity - a.intensity);
   }
 
   private extractConnectedRegion(
-    weights: number[][], 
-    startI: number, 
-    startJ: number, 
-    threshold: number, 
+    weights: number[][],
+    startI: number,
+    startJ: number,
+    threshold: number,
     visited: boolean[][]
   ): FocusRegion {
     const stack = [[startI, startJ]];
     const regionCells: [number, number][] = [];
     let totalIntensity = 0;
-    
+
     while (stack.length > 0) {
       const [i, j] = stack.pop()!;
-      
+
       if (i < 0 || i >= weights.length || j < 0 || j >= weights[0].length) continue;
       if (visited[i][j] || weights[i][j] <= threshold) continue;
-      
+
       visited[i][j] = true;
       regionCells.push([i, j]);
       totalIntensity += weights[i][j];
-      
+
       // Add neighbors
       stack.push([i-1, j], [i+1, j], [i, j-1], [i, j+1]);
     }
-    
+
     const area = regionCells.length;
     const intensity = totalIntensity / area;
-    
+
     // Calculate bounding box
     const rows = regionCells.map(cell => cell[0]);
     const cols = regionCells.map(cell => cell[1]);
@@ -1010,11 +1051,11 @@ export class AttentionPatternAnalyzer extends BaseMCPServer {
     const maxRow = Math.max(...rows);
     const minCol = Math.min(...cols);
     const maxCol = Math.max(...cols);
-    
+
     // Calculate center of mass
     const centerRow = rows.reduce((sum, r) => sum + r, 0) / area;
     const centerCol = cols.reduce((sum, c) => sum + c, 0) / area;
-    
+
     return {
       startRow: minRow,
       endRow: maxRow,
@@ -1035,7 +1076,7 @@ export class AttentionPatternAnalyzer extends BaseMCPServer {
     let totalWeight = 0;
     let weightedRowSum = 0;
     let weightedColSum = 0;
-    
+
     for (let i = 0; i < height; i++) {
       for (let j = 0; j < width; j++) {
         const weight = weights[i][j];
@@ -1044,12 +1085,12 @@ export class AttentionPatternAnalyzer extends BaseMCPServer {
         weightedColSum += weight * j;
       }
     }
-    
+
     if (totalWeight === 0) return 0;
-    
+
     const centerRow = weightedRowSum / totalWeight;
     const centerCol = weightedColSum / totalWeight;
-    
+
     let spreadSum = 0;
     for (let i = 0; i < height; i++) {
       for (let j = 0; j < width; j++) {
@@ -1058,7 +1099,7 @@ export class AttentionPatternAnalyzer extends BaseMCPServer {
         spreadSum += weight * distance;
       }
     }
-    
+
     return spreadSum / totalWeight;
   }
 
@@ -1067,7 +1108,7 @@ export class AttentionPatternAnalyzer extends BaseMCPServer {
     const size = Math.min(weights.length, weights[0].length);
     let upperSum = 0;
     let lowerSum = 0;
-    
+
     for (let i = 0; i < size; i++) {
       for (let j = 0; j < size; j++) {
         if (i < j) {
@@ -1077,7 +1118,7 @@ export class AttentionPatternAnalyzer extends BaseMCPServer {
         }
       }
     }
-    
+
     const totalSum = upperSum + lowerSum;
     return totalSum > 0 ? Math.abs(upperSum - lowerSum) / totalSum : 0;
   }
@@ -1086,29 +1127,29 @@ export class AttentionPatternAnalyzer extends BaseMCPServer {
     // Simple periodicity detection using autocorrelation
     const firstRow = weights[0];
     const n = firstRow.length;
-    
+
     if (n < 4) return undefined;
-    
+
     let bestPeriod: number | undefined;
     let maxCorrelation = 0;
-    
+
     for (let period = 2; period <= n / 2; period++) {
       let correlation = 0;
       let count = 0;
-      
+
       for (let i = 0; i < n - period; i++) {
         correlation += firstRow[i] * firstRow[i + period];
         count++;
       }
-      
+
       correlation /= count;
-      
+
       if (correlation > maxCorrelation && correlation > 0.5) {
         maxCorrelation = correlation;
         bestPeriod = period;
       }
     }
-    
+
     return bestPeriod;
   }
 
@@ -1122,14 +1163,14 @@ export class AttentionPatternAnalyzer extends BaseMCPServer {
   private calculateAlignmentQuality(weights: number[][]): number {
     // Quality of alignment based on peak sharpness and consistency
     let totalQuality = 0;
-    
+
     for (const row of weights) {
       const max = Math.max(...row);
       const mean = row.reduce((sum, w) => sum + w, 0) / row.length;
       const quality = max / (mean + 1e-8); // avoid division by zero
       totalQuality += Math.min(quality, 10); // cap at 10 to avoid extreme values
     }
-    
+
     return totalQuality / weights.length;
   }
 
@@ -1137,7 +1178,7 @@ export class AttentionPatternAnalyzer extends BaseMCPServer {
     // Estimate noise level based on high-frequency components
     let noiseSum = 0;
     let count = 0;
-    
+
     for (let i = 0; i < weights.length; i++) {
       for (let j = 1; j < weights[i].length - 1; j++) {
         // Second derivative as noise indicator
@@ -1146,14 +1187,14 @@ export class AttentionPatternAnalyzer extends BaseMCPServer {
         count++;
       }
     }
-    
+
     return count > 0 ? noiseSum / count : 0;
   }
 
   private detectStructuralPattern(weights: number[][]): boolean {
     // Detect structural patterns like diagonal, block, or banded structures
-    return this.detectDiagonalPattern(weights) || 
-           this.detectBlockPattern(weights) || 
+    return this.detectDiagonalPattern(weights) ||
+           this.detectBlockPattern(weights) ||
            this.detectBandedPattern(weights);
   }
 
@@ -1161,7 +1202,7 @@ export class AttentionPatternAnalyzer extends BaseMCPServer {
     const minSize = Math.min(weights.length, weights[0].length);
     let diagonalSum = 0;
     let totalSum = 0;
-    
+
     for (let i = 0; i < weights.length; i++) {
       for (let j = 0; j < weights[i].length; j++) {
         totalSum += weights[i][j];
@@ -1170,7 +1211,7 @@ export class AttentionPatternAnalyzer extends BaseMCPServer {
         }
       }
     }
-    
+
     return totalSum > 0 && (diagonalSum / totalSum) > 0.3;
   }
 
@@ -1178,10 +1219,10 @@ export class AttentionPatternAnalyzer extends BaseMCPServer {
     // Simple block pattern detection
     const blockSize = Math.floor(Math.min(weights.length, weights[0].length) / 4);
     if (blockSize < 2) return false;
-    
+
     let blockSum = 0;
     let totalSum = 0;
-    
+
     for (let i = 0; i < weights.length; i++) {
       for (let j = 0; j < weights[i].length; j++) {
         totalSum += weights[i][j];
@@ -1192,7 +1233,7 @@ export class AttentionPatternAnalyzer extends BaseMCPServer {
         }
       }
     }
-    
+
     return totalSum > 0 && (blockSum / totalSum) > 0.4;
   }
 
@@ -1200,7 +1241,7 @@ export class AttentionPatternAnalyzer extends BaseMCPServer {
     const bandwidth = 3;
     let bandSum = 0;
     let totalSum = 0;
-    
+
     for (let i = 0; i < weights.length; i++) {
       for (let j = 0; j < weights[i].length; j++) {
         totalSum += weights[i][j];
@@ -1209,18 +1250,18 @@ export class AttentionPatternAnalyzer extends BaseMCPServer {
         }
       }
     }
-    
+
     return totalSum > 0 && (bandSum / totalSum) > 0.5;
   }
 
   private detectTemporalPattern(weights: number[][]): boolean {
     // Detect temporal patterns in attention
     if (weights.length < 4) return false;
-    
+
     // Look for patterns where attention focuses on recent positions
     let recentBias = 0;
     let totalCount = 0;
-    
+
     for (let i = 0; i < weights.length; i++) {
       for (let j = Math.max(0, i - 3); j <= i; j++) {
         if (j < weights[i].length) {
@@ -1229,10 +1270,10 @@ export class AttentionPatternAnalyzer extends BaseMCPServer {
         }
       }
     }
-    
+
     const avgRecentAttention = recentBias / totalCount;
     const avgTotalAttention = weights.flat().reduce((sum, w) => sum + w, 0) / weights.flat().length;
-    
+
     return avgRecentAttention > avgTotalAttention * 1.5;
   }
 
@@ -1241,16 +1282,16 @@ export class AttentionPatternAnalyzer extends BaseMCPServer {
     let localSum = 0;
     let totalSum = 0;
     const neighborhoodSize = 2;
-    
+
     for (let i = 0; i < weights.length; i++) {
       for (let j = 0; j < weights[i].length; j++) {
         totalSum += weights[i][j];
-        
+
         // Check if weight is high and neighbors are also high
         if (weights[i][j] > 0.1) {
           let neighborSum = 0;
           let neighborCount = 0;
-          
+
           for (let di = -neighborhoodSize; di <= neighborhoodSize; di++) {
             for (let dj = -neighborhoodSize; dj <= neighborhoodSize; dj++) {
               const ni = i + di;
@@ -1261,14 +1302,14 @@ export class AttentionPatternAnalyzer extends BaseMCPServer {
               }
             }
           }
-          
+
           if (neighborCount > 0 && (neighborSum / neighborCount) > 0.05) {
             localSum += weights[i][j];
           }
         }
       }
     }
-    
+
     return totalSum > 0 && (localSum / totalSum) > 0.3;
   }
 
@@ -1276,40 +1317,40 @@ export class AttentionPatternAnalyzer extends BaseMCPServer {
     // Detect hierarchical patterns at multiple scales
     const scales = [2, 4, 8];
     let hierarchicalScore = 0;
-    
+
     for (const scale of scales) {
       const score = this.calculateHierarchicalScore(weights, scale);
       hierarchicalScore += score;
     }
-    
+
     return hierarchicalScore / scales.length > 0.4;
   }
 
   private calculateHierarchicalScore(weights: number[][], scale: number): number {
     if (weights.length < scale || weights[0].length < scale) return 0;
-    
+
     let scaleSum = 0;
     let totalSum = 0;
-    
+
     for (let i = 0; i < weights.length; i += scale) {
       for (let j = 0; j < weights[i].length; j += scale) {
         // Average within each scale block
         let blockSum = 0;
         let blockCount = 0;
-        
+
         for (let di = 0; di < scale && i + di < weights.length; di++) {
           for (let dj = 0; dj < scale && j + dj < weights[i].length; dj++) {
             blockSum += weights[i + di][j + dj];
             blockCount++;
           }
         }
-        
+
         const blockAvg = blockCount > 0 ? blockSum / blockCount : 0;
         scaleSum += blockAvg * blockCount;
         totalSum += blockSum;
       }
     }
-    
+
     return totalSum > 0 ? scaleSum / totalSum : 0;
   }
 
@@ -1326,38 +1367,17 @@ export class AttentionPatternAnalyzer extends BaseMCPServer {
 
   private calculateStructuralConfidence(weights: number[][]): number {
     let structuralScore = 0;
-    
+
     if (this.detectDiagonalPattern(weights)) structuralScore += 0.4;
     if (this.detectBlockPattern(weights)) structuralScore += 0.3;
     if (this.detectBandedPattern(weights)) structuralScore += 0.3;
-    
+
     return Math.min(structuralScore, 1.0);
   }
 
   // Continue with remaining methods...
-  
-  async handleRequest(method: string, params: any): Promise<any> {
-    switch (method) {
-      case 'create_pattern_analysis_config':
-        return this.createPatternAnalysisConfig(params);
-      case 'start_pattern_analysis_session':
-        return this.startPatternAnalysisSession(params);
-      case 'analyze_attention_patterns':
-        return this.analyzeAttentionPatterns(params);
-      case 'detect_pattern_anomalies':
-        return this.detectPatternAnomalies(params);
-      case 'generate_pattern_insights':
-        return this.generatePatternInsights(params);
-      case 'compare_attention_patterns':
-        return this.compareAttentionPatterns(params);
-      case 'export_pattern_analysis':
-        return this.exportPatternAnalysis(params);
-      case 'real_time_pattern_monitoring':
-        return this.realTimePatternMonitoring(params);
-      default:
-        throw new Error(`Unknown method: ${method}`);
-    }
-  }
+
+  // This method is already implemented above
 
   // Helper methods for session management and analysis
   private initializeGlobalStatistics(): GlobalPatternStatistics {
@@ -1404,18 +1424,18 @@ export class AttentionPatternAnalyzer extends BaseMCPServer {
 
     const layerSummary = session.layerSummaries.get(layerIndex)!;
     layerSummary.numHeads = patterns.length;
-    
+
     // Calculate averages
     layerSummary.averageEntropy = patterns.reduce((sum, p) => sum + p.entropy, 0) / patterns.length;
     layerSummary.averageSparsity = patterns.reduce((sum, p) => sum + p.sparsity, 0) / patterns.length;
-    
+
     // Find dominant pattern type
     const patternCounts = patterns.reduce((counts, pattern) => {
       counts[pattern.patternType] = (counts[pattern.patternType] || 0) + 1;
       return counts;
     }, {} as Record<string, number>);
-    
-    layerSummary.dominantPatternType = Object.keys(patternCounts).reduce((a, b) => 
+
+    layerSummary.dominantPatternType = Object.keys(patternCounts).reduce((a, b) =>
       patternCounts[a] > patternCounts[b] ? a : b
     );
 
@@ -1430,22 +1450,22 @@ export class AttentionPatternAnalyzer extends BaseMCPServer {
 
     // Update global statistics
     session.globalStatistics.totalPatterns += patterns.length;
-    
+
     for (const pattern of patterns) {
       const type = pattern.patternType;
-      session.globalStatistics.patternDistribution[type] = 
+      session.globalStatistics.patternDistribution[type] =
         (session.globalStatistics.patternDistribution[type] || 0) + 1;
     }
   }
 
   private async runAnomalyDetector(
-    session: PatternAnalysisSession, 
-    detectorType: string, 
+    session: PatternAnalysisSession,
+    detectorType: string,
     sensitivityLevel: string
   ): Promise<PatternAnomaly[]> {
     const detector = this.anomalyDetectors.get(detectorType)!;
     const anomalies: PatternAnomaly[] = [];
-    
+
     // Adjust sensitivity based on level
     const sensitivityMultiplier = {
       'low': 0.5,
@@ -1471,16 +1491,16 @@ export class AttentionPatternAnalyzer extends BaseMCPServer {
   private runStatisticalAnomalyDetection(session: PatternAnalysisSession, detector: any, sensitivity: number): PatternAnomaly[] {
     const anomalies: PatternAnomaly[] = [];
     const patterns = Array.from(session.patterns.values());
-    
+
     if (patterns.length < 10) return anomalies; // need sufficient data
-    
+
     // Check for entropy outliers
     const entropies = patterns.map(p => p.entropy);
     const entropyMean = entropies.reduce((sum, e) => sum + e, 0) / entropies.length;
     const entropyStd = Math.sqrt(entropies.reduce((sum, e) => sum + Math.pow(e - entropyMean, 2), 0) / entropies.length);
-    
+
     const threshold = detector.parameters.zscore_threshold * sensitivity;
-    
+
     for (const pattern of patterns) {
       const zScore = Math.abs(pattern.entropy - entropyMean) / entropyStd;
       if (zScore > threshold) {
@@ -1500,20 +1520,20 @@ export class AttentionPatternAnalyzer extends BaseMCPServer {
         });
       }
     }
-    
+
     return anomalies;
   }
 
   private runPatternAnomalyDetection(session: PatternAnalysisSession, detector: any, sensitivity: number): PatternAnomaly[] {
     const anomalies: PatternAnomaly[] = [];
-    
+
     // Check for sudden pattern type changes
     const layerSummaries = Array.from(session.layerSummaries.values()).sort((a, b) => a.layerIndex - b.layerIndex);
-    
+
     for (let i = 1; i < layerSummaries.length; i++) {
       const prev = layerSummaries[i - 1];
       const curr = layerSummaries[i];
-      
+
       if (prev.dominantPatternType !== curr.dominantPatternType) {
         const consistencyDrop = Math.abs(prev.patternConsistency - curr.patternConsistency);
         if (consistencyDrop > detector.parameters.deviation_threshold * sensitivity) {
@@ -1533,17 +1553,17 @@ export class AttentionPatternAnalyzer extends BaseMCPServer {
         }
       }
     }
-    
+
     return anomalies;
   }
 
   private runEntropyAnomalyDetection(session: PatternAnalysisSession, detector: any, sensitivity: number): PatternAnomaly[] {
     const anomalies: PatternAnomaly[] = [];
     const patterns = Array.from(session.patterns.values());
-    
+
     // Check for dead heads (very low entropy, indicating no learning)
     const entropyThreshold = detector.parameters.entropy_threshold * sensitivity;
-    
+
     for (const pattern of patterns) {
       if (pattern.entropy < entropyThreshold && pattern.maxWeight < 0.1) {
         anomalies.push({
@@ -1562,13 +1582,13 @@ export class AttentionPatternAnalyzer extends BaseMCPServer {
         });
       }
     }
-    
+
     return anomalies;
   }
 
   private async generateCategoryInsights(session: PatternAnalysisSession, category: string): Promise<PatternInsight[]> {
     const insights: PatternInsight[] = [];
-    
+
     switch (category) {
       case 'efficiency':
         insights.push(...this.generateEfficiencyInsights(session));
@@ -1583,16 +1603,16 @@ export class AttentionPatternAnalyzer extends BaseMCPServer {
         insights.push(...this.generateAdaptationInsights(session));
         break;
     }
-    
+
     return insights;
   }
 
   private generateEfficiencyInsights(session: PatternAnalysisSession): PatternInsight[] {
     const insights: PatternInsight[] = [];
     const patterns = Array.from(session.patterns.values());
-    
+
     const avgSparsity = patterns.reduce((sum, p) => sum + p.sparsity, 0) / patterns.length;
-    
+
     if (avgSparsity > 0.7) {
       insights.push({
         insightId: this.generateId(),
@@ -1608,16 +1628,16 @@ export class AttentionPatternAnalyzer extends BaseMCPServer {
         expectedImpact: 'Reduced computational cost and memory usage'
       });
     }
-    
+
     return insights;
   }
 
   private generateQualityInsights(session: PatternAnalysisSession): PatternInsight[] {
     const insights: PatternInsight[] = [];
     const patterns = Array.from(session.patterns.values());
-    
+
     const avgAlignmentQuality = patterns.reduce((sum, p) => sum + p.alignmentQuality, 0) / patterns.length;
-    
+
     if (avgAlignmentQuality < 2.0) {
       insights.push({
         insightId: this.generateId(),
@@ -1633,19 +1653,19 @@ export class AttentionPatternAnalyzer extends BaseMCPServer {
         expectedImpact: 'Improved model interpretability and focus'
       });
     }
-    
+
     return insights;
   }
 
   private generateBehaviorInsights(session: PatternAnalysisSession): PatternInsight[] {
     const insights: PatternInsight[] = [];
-    
+
     // Analyze pattern distribution across layers
     const layerSummaries = Array.from(session.layerSummaries.values());
     const patternProgression = layerSummaries.map(ls => ls.dominantPatternType);
-    
+
     const progressionTypes = Array.from(new Set(patternProgression));
-    
+
     if (progressionTypes.length === 1) {
       insights.push({
         insightId: this.generateId(),
@@ -1661,19 +1681,19 @@ export class AttentionPatternAnalyzer extends BaseMCPServer {
         expectedImpact: 'Better layer utilization and model capacity'
       });
     }
-    
+
     return insights;
   }
 
   private generateAdaptationInsights(session: PatternAnalysisSession): PatternInsight[] {
     const insights: PatternInsight[] = [];
-    
+
     // Check if patterns are task-appropriate
     if (session.taskType === 'translation') {
       const patterns = Array.from(session.patterns.values());
       const structuredPatterns = patterns.filter(p => p.patternType === 'structured').length;
       const structuredRatio = structuredPatterns / patterns.length;
-      
+
       if (structuredRatio > 0.6) {
         insights.push({
           insightId: this.generateId(),
@@ -1690,16 +1710,16 @@ export class AttentionPatternAnalyzer extends BaseMCPServer {
         });
       }
     }
-    
+
     return insights;
   }
 
   private async generateCategoryRecommendations(session: PatternAnalysisSession, category: string): Promise<PatternRecommendation[]> {
     const recommendations: PatternRecommendation[] = [];
-    
+
     // Generate recommendations based on insights and anomalies
     const anomalies = session.anomalies.filter(a => a.severity === 'high');
-    
+
     if (anomalies.length > 0) {
       recommendations.push({
         recommendationId: this.generateId(),
@@ -1721,7 +1741,7 @@ export class AttentionPatternAnalyzer extends BaseMCPServer {
         measurableOutcomes: ['Reduced anomaly count', 'Improved attention metrics']
       });
     }
-    
+
     return recommendations;
   }
 
@@ -1734,22 +1754,22 @@ export class AttentionPatternAnalyzer extends BaseMCPServer {
 
   private generateAnomalyRecommendations(anomalies: PatternAnomaly[]): string[] {
     const recommendations: string[] = [];
-    
+
     const criticalAnomalies = anomalies.filter(a => a.severity === 'critical');
     if (criticalAnomalies.length > 0) {
       recommendations.push('Immediate investigation required for critical anomalies');
     }
-    
+
     const deadHeads = anomalies.filter(a => a.type === 'dead_head');
     if (deadHeads.length > 0) {
       recommendations.push('Consider reinitializing or pruning dead attention heads');
     }
-    
+
     const entropySpikes = anomalies.filter(a => a.type === 'entropy_spike');
     if (entropySpikes.length > 0) {
       recommendations.push('Monitor training stability and input data quality');
     }
-    
+
     return recommendations;
   }
 
@@ -1759,7 +1779,7 @@ export class AttentionPatternAnalyzer extends BaseMCPServer {
 
   private estimateAnalysisPerformance(config: AttentionPatternConfig): any {
     const complexity = config.patternTypes.length * config.temporalWindowSize;
-    
+
     return {
       analysisSpeed: complexity < 100 ? 'fast' : complexity < 500 ? 'medium' : 'slow',
       memoryUsage: complexity < 100 ? 'low' : complexity < 500 ? 'medium' : 'high',
@@ -1769,44 +1789,44 @@ export class AttentionPatternAnalyzer extends BaseMCPServer {
 
   private generateConfigRecommendations(config: AttentionPatternConfig): string[] {
     const recommendations: string[] = [];
-    
+
     if (config.sensitivityThreshold > 0.2) {
       recommendations.push('Consider lowering sensitivity threshold for better pattern detection');
     }
-    
+
     if (config.patternTypes.length > 5) {
       recommendations.push('Large number of pattern types may reduce detection accuracy');
     }
-    
+
     if (config.analysisType === 'real_time' && config.temporalWindowSize > 100) {
       recommendations.push('Large temporal window may impact real-time performance');
     }
-    
+
     return recommendations;
   }
 
   private getAnalysisCapabilities(config: AttentionPatternConfig): string[] {
     const capabilities = ['pattern_detection', 'entropy_analysis'];
-    
+
     if (config.outlierDetection) capabilities.push('anomaly_detection');
     if (config.generateHeatmaps) capabilities.push('visualization');
     if (config.generateRecommendations) capabilities.push('optimization_suggestions');
     if (config.analysisType === 'real_time') capabilities.push('real_time_monitoring');
-    
+
     return capabilities;
   }
 
   private generateInsightsSummary(insights: PatternInsight[]): string {
     const highPriority = insights.filter(i => i.importance === 'high').length;
     const actionable = insights.filter(i => i.actionable).length;
-    
+
     return `Generated ${insights.length} insights: ${highPriority} high-priority, ${actionable} actionable`;
   }
 
   private extractActionableItems(insights: PatternInsight[], recommendations: PatternRecommendation[]): any[] {
     const actionableInsights = insights.filter(i => i.actionable);
     const highPriorityRecommendations = recommendations.filter(r => r.priority === 'high');
-    
+
     return [
       ...actionableInsights.map(insight => ({
         type: 'insight',
@@ -1824,18 +1844,12 @@ export class AttentionPatternAnalyzer extends BaseMCPServer {
   }
 
   // Additional methods for remaining tools would be implemented here...
-  private async compareAttentionPatterns(params: any): Promise<any> {
-    // Implementation for pattern comparison
-    return { message: 'Pattern comparison functionality' };
-  }
+}
 
-  private async exportPatternAnalysis(params: any): Promise<any> {
-    // Implementation for export functionality
-    return { message: 'Export functionality' };
-  }
-
-  private async realTimePatternMonitoring(params: any): Promise<any> {
-    // Implementation for real-time monitoring
-    return { message: 'Real-time monitoring functionality' };
-  }
+// Start the server if this file is executed directly
+if (process.argv[1] === import.meta.url.substring(7)) {
+  AttentionPatternAnalyzer.main().catch(error => {
+    console.error('Error starting server:', error);
+    process.exit(1);
+  });
 }

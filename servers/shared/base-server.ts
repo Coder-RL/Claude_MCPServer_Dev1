@@ -6,6 +6,7 @@ import {
   Tool,
   CallToolResult,
 } from '@modelcontextprotocol/sdk/types.js';
+import * as http from 'http';
 
 export interface MCPTool {
   name: string;
@@ -18,6 +19,8 @@ export abstract class BaseMCPServer {
   protected tools: Map<string, MCPTool> = new Map();
   protected name: string;
   protected description: string;
+  protected httpServer: http.Server;
+  protected port: number = 8000;
 
   constructor(name: string, description: string) {
     this.name = name;
@@ -35,6 +38,101 @@ export abstract class BaseMCPServer {
     );
 
     this.setupBaseHandlers();
+    this.setupHttpServer();
+  }
+
+  private setupHttpServer(): void {
+    this.httpServer = http.createServer(async (req, res) => {
+      // Set CORS headers
+      res.setHeader('Access-Control-Allow-Origin', '*');
+      res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+      res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+      // Handle preflight requests
+      if (req.method === 'OPTIONS') {
+        res.writeHead(204);
+        res.end();
+        return;
+      }
+
+      // Parse URL
+      const url = new URL(req.url || '/', `http://${req.headers.host}`);
+      const path = url.pathname;
+
+      try {
+        // Health check endpoint
+        if (path === '/health') {
+          res.writeHead(200, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ status: 'healthy', name: this.name }));
+          return;
+        }
+
+        // List tools endpoint
+        if (path === '/tools') {
+          const toolNames = Array.from(this.tools.keys());
+
+          res.writeHead(200, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ tools: toolNames }));
+          return;
+        }
+
+        // Call tool endpoint
+        if (path.startsWith('/tools/') && req.method === 'POST') {
+          const toolName = path.substring('/tools/'.length);
+
+          if (!this.tools.has(toolName)) {
+            res.writeHead(404, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({
+              success: false,
+              error: `Tool ${toolName} not found`
+            }));
+            return;
+          }
+
+          // Parse request body
+          let body = '';
+          req.on('data', chunk => {
+            body += chunk.toString();
+          });
+
+          req.on('end', async () => {
+            try {
+              const params = body ? JSON.parse(body) : {};
+              const result = await this.handleRequest(toolName, params);
+
+              // Ensure result has success field
+              if (result && typeof result === 'object' && !('success' in result)) {
+                result.success = true;
+              }
+
+              res.writeHead(200, { 'Content-Type': 'application/json' });
+              res.end(JSON.stringify(result));
+            } catch (error) {
+              res.writeHead(500, { 'Content-Type': 'application/json' });
+              res.end(JSON.stringify({
+                success: false,
+                error: `Error executing ${toolName}: ${error instanceof Error ? error.message : String(error)}`
+              }));
+            }
+          });
+
+          return;
+        }
+
+        // Not found
+        res.writeHead(404, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({
+          success: false,
+          error: 'Not found'
+        }));
+      } catch (error) {
+        res.writeHead(500, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({
+          success: false,
+          error: `Server error: ${error instanceof Error ? error.message : String(error)}`
+        }));
+      }
+    });
   }
 
   protected addTool(tool: MCPTool): void {
@@ -61,7 +159,7 @@ export abstract class BaseMCPServer {
 
       try {
         const result = await this.handleRequest(name, args);
-        
+
         return {
           content: [
             {
@@ -79,6 +177,15 @@ export abstract class BaseMCPServer {
   abstract handleRequest(method: string, params: any): Promise<any>;
 
   async start(): Promise<void> {
+    // Get port from environment variable or use default
+    this.port = parseInt(process.env.PORT || '8000', 10);
+
+    // Start HTTP server
+    this.httpServer.listen(this.port, () => {
+      console.error(`${this.name} HTTP server listening on port ${this.port}`);
+    });
+
+    // Start MCP server
     const transport = new StdioServerTransport();
     await this.server.connect(transport);
     console.error(`${this.name} MCP server started`);
@@ -107,11 +214,11 @@ export abstract class BaseMCPServer {
 
   protected calculateMetrics(data: number[]): { mean: number; std: number; min: number; max: number } {
     if (data.length === 0) return { mean: 0, std: 0, min: 0, max: 0 };
-    
+
     const mean = data.reduce((sum, val) => sum + val, 0) / data.length;
     const variance = data.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) / data.length;
     const std = Math.sqrt(variance);
-    
+
     return {
       mean,
       std,
@@ -124,12 +231,12 @@ export abstract class BaseMCPServer {
     const units = ['B', 'KB', 'MB', 'GB', 'TB'];
     let size = bytes;
     let unitIndex = 0;
-    
+
     while (size >= 1024 && unitIndex < units.length - 1) {
       size /= 1024;
       unitIndex++;
     }
-    
+
     return `${size.toFixed(2)} ${units[unitIndex]}`;
   }
 
@@ -137,7 +244,7 @@ export abstract class BaseMCPServer {
     const seconds = Math.floor(milliseconds / 1000);
     const minutes = Math.floor(seconds / 60);
     const hours = Math.floor(minutes / 60);
-    
+
     if (hours > 0) {
       return `${hours}h ${minutes % 60}m ${seconds % 60}s`;
     } else if (minutes > 0) {
