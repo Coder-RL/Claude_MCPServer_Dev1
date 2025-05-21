@@ -705,7 +705,6 @@ export class PromptTemplateEngine {
     });
   }
 
-  @withPerformanceMonitoring('prompt-templates.generate')
   async generatePrompt(
     templateId: string,
     variables: Record<string, any>,
@@ -755,7 +754,6 @@ export class PromptTemplateEngine {
     return result;
   }
 
-  @withPerformanceMonitoring('prompt-templates.select-best')
   async selectBestTemplate(context: PromptContext): Promise<PromptTemplate> {
     const candidates = this.findCandidateTemplates(context);
     

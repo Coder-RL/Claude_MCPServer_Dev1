@@ -146,7 +146,6 @@ export class DeploymentOrchestrator {
     });
   }
 
-  @withPerformanceMonitoring('deployment-orchestrator.create-environment')
   async createEnvironment(environment: Omit<DeploymentEnvironment, 'id' | 'status' | 'created'>): Promise<string> {
     try {
       const id = `env_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
@@ -167,7 +166,6 @@ export class DeploymentOrchestrator {
     }
   }
 
-  @withPerformanceMonitoring('deployment-orchestrator.create-strategy')
   async createDeploymentStrategy(strategy: Omit<DeploymentStrategy, 'id'>): Promise<string> {
     try {
       const id = `strategy_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
@@ -186,7 +184,6 @@ export class DeploymentOrchestrator {
     }
   }
 
-  @withPerformanceMonitoring('deployment-orchestrator.create-plan')
   async createDeploymentPlan(plan: Omit<DeploymentPlan, 'id' | 'created' | 'status'>): Promise<string> {
     try {
       if (!this.environments.has(plan.environment)) {
@@ -215,8 +212,6 @@ export class DeploymentOrchestrator {
     }
   }
 
-  @withRetry({ maxAttempts: 3, delayMs: 1000 })
-  @withPerformanceMonitoring('deployment-orchestrator.deploy')
   async deployPlan(planId: string, options: {
     dryRun?: boolean;
     autoApprove?: boolean;
@@ -268,7 +263,6 @@ export class DeploymentOrchestrator {
     }
   }
 
-  @withPerformanceMonitoring('deployment-orchestrator.rollback')
   async rollbackDeployment(planId: string, targetVersion?: string): Promise<string> {
     try {
       const plan = this.deploymentPlans.get(planId);
@@ -293,7 +287,6 @@ export class DeploymentOrchestrator {
     }
   }
 
-  @withPerformanceMonitoring('deployment-orchestrator.monitor-health')
   async monitorDeploymentHealth(planId: string): Promise<{
     overall: 'healthy' | 'degraded' | 'unhealthy';
     services: Array<{
@@ -336,7 +329,6 @@ export class DeploymentOrchestrator {
     }
   }
 
-  @withPerformanceMonitoring('deployment-orchestrator.scale-service')
   async scaleService(planId: string, serviceName: string, replicas: number): Promise<void> {
     try {
       const plan = this.deploymentPlans.get(planId);

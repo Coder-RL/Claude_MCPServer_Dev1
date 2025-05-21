@@ -209,7 +209,6 @@ export class LoadBalancingService {
     this.healthChecker = new HealthChecker();
   }
 
-  @withPerformanceMonitoring('load-balancing.create-load-balancer')
   async createLoadBalancer(loadBalancer: Omit<LoadBalancer, 'id' | 'created' | 'updated'>): Promise<string> {
     try {
       const id = `lb_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
@@ -233,7 +232,6 @@ export class LoadBalancingService {
     }
   }
 
-  @withPerformanceMonitoring('load-balancing.create-auto-scaling-group')
   async createAutoScalingGroup(group: Omit<AutoScalingGroup, 'id' | 'created' | 'updated' | 'currentInstances'>): Promise<string> {
     try {
       const id = `asg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
@@ -258,8 +256,6 @@ export class LoadBalancingService {
     }
   }
 
-  @withRetry({ maxAttempts: 3, delayMs: 100 })
-  @withPerformanceMonitoring('load-balancing.route-request')
   async routeRequest(loadBalancerId: string, request: {
     clientIp: string;
     headers: Record<string, string>;
@@ -309,7 +305,6 @@ export class LoadBalancingService {
     }
   }
 
-  @withPerformanceMonitoring('load-balancing.check-scaling')
   async checkScalingConditions(autoScalingGroupId: string): Promise<{
     shouldScale: boolean;
     direction?: 'up' | 'down';
@@ -352,7 +347,6 @@ export class LoadBalancingService {
     }
   }
 
-  @withPerformanceMonitoring('load-balancing.scale-group')
   async scaleAutoScalingGroup(autoScalingGroupId: string, desiredCapacity: number, reason: string): Promise<string> {
     try {
       const group = this.autoScalingGroups.get(autoScalingGroupId);
@@ -413,7 +407,6 @@ export class LoadBalancingService {
     }
   }
 
-  @withPerformanceMonitoring('load-balancing.update-target-health')
   async updateTargetHealth(loadBalancerId: string, targetId: string, isHealthy: boolean): Promise<void> {
     try {
       const loadBalancer = this.loadBalancers.get(loadBalancerId);
@@ -441,7 +434,6 @@ export class LoadBalancingService {
     }
   }
 
-  @withPerformanceMonitoring('load-balancing.get-metrics')
   async getLoadBalancingMetrics(loadBalancerId: string, options: {
     from?: Date;
     to?: Date;
@@ -469,7 +461,6 @@ export class LoadBalancingService {
     }
   }
 
-  @withPerformanceMonitoring('load-balancing.get-scaling-history')
   async getScalingHistory(autoScalingGroupId: string, options: {
     from?: Date;
     to?: Date;

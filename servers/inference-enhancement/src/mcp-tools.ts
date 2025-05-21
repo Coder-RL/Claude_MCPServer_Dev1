@@ -203,7 +203,6 @@ export class InferenceEnhancementTools {
     return Array.from(this.tools.values());
   }
 
-  @withPerformanceMonitoring('tools.call-tool')
   async callTool(request: CallToolRequest): Promise<CallToolResult> {
     const { name, arguments: args } = request;
 
@@ -271,7 +270,6 @@ export class InferenceEnhancementTools {
     }
   }
 
-  @withPerformanceMonitoring('tools.enhance-reasoning')
   private async enhanceReasoning(args: EnhanceReasoningArgs): Promise<any> {
     const { 
       query, 
@@ -344,7 +342,6 @@ export class InferenceEnhancementTools {
     }
   }
 
-  @withPerformanceMonitoring('tools.retrieve-knowledge')
   private async retrieveKnowledge(args: RetrieveKnowledgeArgs): Promise<any> {
     const { 
       query, 
@@ -407,7 +404,6 @@ export class InferenceEnhancementTools {
     }
   }
 
-  @withPerformanceMonitoring('tools.reason-step-by-step')
   private async reasonStepByStep(args: ReasonStepByStepArgs): Promise<any> {
     const { 
       problem, 
@@ -450,7 +446,6 @@ export class InferenceEnhancementTools {
     }
   }
 
-  @withPerformanceMonitoring('tools.simulate-scenario')
   private async simulateScenario(args: SimulateScenarioArgs): Promise<any> {
     const { 
       scenario, 

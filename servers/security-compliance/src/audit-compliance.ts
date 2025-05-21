@@ -365,7 +365,6 @@ export class AuditComplianceService {
     this.frameworks.set(iso27001Framework.id, iso27001Framework);
   }
 
-  @withPerformanceMonitoring('audit.log-event')
   async logAuditEvent(event: Omit<AuditLogEntry, 'id' | 'timestamp' | 'integrity'>): Promise<string> {
     try {
       const id = `audit_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
@@ -403,7 +402,6 @@ export class AuditComplianceService {
     }
   }
 
-  @withPerformanceMonitoring('audit.create-framework')
   async createComplianceFramework(framework: Omit<ComplianceFramework, 'id'>): Promise<string> {
     try {
       const id = `framework_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
@@ -447,7 +445,6 @@ export class AuditComplianceService {
     }
   }
 
-  @withPerformanceMonitoring('audit.assess-compliance')
   async assessCompliance(frameworkId: string, scope: string[], assessor: string): Promise<string> {
     try {
       const framework = this.frameworks.get(frameworkId);
@@ -521,7 +518,6 @@ export class AuditComplianceService {
     }
   }
 
-  @withPerformanceMonitoring('audit.execute-control-test')
   async executeControlTest(controlId: string, procedureId: string, executor: string): Promise<string> {
     try {
       const testId = `test_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
@@ -570,7 +566,6 @@ export class AuditComplianceService {
     }
   }
 
-  @withPerformanceMonitoring('audit.search-logs')
   async searchAuditLogs(query: {
     eventTypes?: string[];
     severities?: string[];
@@ -647,7 +642,6 @@ export class AuditComplianceService {
     }
   }
 
-  @withPerformanceMonitoring('audit.generate-report')
   async generateComplianceReport(
     frameworkId: string,
     reportType: 'assessment' | 'gap-analysis' | 'audit' | 'certification' | 'monitoring',
@@ -686,8 +680,6 @@ export class AuditComplianceService {
     }
   }
 
-  @withRetry({ maxAttempts: 3, delayMs: 1000 })
-  @withPerformanceMonitoring('audit.verify-integrity')
   async verifyLogIntegrity(startDate?: Date, endDate?: Date): Promise<{
     verified: boolean;
     totalLogs: number;

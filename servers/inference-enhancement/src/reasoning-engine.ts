@@ -485,7 +485,6 @@ export class MultiStepReasoningEngine {
     });
   }
 
-  @withPerformanceMonitoring('reasoning.execute-chain')
   async executeReasoningChain(
     problem: string,
     options: {

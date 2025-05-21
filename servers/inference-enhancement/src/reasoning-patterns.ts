@@ -649,7 +649,6 @@ export class ReasoningPatternLibrary {
     });
   }
 
-  @withPerformanceMonitoring('reasoning-patterns.find-matching-patterns')
   async findMatchingPatterns(
     problem: string,
     domain: string,
@@ -684,7 +683,6 @@ export class ReasoningPatternLibrary {
     }
   }
 
-  @withPerformanceMonitoring('reasoning-patterns.apply-pattern')
   async applyPattern(
     patternId: string,
     problem: string,

@@ -1100,7 +1100,6 @@ export class ComplianceReportingService {
     this.standards.set(iso27001Standard.id, iso27001Standard);
   }
 
-  @withPerformanceMonitoring('compliance-reporting.create-assessment')
   async createComplianceAssessment(assessment: Omit<ComplianceAssessment, 'id' | 'created' | 'updated'>): Promise<string> {
     try {
       const id = `assessment_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
@@ -1125,7 +1124,6 @@ export class ComplianceReportingService {
     }
   }
 
-  @withPerformanceMonitoring('compliance-reporting.generate-report')
   async generateComplianceReport(
     assessmentId: string,
     reportType: 'assessment' | 'surveillance' | 'certification' | 'renewal' | 'special',
@@ -1199,7 +1197,6 @@ export class ComplianceReportingService {
     }
   }
 
-  @withPerformanceMonitoring('compliance-reporting.register-certificate')
   async registerCertificate(certificateData: {
     standardId: string;
     organization: CertifiedOrganization;
@@ -1250,7 +1247,6 @@ export class ComplianceReportingService {
     }
   }
 
-  @withPerformanceMonitoring('compliance-reporting.validate-certificate')
   async validateCertificate(certificateNumber: string, verificationCode?: string): Promise<ValidationDetails> {
     try {
       const certificate = this.registry.certificates.find(c => c.certificateNumber === certificateNumber);
@@ -1291,7 +1287,6 @@ export class ComplianceReportingService {
     }
   }
 
-  @withPerformanceMonitoring('compliance-reporting.submit-application')
   async submitCertificationApplication(application: Omit<CertificationApplication, 'id' | 'submitted' | 'updated'>): Promise<string> {
     try {
       const applicationId = `app_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
@@ -1313,8 +1308,6 @@ export class ComplianceReportingService {
     }
   }
 
-  @withRetry({ maxAttempts: 3, delayMs: 1000 })
-  @withPerformanceMonitoring('compliance-reporting.export-report')
   async exportReport(reportId: string, exportFormat: 'pdf' | 'docx' | 'html' | 'xlsx'): Promise<string> {
     try {
       const report = this.reports.get(reportId);
@@ -1350,7 +1343,6 @@ export class ComplianceReportingService {
     }
   }
 
-  @withPerformanceMonitoring('compliance-reporting.approve-report')
   async approveReport(reportId: string, approver: string, decision: 'approved' | 'rejected' | 'conditional', comments?: string, conditions?: string[]): Promise<void> {
     try {
       const report = this.reports.get(reportId);
@@ -1385,7 +1377,6 @@ export class ComplianceReportingService {
     }
   }
 
-  @withPerformanceMonitoring('compliance-reporting.get-compliance-dashboard')
   async getComplianceDashboard(organizationId?: string): Promise<{
     overview: ComplianceOverview;
     assessments: AssessmentSummary[];

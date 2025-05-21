@@ -201,7 +201,7 @@ class DatabasePool {
    */
   async healthCheck(): Promise<{
     status: 'healthy' | 'unhealthy';
-    metrics: ReturnType<typeof this.getMetrics>;
+    metrics: any;
     latency?: number;
   }> {
     const start = Date.now();

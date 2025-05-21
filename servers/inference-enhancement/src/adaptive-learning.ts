@@ -280,7 +280,6 @@ export class AdaptiveLearningEngine {
     });
   }
 
-  @withPerformanceMonitoring('adaptive-learning.add-example')
   async addLearningExample(
     problem: string,
     domain: string,
@@ -334,7 +333,6 @@ export class AdaptiveLearningEngine {
     }
   }
 
-  @withPerformanceMonitoring('adaptive-learning.update-metrics')
   async updateLearningMetrics(): Promise<LearningMetrics> {
     try {
       const examples = Array.from(this.learningExamples.values());
@@ -415,7 +413,6 @@ export class AdaptiveLearningEngine {
     }
   }
 
-  @withPerformanceMonitoring('adaptive-learning.evaluate-adaptations')
   async evaluateAdaptations(newExample: LearningExample): Promise<any[]> {
     try {
       const currentMetrics = await this.updateLearningMetrics();
@@ -466,7 +463,6 @@ export class AdaptiveLearningEngine {
     }
   }
 
-  @withPerformanceMonitoring('adaptive-learning.feedback-integration')
   async integrateFeedback(exampleId: string, feedback: UserFeedback): Promise<void> {
     try {
       const example = this.learningExamples.get(exampleId);

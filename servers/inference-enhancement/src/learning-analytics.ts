@@ -254,7 +254,6 @@ export class LearningAnalyticsEngine {
     }
   }
 
-  @withPerformanceMonitoring('learning-analytics.generate-report')
   async generateAnalyticsReport(
     name: string,
     description: string,
@@ -314,7 +313,6 @@ export class LearningAnalyticsEngine {
     }
   }
 
-  @withPerformanceMonitoring('learning-analytics.create-progress-tracker')
   async createProgressTracker(
     name: string,
     objectives: LearningObjective[],
@@ -363,7 +361,6 @@ export class LearningAnalyticsEngine {
     }
   }
 
-  @withPerformanceMonitoring('learning-analytics.update-progress')
   async updateProgress(
     trackerId: string,
     objectiveUpdates: Record<string, number>,
@@ -421,7 +418,6 @@ export class LearningAnalyticsEngine {
     }
   }
 
-  @withPerformanceMonitoring('learning-analytics.create-dashboard')
   async createDashboard(
     title: string,
     description: string,
@@ -459,7 +455,6 @@ export class LearningAnalyticsEngine {
     }
   }
 
-  @withPerformanceMonitoring('learning-analytics.analyze-trends')
   async analyzeLearningTrends(
     metrics: string[],
     timeframe: 'daily' | 'weekly' | 'monthly' = 'daily',
@@ -501,7 +496,6 @@ export class LearningAnalyticsEngine {
     }
   }
 
-  @withPerformanceMonitoring('learning-analytics.create-cohort-analysis')
   async createCohortAnalysis(
     startDate: Date,
     endDate: Date,

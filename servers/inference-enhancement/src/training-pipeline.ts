@@ -178,7 +178,6 @@ export class TrainingDataPipeline {
     }
   }
 
-  @withPerformanceMonitoring('training-pipeline.ingest-data')
   async ingestLearningExamples(examples: LearningExample[]): Promise<PipelineMetrics> {
     const startTime = Date.now();
     let processedCount = 0;
@@ -224,7 +223,6 @@ export class TrainingDataPipeline {
     }
   }
 
-  @withPerformanceMonitoring('training-pipeline.process-raw-data')
   async processRawData(): Promise<PipelineMetrics> {
     const startTime = Date.now();
     let processedCount = 0;
@@ -270,7 +268,6 @@ export class TrainingDataPipeline {
     }
   }
 
-  @withPerformanceMonitoring('training-pipeline.validate-data')
   async validateData(): Promise<DataValidationResult> {
     try {
       const errors: string[] = [];
@@ -324,7 +321,6 @@ export class TrainingDataPipeline {
     }
   }
 
-  @withPerformanceMonitoring('training-pipeline.augment-data')
   async augmentData(): Promise<PipelineMetrics> {
     const startTime = Date.now();
     let augmentedCount = 0;
@@ -385,7 +381,6 @@ export class TrainingDataPipeline {
     }
   }
 
-  @withPerformanceMonitoring('training-pipeline.create-splits')
   async createDatasetSplits(): Promise<DatasetSplit> {
     try {
       // Combine validated and augmented data
@@ -422,7 +417,6 @@ export class TrainingDataPipeline {
     }
   }
 
-  @withPerformanceMonitoring('training-pipeline.export-data')
   async exportData(format: 'json' | 'jsonl' | 'csv', split?: 'train' | 'validation' | 'test'): Promise<string> {
     try {
       const timestamp = new Date().toISOString().replace(/[:.]/g, '-');

@@ -128,7 +128,7 @@ export class PerformanceMonitor extends EventEmitter {
 }
 
 // Decorator for monitoring function performance
-export function withPerformanceMonitoring(monitor?: PerformanceMonitor) {
+export function withPerformanceMonitoring(labelOrMonitor?: string | PerformanceMonitor) {
   return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
     const originalMethod = descriptor.value;
 
@@ -144,8 +144,8 @@ export function withPerformanceMonitoring(monitor?: PerformanceMonitor) {
         throw error;
       } finally {
         const duration = performance.now() - start;
-        if (monitor) {
-          monitor.recordRequest(duration, success);
+        if (typeof labelOrMonitor === 'object' && labelOrMonitor) {
+          labelOrMonitor.recordRequest(duration, success);
         }
         if (this.performanceMonitor) {
           this.performanceMonitor.recordRequest(duration, success);

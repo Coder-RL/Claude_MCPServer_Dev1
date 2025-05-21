@@ -135,7 +135,6 @@ export class DomainKnowledgeOrganizer {
     });
   }
 
-  @withPerformanceMonitoring('domain.organize-knowledge')
   async organizeKnowledge(
     content: string,
     suggestedDomain?: string,
@@ -210,7 +209,6 @@ export class DomainKnowledgeOrganizer {
     }
   }
 
-  @withPerformanceMonitoring('domain.analyze-domain')
   private async analyzeDomain(
     content: string,
     suggestedDomain?: string
@@ -357,7 +355,6 @@ export class DomainKnowledgeOrganizer {
     return matches.length >= 3;
   }
 
-  @withPerformanceMonitoring('domain.get-knowledge-context')
   async getKnowledgeContext(
     query: string,
     domain?: string,

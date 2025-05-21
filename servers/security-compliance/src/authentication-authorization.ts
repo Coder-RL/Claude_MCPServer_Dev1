@@ -352,7 +352,6 @@ export class AuthenticationAuthorizationService {
     this.roles.set(userRole.id, userRole);
   }
 
-  @withPerformanceMonitoring('auth.create-user')
   async createUser(userData: Omit<User, 'id' | 'created' | 'updated'>): Promise<string> {
     try {
       const id = `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
@@ -398,7 +397,6 @@ export class AuthenticationAuthorizationService {
     }
   }
 
-  @withPerformanceMonitoring('auth.authenticate')
   async authenticate(credentials: {
     username?: string;
     email?: string;
@@ -551,7 +549,6 @@ export class AuthenticationAuthorizationService {
     }
   }
 
-  @withPerformanceMonitoring('auth.authorize')
   async authorize(sessionId: string, resource: string, action: string, context?: Record<string, any>): Promise<AuthorizationResult> {
     try {
       const session = this.sessions.get(sessionId);
@@ -604,7 +601,6 @@ export class AuthenticationAuthorizationService {
     }
   }
 
-  @withPerformanceMonitoring('auth.create-role')
   async createRole(roleData: Omit<Role, 'id' | 'created' | 'updated'>): Promise<string> {
     try {
       const id = `role_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
@@ -633,7 +629,6 @@ export class AuthenticationAuthorizationService {
     }
   }
 
-  @withPerformanceMonitoring('auth.create-policy')
   async createAuthorizationPolicy(policyData: Omit<AuthorizationPolicy, 'id' | 'created' | 'updated'>): Promise<string> {
     try {
       const id = `policy_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
@@ -654,7 +649,6 @@ export class AuthenticationAuthorizationService {
     }
   }
 
-  @withPerformanceMonitoring('auth.enable-mfa')
   async enableMFA(userId: string, deviceType: 'totp' | 'sms' | 'email', config: Record<string, any>): Promise<MFASetupResult> {
     try {
       const user = this.users.get(userId);
@@ -706,8 +700,6 @@ export class AuthenticationAuthorizationService {
     }
   }
 
-  @withRetry({ maxAttempts: 3, delayMs: 1000 })
-  @withPerformanceMonitoring('auth.revoke-session')
   async revokeSession(sessionId: string, reason?: string): Promise<void> {
     try {
       const session = this.sessions.get(sessionId);
@@ -732,7 +724,6 @@ export class AuthenticationAuthorizationService {
     }
   }
 
-  @withPerformanceMonitoring('auth.get-user-permissions')
   async getUserPermissions(userId: string): Promise<Permission[]> {
     try {
       const user = this.users.get(userId);

@@ -269,7 +269,6 @@ export class CryptographyService {
     this.healthChecker = new HealthChecker();
   }
 
-  @withPerformanceMonitoring('crypto.generate-key')
   async generateKey(keySpec: {
     name: string;
     type: 'symmetric' | 'asymmetric' | 'signing' | 'key-derivation';
@@ -350,7 +349,6 @@ export class CryptographyService {
     }
   }
 
-  @withPerformanceMonitoring('crypto.encrypt')
   async encrypt(request: EncryptionRequest, requestor: string): Promise<EncryptionResult> {
     try {
       const key = this.keys.get(request.keyId);
@@ -423,7 +421,6 @@ export class CryptographyService {
     }
   }
 
-  @withPerformanceMonitoring('crypto.decrypt')
   async decrypt(request: DecryptionRequest, requestor: string): Promise<DecryptionResult> {
     try {
       const key = this.keys.get(request.keyId);
@@ -486,7 +483,6 @@ export class CryptographyService {
     }
   }
 
-  @withPerformanceMonitoring('crypto.sign')
   async sign(request: SigningRequest, requestor: string): Promise<SigningResult> {
     try {
       const key = this.keys.get(request.keyId);
@@ -556,7 +552,6 @@ export class CryptographyService {
     }
   }
 
-  @withPerformanceMonitoring('crypto.verify')
   async verify(request: VerificationRequest, requestor: string): Promise<VerificationResult> {
     try {
       const key = this.keys.get(request.keyId);
@@ -619,7 +614,6 @@ export class CryptographyService {
     }
   }
 
-  @withPerformanceMonitoring('crypto.hash')
   async hash(request: HashRequest): Promise<HashResult> {
     try {
       const data = typeof request.data === 'string' ? 
@@ -666,7 +660,6 @@ export class CryptographyService {
     }
   }
 
-  @withPerformanceMonitoring('crypto.derive-key')
   async deriveKey(request: KeyDerivationRequest): Promise<KeyDerivationResult> {
     try {
       const algorithm = request.algorithm || 'pbkdf2';
@@ -726,8 +719,6 @@ export class CryptographyService {
     }
   }
 
-  @withRetry({ maxAttempts: 3, delayMs: 1000 })
-  @withPerformanceMonitoring('crypto.rotate-key')
   async rotateKey(keyId: string, requestor: string): Promise<string> {
     try {
       const key = this.keys.get(keyId);
@@ -767,7 +758,6 @@ export class CryptographyService {
     }
   }
 
-  @withPerformanceMonitoring('crypto.generate-certificate')
   async generateCertificate(request: CertificateRequest, requestor: string): Promise<string> {
     try {
       const key = this.keys.get(request.keyId);

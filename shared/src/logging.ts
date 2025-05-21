@@ -1,1 +1,94 @@
-import * as winston from 'winston';\n\nexport interface LoggerConfig {\n  level: 'debug' | 'info' | 'warn' | 'error';\n  format?: 'json' | 'text';\n  transports?: string[];\n  filename?: string;\n  maxSize?: string;\n  maxFiles?: number;\n}\n\nconst DEFAULT_CONFIG: LoggerConfig = {\n  level: 'info',\n  format: 'text',\n  transports: ['console']\n};\n\nexport function createLogger(serviceName: string, level: string = 'info', options: Partial<LoggerConfig> = {}): winston.Logger {\n  const config = { ...DEFAULT_CONFIG, level: level as any, ...options };\n  \n  const logFormat = winston.format.combine(\n    winston.format.timestamp(),\n    winston.format.errors({ stack: true }),\n    winston.format.label({ label: serviceName }),\n    config.format === 'json' \n      ? winston.format.json()\n      : winston.format.printf(({ timestamp, level, message, label, ...meta }) => {\n          const metaStr = Object.keys(meta).length ? JSON.stringify(meta, null, 2) : '';\n          return `${timestamp} [${label}] ${level}: ${message} ${metaStr}`;\n        })\n  );\n\n  const transports: winston.transport[] = [];\n\n  // Console transport\n  if (config.transports?.includes('console')) {\n    transports.push(\n      new winston.transports.Console({\n        level: config.level,\n        format: winston.format.combine(\n          winston.format.colorize(),\n          logFormat\n        )\n      })\n    );\n  }\n\n  // File transport\n  if (config.transports?.includes('file') && config.filename) {\n    transports.push(\n      new winston.transports.File({\n        filename: config.filename,\n        level: config.level,\n        format: logFormat,\n        maxsize: parseSize(config.maxSize || '10MB'),\n        maxFiles: config.maxFiles || 5\n      })\n    );\n  }\n\n  const logger = winston.createLogger({\n    level: config.level,\n    format: logFormat,\n    transports,\n    exitOnError: false\n  });\n\n  return logger;\n}\n\nfunction parseSize(size: string): number {\n  const units: { [key: string]: number } = {\n    'B': 1,\n    'KB': 1024,\n    'MB': 1024 * 1024,\n    'GB': 1024 * 1024 * 1024\n  };\n\n  const match = size.match(/^(\\d+)(\\w+)$/);\n  if (!match) {\n    throw new Error(`Invalid size format: ${size}`);\n  }\n\n  const [, value, unit] = match;\n  const multiplier = units[unit.toUpperCase()];\n  \n  if (!multiplier) {\n    throw new Error(`Unknown size unit: ${unit}`);\n  }\n\n  return parseInt(value) * multiplier;\n}\n\nexport default createLogger;"
+import * as winston from 'winston';
+
+export interface LoggerConfig {
+  level: 'debug' | 'info' | 'warn' | 'error';
+  format?: 'json' | 'text';
+  transports?: string[];
+  filename?: string;
+  maxSize?: string;
+  maxFiles?: number;
+}
+
+const DEFAULT_CONFIG: LoggerConfig = {
+  level: 'info',
+  format: 'text',
+  transports: ['console']
+};
+
+export function createLogger(serviceName: string, level: string = 'info', options: Partial<LoggerConfig> = {}): winston.Logger {
+  const config = { ...DEFAULT_CONFIG, level: level as any, ...options };
+  
+  const logFormat = winston.format.combine(
+    winston.format.timestamp(),
+    winston.format.errors({ stack: true }),
+    winston.format.label({ label: serviceName }),
+    config.format === 'json' 
+      ? winston.format.json()
+      : winston.format.printf(({ timestamp, level, message, label, ...meta }) => {
+          const metaStr = Object.keys(meta).length ? JSON.stringify(meta, null, 2) : '';
+          return `${timestamp} [${label}] ${level}: ${message} ${metaStr}`;
+        })
+  );
+
+  const transports: winston.transport[] = [];
+
+  // Console transport
+  if (config.transports?.includes('console')) {
+    transports.push(
+      new winston.transports.Console({
+        level: config.level,
+        format: winston.format.combine(
+          winston.format.colorize(),
+          logFormat
+        )
+      })
+    );
+  }
+
+  // File transport
+  if (config.transports?.includes('file') && config.filename) {
+    transports.push(
+      new winston.transports.File({
+        filename: config.filename,
+        level: config.level,
+        format: logFormat,
+        maxsize: parseSize(config.maxSize || '10MB'),
+        maxFiles: config.maxFiles || 5
+      })
+    );
+  }
+
+  const logger = winston.createLogger({
+    level: config.level,
+    format: logFormat,
+    transports,
+    exitOnError: false
+  });
+
+  return logger;
+}
+
+function parseSize(size: string): number {
+  const units: { [key: string]: number } = {
+    'B': 1,
+    'KB': 1024,
+    'MB': 1024 * 1024,
+    'GB': 1024 * 1024 * 1024
+  };
+
+  const match = size.match(/^(\d+)(\w+)$/);
+  if (!match) {
+    throw new Error(`Invalid size format: ${size}`);
+  }
+
+  const [, value, unit] = match;
+  const multiplier = units[unit.toUpperCase()];
+  
+  if (!multiplier) {
+    throw new Error(`Unknown size unit: ${unit}`);
+  }
+
+  return parseInt(value) * multiplier;
+}
+
+export default createLogger;

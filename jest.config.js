@@ -23,9 +23,8 @@ export default {
   ],
   coverageDirectory: 'coverage',
   coverageReporters: ['text', 'lcov', 'html'],
-  setupFilesAfterEnv: ['<rootDir>/tests/setup.ts'],
   testTimeout: 30000,
-  moduleNameMapping: {
+  moduleNameMapper: {
     '^@shared/(.*)$': '<rootDir>/shared/$1',
     '^@orchestration/(.*)$': '<rootDir>/orchestration/src/$1',
     '^@servers/(.*)$': '<rootDir>/servers/$1/src',

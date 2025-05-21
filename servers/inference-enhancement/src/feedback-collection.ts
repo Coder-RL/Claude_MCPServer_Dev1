@@ -299,7 +299,6 @@ export class FeedbackCollectionEngine {
     }
   }
 
-  @withPerformanceMonitoring('feedback-collection.start-session')
   async startFeedbackSession(
     reasoningChainId: string,
     context: Partial<FeedbackSession['context']>,
@@ -361,7 +360,6 @@ export class FeedbackCollectionEngine {
     }
   }
 
-  @withPerformanceMonitoring('feedback-collection.add-feedback')
   async addFeedback(
     sessionId: string,
     feedbackData: Omit<DetailedFeedback, 'id' | 'sessionId' | 'timestamp'>
@@ -413,7 +411,6 @@ export class FeedbackCollectionEngine {
     }
   }
 
-  @withPerformanceMonitoring('feedback-collection.complete-session')
   async completeFeedbackSession(
     sessionId: string,
     satisfaction: FeedbackSession['satisfaction']
@@ -458,7 +455,6 @@ export class FeedbackCollectionEngine {
     }
   }
 
-  @withPerformanceMonitoring('feedback-collection.analyze-session')
   async analyzeSession(session: FeedbackSession): Promise<FeedbackAnalysis> {
     try {
       const analysisId = `analysis_${session.id}_${Date.now()}`;
@@ -529,7 +525,6 @@ export class FeedbackCollectionEngine {
     }
   }
 
-  @withPerformanceMonitoring('feedback-collection.create-template')
   async createFeedbackTemplate(
     name: string,
     description: string,
@@ -580,7 +575,6 @@ export class FeedbackCollectionEngine {
     }
   }
 
-  @withPerformanceMonitoring('feedback-collection.start-campaign')
   async startFeedbackCampaign(
     name: string,
     description: string,
@@ -639,7 +633,6 @@ export class FeedbackCollectionEngine {
     }
   }
 
-  @withPerformanceMonitoring('feedback-collection.aggregate-feedback')
   async aggregateFeedback(
     timeRange: { start: Date; end: Date },
     scope: FeedbackAggregation['scope'] = {}

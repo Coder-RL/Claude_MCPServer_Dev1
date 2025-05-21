@@ -250,7 +250,6 @@ export class ModelFineTuningEngine {
     }
   }
 
-  @withPerformanceMonitoring('model-finetuning.create-job')
   async createFineTuningJob(
     name: string,
     description: string,
@@ -311,7 +310,6 @@ export class ModelFineTuningEngine {
     }
   }
 
-  @withPerformanceMonitoring('model-finetuning.start-job')
   async startFineTuningJob(jobId: string): Promise<void> {
     try {
       const job = this.jobs.get(jobId);
@@ -362,7 +360,6 @@ export class ModelFineTuningEngine {
     }
   }
 
-  @withPerformanceMonitoring('model-finetuning.execute-training')
   private async executeTraining(job: FineTuningJob): Promise<void> {
     try {
       const config = job.config;
@@ -730,7 +727,6 @@ export class ModelFineTuningEngine {
     return recommendations;
   }
 
-  @withPerformanceMonitoring('model-finetuning.hyperparameter-tuning')
   async startHyperparameterTuning(
     name: string,
     baseConfig: FineTuningConfig,

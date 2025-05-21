@@ -1,0 +1,12 @@
+{
+  "name": "claude-mcp-sequential-thinking",
+  "version": "1.0.0",
+  "description": "Sequential Thinking MCP Server for Claude_MCPServer Ecosystem",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/server-sequential-thinking": "^0.1.0"
+  }
+}

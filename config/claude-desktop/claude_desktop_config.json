@@ -1,0 +1,30 @@
+{
+  "globalShortcut": "Cmd+Shift+Space",
+  "mcpServers": {
+    "memory-mcp": {
+      "command": "node",
+      "args": ["/Users/robertlee/GitHubProjects/Claude_MCPServer/mcp/memory/server.js"],
+      "env": {
+        "PORT": "3201",
+        "POSTGRES_URL": "postgresql://postgres:postgres@localhost:5432/mcp_enhanced",
+        "QDRANT_URL": "http://localhost:6333",
+        "MEMORY_COLLECTION": "claude_mcp_memories"
+      }
+    },
+    "sequential-thinking": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"],
+      "env": {
+        "PORT": "3202"
+      }
+    },
+    "filesystem-enhanced": {
+      "command": "node", 
+      "args": ["/Users/robertlee/GitHubProjects/Claude_MCPServer/mcp/filesystem/server.js"],
+      "env": {
+        "PORT": "3203",
+        "ALLOWED_PATHS": "/Users/robertlee/GitHubProjects/Claude_MCPServer"
+      }
+    }
+  }
+}

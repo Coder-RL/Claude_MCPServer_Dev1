@@ -1204,7 +1204,6 @@ export class DataGovernanceService {
     this.healthChecker = new HealthChecker();
   }
 
-  @withPerformanceMonitoring('data-governance.register-asset')
   async registerDataAsset(asset: Omit<DataAsset, 'id' | 'created' | 'updated'>): Promise<string> {
     try {
       const id = `asset_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
@@ -1230,7 +1229,6 @@ export class DataGovernanceService {
     }
   }
 
-  @withPerformanceMonitoring('data-governance.assess-quality')
   async assessDataQuality(assetId: string, assessmentType: 'full' | 'incremental' | 'targeted'): Promise<string> {
     try {
       const asset = this.assets.get(assetId);
@@ -1422,7 +1420,6 @@ export class DataGovernanceService {
     return recommendations;
   }
 
-  @withPerformanceMonitoring('data-governance.create-policy')
   async createDataPolicy(policy: Omit<DataPolicy, 'id' | 'effectiveDate' | 'lastReviewed'>): Promise<string> {
     try {
       const id = `policy_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
@@ -1445,7 +1442,6 @@ export class DataGovernanceService {
     }
   }
 
-  @withPerformanceMonitoring('data-governance.evaluate-compliance')
   async evaluateCompliance(assetId: string, frameworks: string[]): Promise<ComplianceAssessment> {
     try {
       const asset = this.assets.get(assetId);
@@ -1580,7 +1576,6 @@ export class DataGovernanceService {
     return recommendations;
   }
 
-  @withPerformanceMonitoring('data-governance.monitor-access')
   async monitorDataAccess(assetId: string, period: 'daily' | 'weekly' | 'monthly'): Promise<AccessReport> {
     try {
       const asset = this.assets.get(assetId);
@@ -1648,7 +1643,6 @@ export class DataGovernanceService {
     ];
   }
 
-  @withPerformanceMonitoring('data-governance.trace-lineage')
   async traceDataLineage(assetId: string, direction: 'upstream' | 'downstream' | 'both', depth: number = 3): Promise<DataLineage> {
     try {
       const asset = this.assets.get(assetId);
@@ -1873,7 +1867,6 @@ export class DataGovernanceService {
     }
   }
 
-  @withPerformanceMonitoring('data-governance.get-governance-metrics')
   async getGovernanceMetrics(): Promise<GovernanceMetrics> {
     const totalAssets = this.assets.size;
     const classifiedAssets = Array.from(this.assets.values()).filter(a => a.classification.sensitivity !== 'public').length;

@@ -296,7 +296,6 @@ export class DocumentationSystemService {
     this.healthChecker = new HealthChecker();
   }
 
-  @withPerformanceMonitoring('documentation.create-project')
   async createProject(project: Omit<DocumentationProject, 'id' | 'created' | 'updated'>): Promise<string> {
     try {
       const id = `doc_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
@@ -319,7 +318,6 @@ export class DocumentationSystemService {
     }
   }
 
-  @withPerformanceMonitoring('documentation.generate-api-docs')
   async generateApiDocumentation(
     projectId: string,
     specification: any,
@@ -360,7 +358,6 @@ export class DocumentationSystemService {
     }
   }
 
-  @withPerformanceMonitoring('documentation.update-section')
   async updateSection(
     projectId: string,
     sectionId: string,
@@ -392,8 +389,6 @@ export class DocumentationSystemService {
     }
   }
 
-  @withRetry({ maxAttempts: 3, delayMs: 1000 })
-  @withPerformanceMonitoring('documentation.build-project')
   async buildProject(projectId: string, options: {
     formats?: string[];
     deploy?: boolean;
@@ -440,7 +435,6 @@ export class DocumentationSystemService {
     }
   }
 
-  @withPerformanceMonitoring('documentation.search')
   async search(projectId: string, query: string, options: {
     limit?: number;
     filters?: Record<string, any>;
@@ -471,7 +465,6 @@ export class DocumentationSystemService {
     }
   }
 
-  @withPerformanceMonitoring('documentation.export-project')
   async exportProject(projectId: string, format: string, options: Record<string, any> = {}): Promise<ExportResult> {
     try {
       const project = this.projects.get(projectId);
@@ -491,7 +484,6 @@ export class DocumentationSystemService {
     }
   }
 
-  @withPerformanceMonitoring('documentation.validate-project')
   async validateProject(projectId: string): Promise<ValidationResult> {
     try {
       const project = this.projects.get(projectId);

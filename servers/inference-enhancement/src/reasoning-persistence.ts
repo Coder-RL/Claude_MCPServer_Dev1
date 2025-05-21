@@ -116,7 +116,6 @@ export class ReasoningPersistenceEngine {
     }
   }
 
-  @withPerformanceMonitoring('reasoning-persistence.store-chain')
   async storeReasoningChain(
     chain: ReasoningChain,
     verificationResult?: ComprehensiveVerificationResult,
@@ -173,7 +172,6 @@ export class ReasoningPersistenceEngine {
     }
   }
 
-  @withPerformanceMonitoring('reasoning-persistence.load-chain')
   async loadReasoningChain(chainId: string): Promise<ReasoningChainStorage | null> {
     try {
       const chainPath = path.join(this.storagePath, 'chains', `${chainId}.json`);
@@ -203,7 +201,6 @@ export class ReasoningPersistenceEngine {
     }
   }
 
-  @withPerformanceMonitoring('reasoning-persistence.query-chains')
   async queryReasoningChains(query: PersistenceQuery = {}): Promise<ReasoningChainMetadata[]> {
     try {
       let results = Array.from(this.chainIndex.values());
@@ -271,7 +268,6 @@ export class ReasoningPersistenceEngine {
     }
   }
 
-  @withPerformanceMonitoring('reasoning-persistence.analyze-chains')
   async analyzeReasoningChains(query: PersistenceQuery = {}): Promise<AnalysisResult> {
     try {
       const chains = await this.queryReasoningChains({ ...query, limit: undefined, offset: undefined });
@@ -344,7 +340,6 @@ export class ReasoningPersistenceEngine {
     }
   }
 
-  @withPerformanceMonitoring('reasoning-persistence.export-data')
   async exportReasoningData(
     format: 'json' | 'csv' | 'summary',
     query: PersistenceQuery = {}

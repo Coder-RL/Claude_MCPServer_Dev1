@@ -28,7 +28,7 @@
     "paths": {
       "@shared/*": ["shared/*"],
       "@orchestration/*": ["orchestration/src/*"],
-      "@servers/*": ["servers/*/src/*"],
+      "@servers/*": ["servers/*"],
       "@database/*": ["database/*"],
       "@config/*": ["config/*"]
     }

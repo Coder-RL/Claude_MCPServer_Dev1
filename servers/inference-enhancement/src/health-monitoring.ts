@@ -183,7 +183,6 @@ export class HealthMonitoringService {
     });
   }
 
-  @withPerformanceMonitoring('health-monitoring.create-check')
   async createHealthCheck(check: Omit<HealthCheck, 'id' | 'created'>): Promise<string> {
     try {
       const id = `check_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
@@ -206,7 +205,6 @@ export class HealthMonitoringService {
     }
   }
 
-  @withPerformanceMonitoring('health-monitoring.create-alert-rule')
   async createAlertRule(rule: Omit<AlertRule, 'id' | 'created' | 'triggerCount'>): Promise<string> {
     try {
       const id = `rule_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
@@ -225,7 +223,6 @@ export class HealthMonitoringService {
     }
   }
 
-  @withPerformanceMonitoring('health-monitoring.create-dashboard')
   async createDashboard(dashboard: Omit<MonitoringDashboard, 'id' | 'created' | 'updated'>): Promise<string> {
     try {
       const id = `dashboard_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
@@ -244,8 +241,6 @@ export class HealthMonitoringService {
     }
   }
 
-  @withRetry({ maxAttempts: 3, delayMs: 1000 })
-  @withPerformanceMonitoring('health-monitoring.perform-check')
   async performHealthCheck(checkId: string): Promise<HealthMetric> {
     try {
       const check = this.healthChecks.get(checkId);
@@ -291,7 +286,6 @@ export class HealthMonitoringService {
     }
   }
 
-  @withPerformanceMonitoring('health-monitoring.get-metrics')
   async getHealthMetrics(checkId: string, options: {
     from?: Date;
     to?: Date;
@@ -324,7 +318,6 @@ export class HealthMonitoringService {
     }
   }
 
-  @withPerformanceMonitoring('health-monitoring.get-alerts')
   async getAlerts(options: {
     status?: string;
     severity?: string;
@@ -363,7 +356,6 @@ export class HealthMonitoringService {
     }
   }
 
-  @withPerformanceMonitoring('health-monitoring.acknowledge-alert')
   async acknowledgeAlert(alertId: string, acknowledgedBy: string, note?: string): Promise<void> {
     try {
       const alert = this.activeAlerts.get(alertId);
@@ -387,7 +379,6 @@ export class HealthMonitoringService {
     }
   }
 
-  @withPerformanceMonitoring('health-monitoring.resolve-alert')
   async resolveAlert(alertId: string, resolvedBy?: string, note?: string): Promise<void> {
     try {
       const alert = this.activeAlerts.get(alertId);
@@ -414,7 +405,6 @@ export class HealthMonitoringService {
     }
   }
 
-  @withPerformanceMonitoring('health-monitoring.get-dashboard-data')
   async getDashboardData(dashboardId: string, timeRange?: string): Promise<{
     dashboard: MonitoringDashboard;
     data: Record<string, any>;

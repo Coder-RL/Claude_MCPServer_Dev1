@@ -638,7 +638,6 @@ export class VerificationEngine {
     });
   }
 
-  @withPerformanceMonitoring('verification.comprehensive-verify')
   async comprehensiveVerification(
     chain: ReasoningChain,
     knowledgeContext: KnowledgeContext

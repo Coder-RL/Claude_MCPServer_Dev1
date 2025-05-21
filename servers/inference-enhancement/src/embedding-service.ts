@@ -101,7 +101,6 @@ export class EmbeddingService {
     this.config = provider.getConfig();
   }
 
-  @withPerformanceMonitoring('embedding.create-embedding')
   async createEmbedding(request: EmbeddingRequest): Promise<Embedding> {
     try {
       const { text, domain, metadata = {}, id } = request;
@@ -173,7 +172,6 @@ export class EmbeddingService {
     }
   }
 
-  @withPerformanceMonitoring('embedding.create-batch-embeddings')
   async createBatchEmbeddings(requests: EmbeddingRequest[]): Promise<Embedding[]> {
     if (requests.length === 0) {
       return [];
@@ -286,7 +284,6 @@ export class EmbeddingService {
     }
   }
 
-  @withPerformanceMonitoring('embedding.search-knowledge')
   async searchKnowledge(
     query: string,
     domain?: string,
@@ -345,7 +342,6 @@ export class EmbeddingService {
     }
   }
 
-  @withPerformanceMonitoring('embedding.chunk-text')
   async chunkAndEmbedText(
     text: string,
     domain: string,

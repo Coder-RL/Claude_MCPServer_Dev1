@@ -114,7 +114,6 @@ export class VectorDatabase {
     }
   }
 
-  @withPerformanceMonitoring('vector-db.store-embedding')
   async storeEmbedding(
     id: string,
     text: string,
@@ -173,7 +172,6 @@ export class VectorDatabase {
     }
   }
 
-  @withPerformanceMonitoring('vector-db.get-embedding')
   async getEmbedding(id: string): Promise<Embedding | null> {
     this.ensureInitialized();
 
@@ -211,7 +209,6 @@ export class VectorDatabase {
     }
   }
 
-  @withPerformanceMonitoring('vector-db.similarity-search')
   async findSimilarEmbeddings(query: EmbeddingQuery): Promise<SimilarityResult[]> {
     this.ensureInitialized();
 
@@ -289,7 +286,6 @@ export class VectorDatabase {
     }
   }
 
-  @withPerformanceMonitoring('vector-db.list-embeddings')
   async listEmbeddings(
     domain?: string,
     limit = 100,
@@ -360,7 +356,6 @@ export class VectorDatabase {
     }
   }
 
-  @withPerformanceMonitoring('vector-db.delete-embedding')
   async deleteEmbedding(id: string): Promise<boolean> {
     this.ensureInitialized();
 
@@ -392,7 +387,6 @@ export class VectorDatabase {
     }
   }
 
-  @withPerformanceMonitoring('vector-db.bulk-store')
   async bulkStoreEmbeddings(embeddings: Array<{
     id: string;
     text: string;
@@ -465,7 +459,6 @@ export class VectorDatabase {
     }
   }
 
-  @withPerformanceMonitoring('vector-db.get-stats')
   async getStats(): Promise<EmbeddingStats> {
     this.ensureInitialized();
 

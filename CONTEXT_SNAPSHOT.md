@@ -1,6 +1,6 @@
 # Claude_MCPServer ESSENTIAL CONTEXT
 
-**Updated**: 2025-05-20 20:35:48 | **Session**: 1 | **Branch**: N/A
+**Updated**: 2025-05-21 06:50:43 | **Session**: 1 | **Branch**: main
 
 ## ⚡ QUICK START (NEW DEVELOPER)
 
@@ -10,16 +10,17 @@ cd /Users/robertlee/GitHubProjects/Claude_MCPServer
 open SESSION_START.md  # Complete context document
 
 # 2. Start development:
-# No standard startup detected - check SESSION_START.md
+npm install
+npm run dev
 
 # 3. After session:
 /Users/robertlee/GitHubProjects/update-session-docs.sh
 ```
 
 ## 🚨 CRITICAL STATUS
-- **Type**: Unknown
-- **Services**:  Custom Frontend:3101 Alternative Backend:8080 Admin/Monitoring:9000
-- **Git**: N/A (no git)
+- **Type**: Node.js
+- **Services**:  Backend API/Django:8000 Alternative Backend:8080 Admin/Monitoring:9000
+- **Git**: main (0 ahead/0 behind)
 - **Task**: 
 
 ## 📋 EVIDENCE LOCATIONS

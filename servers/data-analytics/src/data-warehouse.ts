@@ -826,7 +826,6 @@ export class DataWarehouseService {
     this.healthChecker = new HealthChecker();
   }
 
-  @withPerformanceMonitoring('data-warehouse.register-warehouse')
   async registerWarehouse(warehouse: Omit<DataWarehouse, 'id' | 'created' | 'updated'>): Promise<string> {
     try {
       const id = `warehouse_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
@@ -849,7 +848,6 @@ export class DataWarehouseService {
     }
   }
 
-  @withPerformanceMonitoring('data-warehouse.create-etl-job')
   async createETLJob(job: Omit<ETLJob, 'id' | 'runHistory'>): Promise<string> {
     try {
       const id = `etl_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
@@ -875,7 +873,6 @@ export class DataWarehouseService {
     }
   }
 
-  @withPerformanceMonitoring('data-warehouse.execute-etl-job')
   async executeETLJob(jobId: string): Promise<string> {
     try {
       const job = this.etlJobs.get(jobId);
@@ -935,7 +932,6 @@ export class DataWarehouseService {
     }
   }
 
-  @withRetry({ maxAttempts: 3, delayMs: 1000 })
   private async executeETLJobInternal(job: ETLJob, run: ETLRun): Promise<void> {
     try {
       run.logs.push({
@@ -1020,7 +1016,6 @@ export class DataWarehouseService {
     }
   }
 
-  @withPerformanceMonitoring('data-warehouse.extract-data')
   private async extractData(job: ETLJob, run: ETLRun): Promise<any[]> {
     try {
       run.logs.push({
@@ -1117,7 +1112,6 @@ export class DataWarehouseService {
     return [];
   }
 
-  @withPerformanceMonitoring('data-warehouse.transform-data')
   private async transformData(job: ETLJob, data: any[], run: ETLRun): Promise<any[]> {
     try {
       run.logs.push({
@@ -1204,7 +1198,6 @@ export class DataWarehouseService {
     }
   }
 
-  @withPerformanceMonitoring('data-warehouse.validate-data')
   private async validateData(job: ETLJob, data: any[], run: ETLRun): Promise<void> {
     try {
       run.logs.push({
@@ -1298,7 +1291,6 @@ export class DataWarehouseService {
     }
   }
 
-  @withPerformanceMonitoring('data-warehouse.load-data')
   private async loadData(job: ETLJob, data: any[], run: ETLRun): Promise<void> {
     try {
       run.logs.push({
@@ -1426,7 +1418,6 @@ export class DataWarehouseService {
     }
   }
 
-  @withPerformanceMonitoring('data-warehouse.get-warehouse-metrics')
   async getWarehouseMetrics(warehouseId: string): Promise<WarehouseMetrics> {
     const warehouse = this.warehouses.get(warehouseId);
     if (!warehouse) {
@@ -1450,7 +1441,6 @@ export class DataWarehouseService {
     };
   }
 
-  @withPerformanceMonitoring('data-warehouse.get-etl-status')
   async getETLJobStatus(jobId: string): Promise<{
     job: ETLJob;
     currentRun?: ETLRun;

@@ -986,7 +986,6 @@ export class MLDeploymentService {
     this.healthChecker = new HealthChecker();
   }
 
-  @withPerformanceMonitoring('ml-deployment.register-model')
   async registerModel(model: Omit<MLModel, 'id' | 'created' | 'updated'>): Promise<string> {
     try {
       const id = `model_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
@@ -1009,7 +1008,6 @@ export class MLDeploymentService {
     }
   }
 
-  @withPerformanceMonitoring('ml-deployment.deploy-model')
   async deployModel(modelId: string, deploymentConfig?: Partial<DeploymentConfig>): Promise<string> {
     try {
       const model = this.models.get(modelId);
@@ -1200,7 +1198,6 @@ export class MLDeploymentService {
     }
   }
 
-  @withPerformanceMonitoring('ml-deployment.predict')
   async predict(request: InferenceRequest): Promise<InferenceResponse> {
     try {
       const endpoint = this.endpoints.get(request.endpointId);
@@ -1515,7 +1512,6 @@ export class MLDeploymentService {
     return `https://api.ml-platform.com/v1/endpoints/${endpointId}/predict`;
   }
 
-  @withPerformanceMonitoring('ml-deployment.undeploy-model')
   async undeployModel(endpointId: string): Promise<void> {
     try {
       const endpoint = this.endpoints.get(endpointId);
@@ -1546,7 +1542,6 @@ export class MLDeploymentService {
     }
   }
 
-  @withPerformanceMonitoring('ml-deployment.get-model-metrics')
   async getModelMetrics(modelId: string): Promise<ModelPerformance> {
     const model = this.models.get(modelId);
     if (!model) {
@@ -1611,7 +1606,6 @@ export class MLDeploymentService {
     };
   }
 
-  @withPerformanceMonitoring('ml-deployment.get-endpoint-status')
   async getEndpointStatus(endpointId: string): Promise<ModelEndpoint> {
     const endpoint = this.endpoints.get(endpointId);
     if (!endpoint) {

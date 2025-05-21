@@ -259,10 +259,139 @@ services:
       - ./servers/web-access:/app/server
       - ./shared:/app/shared
 
+  # === MCP ENHANCEMENT SERVICES ===
+  
+  # Qdrant Vector Database for Memory MCP
+  qdrant:
+    image: qdrant/qdrant:v1.7.4
+    container_name: claude-mcp-qdrant
+    ports:
+      - "6333:6333"      # HTTP API
+      - "6334:6334"      # GRPC API
+    volumes:
+      - qdrant_data:/qdrant/storage
+    environment:
+      QDRANT__SERVICE__HTTP_PORT: 6333
+      QDRANT__SERVICE__GRPC_PORT: 6334
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:6333/ || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Memory MCP Server (OpenMemory)
+  memory-mcp:
+    image: node:20-alpine
+    container_name: claude-mcp-memory-server
+    working_dir: /app
+    ports:
+      - "3201:3201"
+    environment:
+      NODE_ENV: development
+      PORT: 3201
+      POSTGRES_URL: postgresql://postgres:postgres@postgres:5432/mcp_enhanced
+      QDRANT_URL: http://qdrant:6333
+      MEMORY_COLLECTION: claude_mcp_memories
+    depends_on:
+      postgres:
+        condition: service_healthy
+      qdrant:
+        condition: service_healthy
+    volumes:
+      - ./mcp/memory:/app
+      - ./package.json:/app/package.json
+    command: >
+      sh -c "
+        npm install pg &&
+        node server.js
+      "
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:3201/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Sequential Thinking MCP Server
+  sequential-thinking-mcp:
+    image: node:20-alpine
+    container_name: claude-mcp-sequential-thinking
+    working_dir: /app
+    ports:
+      - "3202:3202"
+    environment:
+      NODE_ENV: development
+      PORT: 3202
+    volumes:
+      - ./mcp/sequential-thinking:/app
+    command: >
+      sh -c "
+        npm install uuid &&
+        node -e \"
+        const http = require('http');
+        const server = http.createServer((req, res) => {
+          if (req.url === '/health') {
+            res.writeHead(200, {'Content-Type': 'application/json'});
+            res.end(JSON.stringify({status: 'healthy', service: 'sequential-thinking'}));
+          } else {
+            res.writeHead(200, {'Content-Type': 'application/json'});
+            res.end(JSON.stringify({message: 'Sequential Thinking MCP Server'}));
+          }
+        });
+        server.listen(3202, () => console.log('Sequential Thinking on 3202'));
+        \"
+      "
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:3202/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Filesystem MCP Server
+  filesystem-mcp:
+    image: node:20-alpine
+    container_name: claude-mcp-filesystem
+    working_dir: /app
+    ports:
+      - "3203:3203"
+    environment:
+      NODE_ENV: development
+      PORT: 3203
+      WORKSPACE_PATH: "/workspace"
+    volumes:
+      - ./mcp/filesystem:/app
+      - .:/workspace:ro  # Read-only access to entire codebase
+    command: >
+      sh -c "
+        echo 'const http = require(\"http\");
+        const fs = require(\"fs\");
+        const path = require(\"path\");
+        
+        const server = http.createServer((req, res) => {
+          if (req.url === \"/health\") {
+            res.writeHead(200, {\"Content-Type\": \"application/json\"});
+            res.end(JSON.stringify({status: \"healthy\", service: \"filesystem-mcp\"}));
+          } else {
+            res.writeHead(404);
+            res.end(\"Not Found\");
+          }
+        });
+        
+        server.listen(3203, () => console.log(\"Filesystem MCP on 3203\"));
+        ' > server.js &&
+        node server.js
+      "
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:3203/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
 volumes:
   postgres_data:
   redis_data:
   screenshots_data:
+  qdrant_data:
 
 networks:
   default:

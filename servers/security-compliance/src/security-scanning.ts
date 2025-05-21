@@ -499,7 +499,6 @@ export class SecurityScanningService {
     this.scanProfiles.set(webAppProfile.id, webAppProfile);
   }
 
-  @withPerformanceMonitoring('security-scan.create-scan')
   async createSecurityScan(scanRequest: Omit<SecurityScan, 'id' | 'status' | 'progress' | 'created' | 'updated'>): Promise<string> {
     try {
       const id = `scan_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
@@ -532,7 +531,6 @@ export class SecurityScanningService {
     }
   }
 
-  @withPerformanceMonitoring('security-scan.execute-scan')
   async executeScan(scanId: string): Promise<void> {
     try {
       const scan = this.scans.get(scanId);
@@ -583,7 +581,6 @@ export class SecurityScanningService {
     }
   }
 
-  @withPerformanceMonitoring('security-scan.create-profile')
   async createScanProfile(profile: Omit<ScanProfile, 'id'>): Promise<string> {
     try {
       const id = `profile_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
@@ -602,7 +599,6 @@ export class SecurityScanningService {
     }
   }
 
-  @withPerformanceMonitoring('security-scan.analyze-finding')
   async analyzeFinding(findingId: string, scanId: string): Promise<{
     riskScore: number;
     exploitability: string;
@@ -639,7 +635,6 @@ export class SecurityScanningService {
     }
   }
 
-  @withPerformanceMonitoring('security-scan.get-vulnerabilities')
   async getVulnerabilityIntelligence(query: {
     cve?: string;
     product?: string;
@@ -668,7 +663,6 @@ export class SecurityScanningService {
     }
   }
 
-  @withPerformanceMonitoring('security-scan.generate-report')
   async generateSecurityReport(scanId: string, format: 'json' | 'html' | 'pdf' | 'sarif' | 'csv'): Promise<string> {
     try {
       const scan = this.scans.get(scanId);
@@ -724,8 +718,6 @@ export class SecurityScanningService {
     }
   }
 
-  @withRetry({ maxAttempts: 3, delayMs: 1000 })
-  @withPerformanceMonitoring('security-scan.update-threat-intelligence')
   async updateThreatIntelligence(): Promise<void> {
     try {
       for (const feed of this.threatIntelligence.feeds.filter(f => f.enabled)) {

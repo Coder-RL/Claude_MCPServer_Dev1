@@ -297,7 +297,6 @@ export class IntegrationTestingFramework {
     }
   }
 
-  @withPerformanceMonitoring('integration-testing.run-test-suite')
   async runTestSuite(suiteId: string, options: {
     parallel?: boolean;
     stopOnFirstFailure?: boolean;
@@ -402,7 +401,6 @@ export class IntegrationTestingFramework {
     }
   }
 
-  @withPerformanceMonitoring('integration-testing.execute-test')
   async executeTest(
     test: IntegrationTest, 
     suiteId: string, 
