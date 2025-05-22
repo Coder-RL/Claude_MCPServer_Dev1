@@ -1,7 +1,7 @@
 import { RedisConnectionManager } from '../../database/redis-client.js';
-import { getLogger } from '../../shared/logger.js';
+import { createLogger } from '../../shared/src/logging.js';
 
-const logger = getLogger('MessageBus');
+const logger = createLogger('MessageBus');
 
 export interface MessagePayload {
   id: string;
@@ -65,10 +65,11 @@ export class MessageBus {
   async publishMessage(streamName: string, message: MessagePayload): Promise<string> {
     try {
       const serializedMessage = this.serializeMessage(message);
-      const messageId = await this.redis.getClient().xadd(
+      const messageId = await this.redis.xadd(
         streamName,
         '*',
-        'payload', serializedMessage
+        'payload',
+        serializedMessage
       );
 
       this.metrics.messagesSent++;
@@ -154,7 +155,7 @@ export class MessageBus {
         );
 
         if (results && results.length > 0) {
-          for (const [stream, messages] of results) {
+          for (const [_stream, messages] of results) {
             for (const [messageId, fields] of messages) {
               await this.processMessage(streamName, options, messageId, fields, handler);
             }

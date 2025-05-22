@@ -7,6 +7,7 @@ export interface RedisConfig {
   port?: number;
   password?: string;
   database?: number;
+  db?: number;  // Alias for database property
   retryDelayOnFailover?: number;
   maxRetriesPerRequest?: number;
   connectTimeout?: number;
@@ -344,6 +345,36 @@ class RedisConnectionManager {
         metrics: this.getMetrics(),
       };
     }
+  }
+
+  /**
+   * Add message to Redis stream
+   */
+  async xadd(streamName: string, id: string, field: string, value: string): Promise<string> {
+    if (!this.client) {
+      throw new Error('Redis client not connected');
+    }
+    return this.executeCommand('XADD', () => this.client!.xAdd(streamName, id, { [field]: value }));
+  }
+
+  /**
+   * Read messages from Redis stream
+   */
+  async xread(streams: Record<string, string>, options?: { count?: number; block?: number }): Promise<any> {
+    if (!this.client) {
+      throw new Error('Redis client not connected');
+    }
+    return this.executeCommand('XREAD', () => this.client!.xRead(
+      Object.entries(streams).map(([key, id]) => ({ key, id })),
+      options || {}
+    ));
+  }
+
+  /**
+   * Get raw Redis client (use with caution)
+   */
+  getClient(): RedisClient | null {
+    return this.client;
   }
 
   /**

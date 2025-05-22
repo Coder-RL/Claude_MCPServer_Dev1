@@ -11,6 +11,8 @@ export interface DatabaseConfig {
   maxConnections?: number;
   idleTimeoutMillis?: number;
   connectionTimeoutMillis?: number;
+  min?: number;  // Minimum number of connections in pool
+  max?: number;  // Maximum number of connections in pool
 }
 
 export interface QueryResult<T = any> {
@@ -55,7 +57,7 @@ class DatabasePool {
     this.pool = new Pool(poolConfig);
 
     // Connection event handlers
-    this.pool.on('connect', (client) => {
+    this.pool.on('connect', (_client) => {
       this.connectionMetrics.totalConnections++;
       this.connectionMetrics.activeConnections++;
       logger.debug('PostgreSQL client connected', {
@@ -64,24 +66,24 @@ class DatabasePool {
       });
     });
 
-    this.pool.on('acquire', (client) => {
+    this.pool.on('acquire', (_client) => {
       this.connectionMetrics.activeConnections++;
       this.connectionMetrics.idleConnections--;
       logger.debug('PostgreSQL client acquired from pool');
     });
 
-    this.pool.on('release', (client) => {
+    this.pool.on('release', (_client) => {
       this.connectionMetrics.activeConnections--;
       this.connectionMetrics.idleConnections++;
       logger.debug('PostgreSQL client released to pool');
     });
 
-    this.pool.on('error', (err, client) => {
+    this.pool.on('error', (err, _client) => {
       this.connectionMetrics.failedConnections++;
       logger.error('PostgreSQL pool error', { error: err.message, stack: err.stack });
     });
 
-    this.pool.on('remove', (client) => {
+    this.pool.on('remove', (_client) => {
       this.connectionMetrics.totalConnections--;
       logger.debug('PostgreSQL client removed from pool');
     });

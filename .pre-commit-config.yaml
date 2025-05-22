@@ -1,0 +1,14 @@
+repos:
+  - repo: local
+    hooks:
+      - id: prevent-large-files
+        name: Prevent Large Files Over 90MB
+        entry: bash .githooks/prevent_large_files.sh
+        language: system
+        types: [file]
+
+      - id: setup-environment-check
+        name: Validate environment setup
+        entry: /Users/robertlee/GitHubProjects/ollama-inference-app/venv/bin/python scripts/setup_environment.py
+        language: system
+        pass_filenames: false
