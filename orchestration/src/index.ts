@@ -4,10 +4,10 @@ import { ServiceRegistry } from './service-registry.js';
 import { MessageBus } from './message-bus.js';
 import { ResourceManager } from './resource-manager.js';
 import { ServiceDiscovery } from './service-discovery.js';
-import { getLogger, setLogLevel } from '../../shared/logger.js';
-import { HealthChecker } from '../../shared/health-checker.js';
+import { createLogger } from '../../shared/src/logging.js';
+import { HealthChecker } from '../../shared/src/health.js';
 
-const logger = getLogger('OrchestrationServer');
+const logger = createLogger('OrchestrationServer');
 
 export interface OrchestrationConfig {
   database: {
