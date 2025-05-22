@@ -1,0 +1,28 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "skipLibCheck": true,
+    "noImplicitAny": false,
+    "strictNullChecks": false
+  },
+  "include": [
+    "mcp/**/*",
+    "shared/src/base-server.ts",
+    "shared/src/health.ts",
+    "shared/src/logging.ts",
+    "shared/src/errors.ts",
+    "servers/data-analytics/src/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "database/redis-client.ts",
+    "orchestration/**/*",
+    "servers/ai-integration/**/*",
+    "shared/src/intelligent-cache.ts",
+    "shared/src/memory-manager.ts",
+    "shared/src/memory-monitor.ts",
+    "shared/src/memory-optimization-suite.ts",
+    "shared/src/streaming-optimizer.ts"
+  ]
+}

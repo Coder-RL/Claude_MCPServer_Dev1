@@ -70,12 +70,37 @@ class MemoryMCPServer {
   }
 
   async ensureMemoryTables() {
+    // Check if the table exists and has the expected structure
+    const checkTableQuery = `
+      SELECT column_name, data_type 
+      FROM information_schema.columns 
+      WHERE table_name = 'mcp_memories' AND table_schema = 'public'
+      ORDER BY ordinal_position;
+    `;
+    
+    try {
+      const result = await this.pgClient.query(checkTableQuery);
+      if (result.rows.length > 0) {
+        console.log('📝 Using existing mcp_memories table with columns:', result.rows.map(r => r.column_name).join(', '));
+        this.useExistingSchema = true;
+      } else {
+        console.log('📝 Creating new mcp_memories table...');
+        await this.createMemoryTable();
+        this.useExistingSchema = false;
+      }
+    } catch (error) {
+      console.error('❌ Error checking memory table:', error);
+      throw error;
+    }
+  }
+
+  async createMemoryTable() {
     const createTableQuery = `
       CREATE TABLE IF NOT EXISTS mcp_memories (
         id SERIAL PRIMARY KEY,
         memory_id VARCHAR(255) UNIQUE NOT NULL,
         content TEXT NOT NULL,
-        context JSONB DEFAULT '{}',
+        metadata JSONB DEFAULT '{}',
         importance FLOAT DEFAULT 1.0,
         tags TEXT[] DEFAULT '{}',
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -88,11 +113,11 @@ class MemoryMCPServer {
       CREATE INDEX IF NOT EXISTS idx_mcp_memories_importance ON mcp_memories(importance);
       CREATE INDEX IF NOT EXISTS idx_mcp_memories_created_at ON mcp_memories(created_at);
       CREATE INDEX IF NOT EXISTS idx_mcp_memories_tags ON mcp_memories USING GIN(tags);
-      CREATE INDEX IF NOT EXISTS idx_mcp_memories_context ON mcp_memories USING GIN(context);
+      CREATE INDEX IF NOT EXISTS idx_mcp_memories_metadata ON mcp_memories USING GIN(metadata);
     `;
 
     await this.pgClient.query(createTableQuery);
-    console.log('📝 Memory tables ensured');
+    console.log('📝 Memory tables created');
   }
 
   async initializeQdrant() {
@@ -206,17 +231,18 @@ class MemoryMCPServer {
     }
 
     try {
-      const memoryId = `mem_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      // Generate a UUID-compatible memory ID or use the database default
+      const memoryId = null; // Let PostgreSQL generate the UUID
       
-      // Store in PostgreSQL
+      // Store in PostgreSQL (use correct column name based on schema)
+      const contextColumn = this.useExistingSchema ? 'metadata' : 'metadata';
       const query = `
-        INSERT INTO mcp_memories (memory_id, content, context, importance, tags)
-        VALUES ($1, $2, $3, $4, $5)
+        INSERT INTO mcp_memories (content, ${contextColumn}, importance, tags)
+        VALUES ($1, $2, $3, $4)
         RETURNING *
       `;
       
       const result = await this.pgClient.query(query, [
-        memoryId,
         content,
         JSON.stringify(context),
         importance,
@@ -224,10 +250,11 @@ class MemoryMCPServer {
       ]);
 
       const memory = result.rows[0];
+      const actualMemoryId = memory.memory_id;
 
       // Also store in local cache
-      this.memoryStore.set(memoryId, {
-        id: memoryId,
+      this.memoryStore.set(actualMemoryId, {
+        id: actualMemoryId,
         content,
         context,
         importance,
@@ -239,7 +266,7 @@ class MemoryMCPServer {
       res.writeHead(201, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({
         success: true,
-        memory_id: memoryId,
+        memory_id: actualMemoryId,
         memory: {
           id: memory.memory_id,
           content: memory.content,

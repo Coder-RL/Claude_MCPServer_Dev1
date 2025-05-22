@@ -251,7 +251,7 @@ export class EnsembleMethodsService extends EventEmitter {
       throw new Error('Stacking ensemble missing meta-model');
     }
     
-    const metaInput = this.prepareMeta Input(basePredictions);
+    const metaInput = this.prepareMetaInput(basePredictions);
     return await ensemble.metaModel.predict(metaInput);
   }
 
@@ -582,7 +582,7 @@ export class EnsembleMethodsService extends EventEmitter {
     return Math.min(variance * 10, 1.0); // Normalize to 0-1
   }
 
-  private prepareMeta Input(basePredictions: any[]): any {
+  private prepareMetaInput(basePredictions: any[]): any {
     // Convert base predictions to meta-model input format
     const metaFeatures: Record<string, number> = {};
     

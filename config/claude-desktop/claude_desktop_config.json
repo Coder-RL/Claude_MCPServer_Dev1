@@ -1,29 +1,50 @@
 {
   "globalShortcut": "Cmd+Shift+Space",
   "mcpServers": {
-    "memory-mcp": {
+    "memory-simple": {
       "command": "node",
-      "args": ["/Users/robertlee/GitHubProjects/Claude_MCPServer/mcp/memory/server.js"],
+      "args": ["/Users/robertlee/GitHubProjects/Claude_MCPServer/mcp/memory/simple-server.js"],
       "env": {
-        "PORT": "3201",
-        "POSTGRES_URL": "postgresql://postgres:postgres@localhost:5432/mcp_enhanced",
-        "QDRANT_URL": "http://localhost:6333",
-        "MEMORY_COLLECTION": "claude_mcp_memories"
+        "PORT": "3301"
       }
     },
     "sequential-thinking": {
       "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"],
+      "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"]
+    },
+    "data-pipeline": {
+      "command": "tsx",
+      "args": ["/Users/robertlee/GitHubProjects/Claude_MCPServer/servers/data-analytics/src/data-pipeline.ts"],
       "env": {
-        "PORT": "3202"
+        "DATA_PIPELINE_PORT": "3011"
       }
     },
-    "filesystem-enhanced": {
-      "command": "node", 
-      "args": ["/Users/robertlee/GitHubProjects/Claude_MCPServer/mcp/filesystem/server.js"],
+    "realtime-analytics": {
+      "command": "tsx",
+      "args": ["/Users/robertlee/GitHubProjects/Claude_MCPServer/servers/data-analytics/src/realtime-analytics.ts"],
       "env": {
-        "PORT": "3203",
-        "ALLOWED_PATHS": "/Users/robertlee/GitHubProjects/Claude_MCPServer"
+        "REALTIME_ANALYTICS_PORT": "3012"
+      }
+    },
+    "data-warehouse": {
+      "command": "tsx",
+      "args": ["/Users/robertlee/GitHubProjects/Claude_MCPServer/servers/data-analytics/src/data-warehouse.ts"],
+      "env": {
+        "DATA_WAREHOUSE_PORT": "3013"
+      }
+    },
+    "ml-deployment": {
+      "command": "tsx",
+      "args": ["/Users/robertlee/GitHubProjects/Claude_MCPServer/servers/data-analytics/src/ml-deployment.ts"],
+      "env": {
+        "ML_DEPLOYMENT_PORT": "3014"
+      }
+    },
+    "data-governance": {
+      "command": "tsx",
+      "args": ["/Users/robertlee/GitHubProjects/Claude_MCPServer/servers/data-analytics/src/data-governance.ts"],
+      "env": {
+        "DATA_GOVERNANCE_PORT": "3015"
       }
     }
   }

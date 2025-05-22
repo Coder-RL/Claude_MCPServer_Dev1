@@ -87,8 +87,8 @@
     "db:migrate": "node scripts/db-migrate.js",
     "db:seed": "node scripts/db-seed.js",
     "docker:build": "docker-compose build",
-    "docker:up": "docker-compose up -d",
-    "docker:down": "docker-compose down",
+    "docker:up": "docker-compose -f docker-compose.simple.yml up -d",
+    "docker:down": "docker-compose -f docker-compose.simple.yml down",
     "start-orchestration": "node scripts/start-orchestration.js",
     "configure:claude-desktop": "node scripts/configure-claude-desktop.js",
     "configure:claude-code": "node scripts/configure-claude-code.js"

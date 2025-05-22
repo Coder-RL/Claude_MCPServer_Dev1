@@ -1,8 +1,8 @@
-import { BaseServer } from '../../shared/src/base-server';
-import { MCPError } from '../../shared/src/errors';
-import { withPerformanceMonitoring } from '../../shared/src/monitoring';
-import { withRetry } from '../../shared/src/retry';
-import { HealthChecker } from '../../shared/src/health';
+import { BaseServer } from '../../../shared/src/base-server';
+import { MCPError } from '../../../shared/src/errors';
+import { withPerformanceMonitoring } from '../../../shared/src/monitoring';
+import { withRetry } from '../../../shared/src/retry';
+import { HealthChecker } from '../../../shared/src/health';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 
@@ -1978,8 +1978,22 @@ export class DataGovernanceMCPServer extends BaseServer {
   private dataGovernanceService: DataGovernanceService;
 
   constructor() {
-    super('data-governance');
+    super({
+      name: 'data-governance-server',
+      port: parseInt(process.env.DATA_GOVERNANCE_PORT || '8115'),
+      host: process.env.DATA_GOVERNANCE_HOST || 'localhost'
+    });
     this.dataGovernanceService = new DataGovernanceService();
+  }
+
+  protected async initialize(): Promise<void> {
+    // DataGovernanceService doesn't need async initialization
+    this.logger.info('Data Governance server initialized');
+  }
+
+  protected async cleanup(): Promise<void> {
+    // Cleanup resources if needed
+    this.logger.info('Data Governance server cleanup');
   }
 
   protected setupRoutes(): void {
@@ -2200,4 +2214,10 @@ export class DataGovernanceMCPServer extends BaseServer {
         throw new MCPError('METHOD_NOT_FOUND', `Unknown method: ${method}`);
     }
   }
+}
+
+// Start the server if this file is run directly
+if (import.meta.url === `file://${process.argv[1]}`) {
+  const server = new DataGovernanceMCPServer();
+  server.start().catch(console.error);
 }

@@ -1,0 +1,15 @@
+{
+  "mcpServers": {
+    "memory-simple": {
+      "command": "node",
+      "args": ["/Users/robertlee/GitHubProjects/Claude_MCPServer/mcp/memory/simple-server.js"],
+      "env": {
+        "PORT": "3301"
+      }
+    },
+    "sequential-thinking": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"]
+    }
+  }
+}

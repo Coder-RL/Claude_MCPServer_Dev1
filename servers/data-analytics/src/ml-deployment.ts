@@ -1,8 +1,8 @@
-import { BaseServer } from '../../shared/src/base-server';
-import { MCPError } from '../../shared/src/errors';
-import { withPerformanceMonitoring } from '../../shared/src/monitoring';
-import { withRetry } from '../../shared/src/retry';
-import { HealthChecker } from '../../shared/src/health';
+import { BaseServer } from '../../../shared/src/base-server';
+import { MCPError } from '../../../shared/src/errors';
+import { withPerformanceMonitoring } from '../../../shared/src/monitoring';
+import { withRetry } from '../../../shared/src/retry';
+import { HealthChecker } from '../../../shared/src/health';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 
@@ -1747,8 +1747,22 @@ export class MLDeploymentMCPServer extends BaseServer {
   private mlDeploymentService: MLDeploymentService;
 
   constructor() {
-    super('ml-deployment');
+    super({
+      name: 'ml-deployment-server',
+      port: parseInt(process.env.ML_DEPLOYMENT_PORT || '8114'),
+      host: process.env.ML_DEPLOYMENT_HOST || 'localhost'
+    });
     this.mlDeploymentService = new MLDeploymentService();
+  }
+
+  protected async initialize(): Promise<void> {
+    // MLDeploymentService doesn't need async initialization
+    this.logger.info('ML Deployment server initialized');
+  }
+
+  protected async cleanup(): Promise<void> {
+    // Cleanup resources if needed
+    this.logger.info('ML Deployment server cleanup');
   }
 
   protected setupRoutes(): void {
@@ -1948,4 +1962,10 @@ export class MLDeploymentMCPServer extends BaseServer {
         throw new MCPError('METHOD_NOT_FOUND', `Unknown method: ${method}`);
     }
   }
+}
+
+// Start the server if this file is run directly
+if (import.meta.url === `file://${process.argv[1]}`) {
+  const server = new MLDeploymentMCPServer();
+  server.start().catch(console.error);
 }
