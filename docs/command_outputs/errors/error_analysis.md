@@ -10,9 +10,9 @@ $ find . -name '*.log' -mtime -7 | head -10
 ./logs/startup_20250521_234039.log
 ./logs/memory-simple_20250522_011719.log
 ./logs/shutdown_20250522_010707.log
+./logs/startup_20250522_224345.log
 ./logs/data-warehouse_20250522_011913.log
-./logs/ml-deployment_20250522_013108.log
-./logs/data-governance_20250522_011719.log
+./logs/shutdown_20250522_213711.log
 ```
 ## Recent Error Messages
 ```
