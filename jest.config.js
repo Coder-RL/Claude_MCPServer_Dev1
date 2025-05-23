@@ -5,13 +5,16 @@ export default {
   roots: ['<rootDir>'],
   testMatch: [
     '**/__tests__/**/*.ts',
-    '**/?(*.)+(spec|test).ts'
+    '**/?(*.)+(spec|test).ts',
+    '**/__tests__/**/*.js',
+    '**/?(*.)+(spec|test).js'
   ],
   transform: {
     '^.+\\.ts$': ['ts-jest', {
       useESM: true,
       tsconfig: 'tsconfig.json'
-    }]
+    }],
+    '^.+\\.js$': 'babel-jest'
   },
   collectCoverageFrom: [
     'orchestration/src/**/*.ts',
