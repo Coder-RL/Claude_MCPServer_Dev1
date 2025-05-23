@@ -1,7 +1,6 @@
-import { BaseServer } from '../../../shared/src/base-server';
+import { BaseMCPServer } from '../../shared/base-server';
 import { MCPError } from '../../../shared/src/errors';
 import { HealthChecker } from '../../../shared/src/health';
-import * as express from 'express';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 
@@ -538,166 +537,77 @@ export class DataPipelineService {
   }
 }
 
-export class DataPipelineServer extends BaseServer {
+export class DataPipelineServer extends BaseMCPServer {
   private dataPipelineService: DataPipelineService;
 
   constructor() {
-    super({
-      name: 'data-pipeline-server',
-      port: parseInt(process.env.DATA_PIPELINE_PORT || '8110'),
-      host: process.env.DATA_PIPELINE_HOST || 'localhost'
-    });
+    super('data-pipeline-server', 'Data pipeline processing and ETL operations');
     this.dataPipelineService = new DataPipelineService();
+    this.setupTools();
+  }
+
+  private setupTools(): void {
+    this.addTool({
+      name: 'create_pipeline',
+      description: 'Create a new data pipeline',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          name: { type: 'string' },
+          sources: { type: 'array' },
+          transformations: { type: 'array' },
+          targets: { type: 'array' }
+        },
+        required: ['name', 'sources', 'targets']
+      }
+    });
+
+    this.addTool({
+      name: 'run_pipeline',
+      description: 'Execute a data pipeline',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          pipelineId: { type: 'string' }
+        },
+        required: ['pipelineId']
+      }
+    });
+
+    this.addTool({
+      name: 'get_pipeline_status',
+      description: 'Get pipeline execution status',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          pipelineId: { type: 'string' }
+        },
+        required: ['pipelineId']
+      }
+    });
+  }
+
+  async handleRequest(method: string, params: any): Promise<any> {
+    switch (method) {
+      case 'create_pipeline':
+        return await this.dataPipelineService.createPipeline(params);
+      case 'run_pipeline':
+        return await this.dataPipelineService.executePipeline(params.pipelineId);
+      case 'get_pipeline_status':
+        return await this.dataPipelineService.getPipelineStatus(params.pipelineId);
+      default:
+        throw new Error(`Unknown method: ${method}`);
+    }
   }
 
   protected async initialize(): Promise<void> {
     await this.dataPipelineService.initialize();
-    this.setupDataPipelineRoutes();
   }
 
   protected async cleanup(): Promise<void> {
     await this.dataPipelineService.shutdown();
   }
 
-  protected setupRoutes(): void {
-    this.setupDataPipelineRoutes();
-  }
-
-  private setupDataPipelineRoutes(): void {
-    this.addRoute('get', '/api/health', async (req, res) => {
-      try {
-        const health = await this.dataPipelineService.getHealthStatus();
-        res.json(health);
-      } catch (error) {
-        res.status(500).json({ error: (error as Error).message });
-      }
-    });
-
-    this.addRoute('post', '/api/sources', async (req, res) => {
-      try {
-        const sourceId = await this.dataPipelineService.registerDataSource(req.body);
-        res.json({ id: sourceId });
-      } catch (error) {
-        res.status(500).json({ error: (error as Error).message });
-      }
-    });
-
-    this.addRoute('post', '/api/pipelines', async (req, res) => {
-      try {
-        const pipelineId = await this.dataPipelineService.createPipeline(req.body);
-        res.json({ id: pipelineId });
-      } catch (error) {
-        res.status(500).json({ error: (error as Error).message });
-      }
-    });
-
-    this.addRoute('post', '/api/pipelines/:id/execute', async (req, res) => {
-      try {
-        const runId = await this.dataPipelineService.executePipeline(req.params.id, req.body.trigger);
-        res.json({ runId });
-      } catch (error) {
-        res.status(500).json({ error: (error as Error).message });
-      }
-    });
-
-    this.addRoute('get', '/api/pipelines/:id/status', async (req, res) => {
-      try {
-        const status = await this.dataPipelineService.getPipelineStatus(req.params.id);
-        res.json(status);
-      } catch (error) {
-        res.status(500).json({ error: (error as Error).message });
-      }
-    });
-  }
-
-  protected addRoute(method: 'get' | 'post' | 'put' | 'delete', path: string, handler: express.RequestHandler): void {
-    (this.app as any)[method](path, handler);
-  }
-
-  protected getMCPTools() {
-    return [
-      {
-        name: 'register_data_source',
-        description: 'Register a new data source',
-        inputSchema: {
-          type: 'object',
-          properties: {
-            name: { type: 'string' },
-            type: { type: 'string', enum: ['file', 'database', 'api', 'stream', 'queue', 'webhook'] },
-            connection: { type: 'object' },
-            schema: { type: 'object' },
-            format: { type: 'string', enum: ['json', 'csv', 'parquet', 'avro', 'xml', 'binary'] },
-            compression: { type: 'string', enum: ['none', 'gzip', 'bzip2', 'lz4', 'snappy'] },
-            encoding: { type: 'string', enum: ['utf8', 'ascii', 'base64', 'binary'] },
-            status: { type: 'string', enum: ['active', 'inactive', 'error', 'maintenance'] }
-          },
-          required: ['name', 'type', 'connection', 'schema', 'format']
-        }
-      },
-      {
-        name: 'create_pipeline',
-        description: 'Create a new data pipeline',
-        inputSchema: {
-          type: 'object',
-          properties: {
-            name: { type: 'string' },
-            description: { type: 'string' },
-            version: { type: 'string' },
-            status: { type: 'string', enum: ['draft', 'active', 'paused', 'error', 'completed'] },
-            schedule: { type: 'object' },
-            sources: { type: 'array', items: { type: 'string' } },
-            destinations: { type: 'array', items: { type: 'string' } },
-            transformations: { type: 'array' },
-            validations: { type: 'array' },
-            metadata: { type: 'object' }
-          },
-          required: ['name', 'description', 'schedule', 'sources', 'destinations', 'transformations', 'metadata']
-        }
-      },
-      {
-        name: 'execute_pipeline',
-        description: 'Execute a data pipeline',
-        inputSchema: {
-          type: 'object',
-          properties: {
-            pipelineId: { type: 'string' },
-            trigger: { type: 'string' }
-          },
-          required: ['pipelineId']
-        }
-      },
-      {
-        name: 'get_pipeline_status',
-        description: 'Get pipeline execution status',
-        inputSchema: {
-          type: 'object',
-          properties: {
-            pipelineId: { type: 'string' }
-          },
-          required: ['pipelineId']
-        }
-      }
-    ];
-  }
-
-  protected async handleMCPRequest(method: string, params: any): Promise<any> {
-    switch (method) {
-      case 'register_data_source':
-        return { id: await this.dataPipelineService.registerDataSource(params) };
-
-      case 'create_pipeline':
-        return { id: await this.dataPipelineService.createPipeline(params) };
-
-      case 'execute_pipeline':
-        return { runId: await this.dataPipelineService.executePipeline(params.pipelineId, params.trigger) };
-
-      case 'get_pipeline_status':
-        return await this.dataPipelineService.getPipelineStatus(params.pipelineId);
-
-      default:
-        throw new MCPError('METHOD_NOT_FOUND', `Unknown method: ${method}`);
-    }
-  }
 }
 
 // Start the server if this file is run directly

@@ -1,7 +1,6 @@
-import { BaseServer } from '../../../shared/src/base-server';
+import { BaseMCPServer } from "../../shared/base-server";
 import { MCPError } from '../../../shared/src/errors';
 import { HealthChecker } from '../../../shared/src/health';
-import * as express from 'express';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import { exec } from 'child_process';
@@ -1479,7 +1478,7 @@ export class UIDesignService {
 }
 
 // UI Design MCP Server
-export class UIDesignServer extends BaseServer {
+export class UIDesignServer extends BaseMCPServer {
   private uiDesignService: UIDesignService;
   
   // Memory optimization: Enable garbage collection and monitoring

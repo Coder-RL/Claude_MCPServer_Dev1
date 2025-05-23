@@ -1,4 +1,4 @@
-import { BaseServer } from '../../../shared/src/base-server';
+import { BaseMCPServer } from '../../shared/base-server';
 import { MCPError } from '../../../shared/src/errors';
 import { withPerformanceMonitoring } from '../../../shared/src/monitoring';
 import { withRetry } from '../../../shared/src/retry';
@@ -1582,185 +1582,60 @@ interface ETLJobMetrics {
   nextExecutionTime: Date;
 }
 
-export class DataWarehouseMCPServer extends BaseServer {
+export class DataWarehouseMCPServer extends BaseMCPServer {
   private dataWarehouseService: DataWarehouseService;
 
   constructor() {
-    super({
-      name: 'data-warehouse-server',
-      port: parseInt(process.env.DATA_WAREHOUSE_PORT || '8113'),
-      host: process.env.DATA_WAREHOUSE_HOST || 'localhost'
-    });
+    super('data-warehouse-server', 'Data warehouse operations and analytics');
     this.dataWarehouseService = new DataWarehouseService();
+    this.setupTools();
+  }
+
+  private setupTools(): void {
+    this.addTool({
+      name: 'create_warehouse',
+      description: 'Create a new data warehouse',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          name: { type: 'string' },
+          schema: { type: 'object' }
+        },
+        required: ['name', 'schema']
+      }
+    });
+
+    this.addTool({
+      name: 'run_query',
+      description: 'Execute a query against the data warehouse',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          warehouseId: { type: 'string' },
+          query: { type: 'string' }
+        },
+        required: ['warehouseId', 'query']
+      }
+    });
+  }
+
+  async handleRequest(method: string, params: any): Promise<any> {
+    switch (method) {
+      case 'create_warehouse':
+        return await this.dataWarehouseService.createWarehouse(params);
+      case 'run_query':
+        return await this.dataWarehouseService.executeQuery(params.warehouseId, params.query);
+      default:
+        throw new Error(`Unknown method: ${method}`);
+    }
   }
 
   protected async initialize(): Promise<void> {
     // DataWarehouseService doesn't need async initialization
-    this.logger.info('Data Warehouse server initialized');
   }
 
   protected async cleanup(): Promise<void> {
     // Cleanup resources if needed
-    this.logger.info('Data Warehouse server cleanup');
-  }
-
-  protected setupRoutes(): void {
-    this.app.get('/health', async (req, res) => {
-      try {
-        const health = await this.dataWarehouseService.getHealthStatus();
-        res.json(health);
-      } catch (error) {
-        res.status(500).json({ error: error.message });
-      }
-    });
-
-    this.app.post('/warehouses', async (req, res) => {
-      try {
-        const warehouseId = await this.dataWarehouseService.registerWarehouse(req.body);
-        res.json({ id: warehouseId });
-      } catch (error) {
-        res.status(500).json({ error: error.message });
-      }
-    });
-
-    this.app.post('/etl-jobs', async (req, res) => {
-      try {
-        const jobId = await this.dataWarehouseService.createETLJob(req.body);
-        res.json({ id: jobId });
-      } catch (error) {
-        res.status(500).json({ error: error.message });
-      }
-    });
-
-    this.app.post('/etl-jobs/:id/execute', async (req, res) => {
-      try {
-        const runId = await this.dataWarehouseService.executeETLJob(req.params.id);
-        res.json({ runId });
-      } catch (error) {
-        res.status(500).json({ error: error.message });
-      }
-    });
-
-    this.app.get('/warehouses/:id/metrics', async (req, res) => {
-      try {
-        const metrics = await this.dataWarehouseService.getWarehouseMetrics(req.params.id);
-        res.json(metrics);
-      } catch (error) {
-        res.status(500).json({ error: error.message });
-      }
-    });
-
-    this.app.get('/etl-jobs/:id/status', async (req, res) => {
-      try {
-        const status = await this.dataWarehouseService.getETLJobStatus(req.params.id);
-        res.json(status);
-      } catch (error) {
-        res.status(500).json({ error: error.message });
-      }
-    });
-  }
-
-  protected getMCPTools() {
-    return [
-      {
-        name: 'register_warehouse',
-        description: 'Register a new data warehouse',
-        inputSchema: {
-          type: 'object',
-          properties: {
-            name: { type: 'string' },
-            type: { type: 'string', enum: ['snowflake', 'redshift', 'bigquery', 'databricks', 'synapse', 'clickhouse', 'postgresql'] },
-            connection: { type: 'object' },
-            schemas: { type: 'array' },
-            configuration: { type: 'object' },
-            monitoring: { type: 'object' },
-            security: { type: 'object' },
-            performance: { type: 'object' },
-            status: { type: 'string', enum: ['active', 'inactive', 'maintenance', 'error'] },
-            metadata: { type: 'object' }
-          },
-          required: ['name', 'type', 'connection', 'schemas', 'configuration']
-        }
-      },
-      {
-        name: 'create_etl_job',
-        description: 'Create a new ETL job',
-        inputSchema: {
-          type: 'object',
-          properties: {
-            name: { type: 'string' },
-            description: { type: 'string' },
-            type: { type: 'string', enum: ['extract', 'transform', 'load', 'full_etl'] },
-            schedule: { type: 'object' },
-            source: { type: 'object' },
-            target: { type: 'object' },
-            transformations: { type: 'array' },
-            validation: { type: 'object' },
-            monitoring: { type: 'object' },
-            errorHandling: { type: 'object' },
-            dependencies: { type: 'array', items: { type: 'string' } },
-            status: { type: 'string', enum: ['active', 'inactive', 'running', 'error', 'completed'] },
-            metadata: { type: 'object' }
-          },
-          required: ['name', 'description', 'type', 'schedule', 'source', 'target', 'metadata']
-        }
-      },
-      {
-        name: 'execute_etl_job',
-        description: 'Execute an ETL job',
-        inputSchema: {
-          type: 'object',
-          properties: {
-            jobId: { type: 'string' }
-          },
-          required: ['jobId']
-        }
-      },
-      {
-        name: 'get_warehouse_metrics',
-        description: 'Get warehouse performance metrics',
-        inputSchema: {
-          type: 'object',
-          properties: {
-            warehouseId: { type: 'string' }
-          },
-          required: ['warehouseId']
-        }
-      },
-      {
-        name: 'get_etl_job_status',
-        description: 'Get ETL job status and metrics',
-        inputSchema: {
-          type: 'object',
-          properties: {
-            jobId: { type: 'string' }
-          },
-          required: ['jobId']
-        }
-      }
-    ];
-  }
-
-  protected async handleMCPRequest(method: string, params: any): Promise<any> {
-    switch (method) {
-      case 'register_warehouse':
-        return { id: await this.dataWarehouseService.registerWarehouse(params) };
-
-      case 'create_etl_job':
-        return { id: await this.dataWarehouseService.createETLJob(params) };
-
-      case 'execute_etl_job':
-        return { runId: await this.dataWarehouseService.executeETLJob(params.jobId) };
-
-      case 'get_warehouse_metrics':
-        return await this.dataWarehouseService.getWarehouseMetrics(params.warehouseId);
-
-      case 'get_etl_job_status':
-        return await this.dataWarehouseService.getETLJobStatus(params.jobId);
-
-      default:
-        throw new MCPError('METHOD_NOT_FOUND', `Unknown method: ${method}`);
-    }
   }
 }
 

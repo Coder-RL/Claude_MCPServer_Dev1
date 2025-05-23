@@ -1,7 +1,6 @@
-import { BaseServer } from '../../../shared/src/base-server';
+import { BaseMCPServer } from '../../shared/base-server';
 import { MCPError } from '../../../shared/src/errors';
 import { HealthChecker } from '../../../shared/src/health';
-import * as express from 'express';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import { EventEmitter } from 'events';
@@ -835,242 +834,78 @@ export class RealtimeAnalyticsService extends EventEmitter {
   }
 }
 
-export class RealtimeAnalyticsServer extends BaseServer {
+export class RealtimeAnalyticsServer extends BaseMCPServer {
   private realtimeAnalyticsService: RealtimeAnalyticsService;
 
   constructor() {
-    super({
-      name: 'realtime-analytics-server',
-      port: parseInt(process.env.REALTIME_ANALYTICS_PORT || '8112'),
-      host: process.env.REALTIME_ANALYTICS_HOST || 'localhost'
-    });
+    super('realtime-analytics-server', 'Real-time data analytics and stream processing');
     this.realtimeAnalyticsService = new RealtimeAnalyticsService();
+    this.setupTools();
+  }
+
+  private setupTools(): void {
+    this.addTool({
+      name: 'create_stream',
+      description: 'Create a new real-time data stream',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          name: { type: 'string' },
+          type: { type: 'string' },
+          source: { type: 'object' },
+          processing: { type: 'object' }
+        },
+        required: ['name', 'type', 'source']
+      }
+    });
+
+    this.addTool({
+      name: 'start_stream',
+      description: 'Start processing a data stream',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          streamId: { type: 'string' }
+        },
+        required: ['streamId']
+      }
+    });
+
+    this.addTool({
+      name: 'get_stream_metrics',
+      description: 'Get real-time metrics for a stream',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          streamId: { type: 'string' }
+        },
+        required: ['streamId']
+      }
+    });
+  }
+
+  async handleRequest(method: string, params: any): Promise<any> {
+    switch (method) {
+      case 'create_stream':
+        return await this.realtimeAnalyticsService.createStream(params);
+      case 'start_stream':
+        return await this.realtimeAnalyticsService.startStream(params.streamId);
+      case 'get_stream_metrics':
+        return await this.realtimeAnalyticsService.getStreamMetrics(params.streamId);
+      default:
+        throw new Error(`Unknown method: ${method}`);
+    }
   }
 
   protected async initialize(): Promise<void> {
     await this.realtimeAnalyticsService.initialize();
-    this.setupRealtimeAnalyticsRoutes();
   }
 
   protected async cleanup(): Promise<void> {
     await this.realtimeAnalyticsService.shutdown();
   }
 
-  protected setupRoutes(): void {
-    this.setupRealtimeAnalyticsRoutes();
-  }
 
-  private setupRealtimeAnalyticsRoutes(): void {
-    this.addRoute('get', '/api/health', async (req, res) => {
-      try {
-        const health = await this.realtimeAnalyticsService.getHealthStatus();
-        res.json(health);
-      } catch (error) {
-        res.status(500).json({ error: (error as Error).message });
-      }
-    });
-
-    this.addRoute('post', '/api/streams', async (req, res) => {
-      try {
-        const streamId = await this.realtimeAnalyticsService.createStream(req.body);
-        res.json({ id: streamId });
-      } catch (error) {
-        res.status(500).json({ error: (error as Error).message });
-      }
-    });
-
-    this.addRoute('post', '/api/streams/:id/start', async (req, res) => {
-      try {
-        const jobId = await this.realtimeAnalyticsService.startStream(req.params.id);
-        res.json({ jobId });
-      } catch (error) {
-        res.status(500).json({ error: (error as Error).message });
-      }
-    });
-
-    this.addRoute('post', '/api/jobs/:id/stop', async (req, res) => {
-      try {
-        await this.realtimeAnalyticsService.stopStream(req.params.id);
-        res.json({ success: true });
-      } catch (error) {
-        res.status(500).json({ error: (error as Error).message });
-      }
-    });
-
-    this.addRoute('get', '/api/streams/:id/metrics', async (req, res) => {
-      try {
-        const metrics = await this.realtimeAnalyticsService.getStreamMetrics(req.params.id);
-        res.json(metrics);
-      } catch (error) {
-        res.status(500).json({ error: (error as Error).message });
-      }
-    });
-
-    this.addRoute('get', '/api/jobs/:id/status', async (req, res) => {
-      try {
-        const status = await this.realtimeAnalyticsService.getJobStatus(req.params.id);
-        res.json(status);
-      } catch (error) {
-        res.status(500).json({ error: (error as Error).message });
-      }
-    });
-
-    this.addRoute('post', '/api/dashboards/:id', async (req, res) => {
-      try {
-        await this.realtimeAnalyticsService.createDashboard(req.params.id, req.body.widgets);
-        res.json({ success: true });
-      } catch (error) {
-        res.status(500).json({ error: (error as Error).message });
-      }
-    });
-  }
-
-  protected addRoute(method: 'get' | 'post' | 'put' | 'delete', path: string, handler: express.RequestHandler): void {
-    (this.app as any)[method](path, handler);
-  }
-
-  protected getMCPTools() {
-    return [
-      {
-        name: 'create_stream',
-        description: 'Create a new real-time data stream with processing configuration',
-        inputSchema: {
-          type: 'object',
-          properties: {
-            name: { type: 'string' },
-            type: { type: 'string', enum: ['kafka', 'redis_stream', 'websocket', 'sse', 'mqtt', 'rabbitmq', 'kinesis'] },
-            source: { 
-              type: 'object',
-              properties: {
-                connectionString: { type: 'string' },
-                batchSize: { type: 'number', default: 100 },
-                pollInterval: { type: 'number', default: 1000 },
-                timeout: { type: 'number', default: 30000 },
-                serialization: { type: 'string', enum: ['json', 'avro', 'protobuf', 'csv', 'binary'], default: 'json' }
-              },
-              required: ['connectionString']
-            },
-            processing: { 
-              type: 'object',
-              properties: {
-                mode: { type: 'string', enum: ['event_time', 'processing_time', 'ingestion_time'], default: 'event_time' },
-                schema: {
-                  type: 'object',
-                  properties: {
-                    version: { type: 'string' },
-                    fields: { type: 'array' },
-                    timestampField: { type: 'string' },
-                    keyFields: { type: 'array' }
-                  },
-                  required: ['version', 'fields', 'timestampField']
-                },
-                transformations: { type: 'array', default: [] },
-                filters: { type: 'array', default: [] }
-              },
-              required: ['schema']
-            },
-            output: { type: 'array', minItems: 1 },
-            windowing: { 
-              type: 'object',
-              properties: {
-                type: { type: 'string', enum: ['tumbling', 'sliding', 'session', 'global'], default: 'tumbling' },
-                size: { type: 'number', default: 60000 },
-                allowedLateness: { type: 'number', default: 0 }
-              }
-            },
-            aggregations: { type: 'array', default: [] },
-            alerts: { type: 'array', default: [] },
-            parallelism: { type: 'number', default: 1 },
-            status: { type: 'string', enum: ['active', 'paused', 'stopped', 'error'], default: 'paused' }
-          },
-          required: ['name', 'type', 'source', 'processing', 'output', 'windowing']
-        }
-      },
-      {
-        name: 'start_stream',
-        description: 'Start a real-time data stream processing job',
-        inputSchema: {
-          type: 'object',
-          properties: {
-            streamId: { type: 'string' }
-          },
-          required: ['streamId']
-        }
-      },
-      {
-        name: 'stop_stream',
-        description: 'Stop a streaming job gracefully',
-        inputSchema: {
-          type: 'object',
-          properties: {
-            jobId: { type: 'string' }
-          },
-          required: ['jobId']
-        }
-      },
-      {
-        name: 'get_stream_metrics',
-        description: 'Get real-time performance metrics for a stream',
-        inputSchema: {
-          type: 'object',
-          properties: {
-            streamId: { type: 'string' }
-          },
-          required: ['streamId']
-        }
-      },
-      {
-        name: 'get_job_status',
-        description: 'Get detailed status information for a streaming job',
-        inputSchema: {
-          type: 'object',
-          properties: {
-            jobId: { type: 'string' }
-          },
-          required: ['jobId']
-        }
-      },
-      {
-        name: 'create_dashboard',
-        description: 'Create a real-time analytics dashboard with custom widgets',
-        inputSchema: {
-          type: 'object',
-          properties: {
-            dashboardId: { type: 'string' },
-            widgets: { type: 'array' }
-          },
-          required: ['dashboardId', 'widgets']
-        }
-      }
-    ];
-  }
-
-  protected async handleMCPRequest(method: string, params: any): Promise<any> {
-    switch (method) {
-      case 'create_stream':
-        return { id: await this.realtimeAnalyticsService.createStream(params) };
-
-      case 'start_stream':
-        return { jobId: await this.realtimeAnalyticsService.startStream(params.streamId) };
-
-      case 'stop_stream':
-        await this.realtimeAnalyticsService.stopStream(params.jobId);
-        return { success: true };
-
-      case 'get_stream_metrics':
-        return await this.realtimeAnalyticsService.getStreamMetrics(params.streamId);
-
-      case 'get_job_status':
-        return await this.realtimeAnalyticsService.getJobStatus(params.jobId);
-
-      case 'create_dashboard':
-        await this.realtimeAnalyticsService.createDashboard(params.dashboardId, params.widgets);
-        return { success: true };
-
-      default:
-        throw new MCPError('METHOD_NOT_FOUND', `Unknown method: ${method}`);
-    }
-  }
 }
 
 // Start the server if this file is run directly

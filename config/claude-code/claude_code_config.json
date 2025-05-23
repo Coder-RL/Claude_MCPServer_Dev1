@@ -10,6 +10,62 @@
     "sequential-thinking": {
       "command": "npx",
       "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"]
+    },
+    "data-pipeline": {
+      "command": "tsx",
+      "args": ["/Users/robertlee/GitHubProjects/Claude_MCPServer/servers/data-analytics/src/data-pipeline.ts"],
+      "env": {
+        "DATA_PIPELINE_PORT": "3011"
+      }
+    },
+    "realtime-analytics": {
+      "command": "tsx",
+      "args": ["/Users/robertlee/GitHubProjects/Claude_MCPServer/servers/data-analytics/src/realtime-analytics.ts"],
+      "env": {
+        "REALTIME_ANALYTICS_PORT": "3012"
+      }
+    },
+    "data-warehouse": {
+      "command": "tsx",
+      "args": ["/Users/robertlee/GitHubProjects/Claude_MCPServer/servers/data-analytics/src/data-warehouse.ts"],
+      "env": {
+        "DATA_WAREHOUSE_PORT": "3013"
+      }
+    },
+    "ml-deployment": {
+      "command": "tsx",
+      "args": ["/Users/robertlee/GitHubProjects/Claude_MCPServer/servers/data-analytics/src/ml-deployment.ts"],
+      "env": {
+        "ML_DEPLOYMENT_PORT": "3014"
+      }
+    },
+    "data-governance": {
+      "command": "tsx",
+      "args": ["/Users/robertlee/GitHubProjects/Claude_MCPServer/servers/data-analytics/src/data-governance.ts"],
+      "env": {
+        "DATA_GOVERNANCE_PORT": "3015"
+      }
+    },
+    "security-vulnerability": {
+      "command": "tsx",
+      "args": ["/Users/robertlee/GitHubProjects/Claude_MCPServer/servers/security-vulnerability/src/security-vulnerability.ts"],
+      "env": {
+        "SECURITY_VULNERABILITY_PORT": "3016"
+      }
+    },
+    "optimization": {
+      "command": "tsx",
+      "args": ["/Users/robertlee/GitHubProjects/Claude_MCPServer/servers/optimization/src/optimization.ts"],
+      "env": {
+        "OPTIMIZATION_PORT": "3017"
+      }
+    },
+    "ui-design": {
+      "command": "tsx",
+      "args": ["/Users/robertlee/GitHubProjects/Claude_MCPServer/servers/ui-design/src/ui-design.ts"],
+      "env": {
+        "UI_DESIGN_PORT": "3018"
+      }
     }
   }
 }

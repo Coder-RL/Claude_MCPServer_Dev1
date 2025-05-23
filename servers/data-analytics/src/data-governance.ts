@@ -1,4 +1,4 @@
-import { BaseServer } from '../../../shared/src/base-server';
+import { BaseMCPServer } from "../../shared/base-server";
 import { MCPError } from '../../../shared/src/errors';
 import { withPerformanceMonitoring } from '../../../shared/src/monitoring';
 import { withRetry } from '../../../shared/src/retry';
@@ -1974,7 +1974,7 @@ interface GovernanceMetrics {
   lifecycleManagedAssets: number;
 }
 
-export class DataGovernanceMCPServer extends BaseServer {
+export class DataGovernanceMCPServer extends BaseMCPServer {
   private dataGovernanceService: DataGovernanceService;
 
   constructor() {

@@ -1,4 +1,4 @@
-import { BaseServer } from '../../../shared/src/base-server';
+import { BaseMCPServer } from "../../shared/base-server";
 import { MCPError } from '../../../shared/src/errors';
 import { withPerformanceMonitoring } from '../../../shared/src/monitoring';
 import { withRetry } from '../../../shared/src/retry';
@@ -1743,7 +1743,7 @@ export class MLDeploymentService {
   }
 }
 
-export class MLDeploymentMCPServer extends BaseServer {
+export class MLDeploymentMCPServer extends BaseMCPServer {
   private mlDeploymentService: MLDeploymentService;
 
   constructor() {

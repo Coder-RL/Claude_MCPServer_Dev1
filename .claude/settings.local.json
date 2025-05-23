@@ -1,7 +1,23 @@
 {
   "permissions": {
     "allow": [
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(ls:*)",
+      "Bash(claude --mcp-debug)",
+      "Bash(find:*)",
+      "Bash(grep:*)",
+      "Bash(ls:*)",
+      "Bash(pkill:*)",
+      "Bash(rm:*)",
+      "Bash(kill:*)",
+      "Bash(claude mcp:*)",
+      "Bash(curl:*)",
+      "Bash(cat:*)",
+      "Bash(chmod:*)",
+      "Bash(python:*)",
+      "Bash(kill:*)",
+      "Bash(claude --version)",
+      "Bash(true)"
     ],
     "deny": []
   }

@@ -2,110 +2,223 @@
 
 /**
  * Simplified Memory MCP Server for testing
- * In-memory storage with health monitoring
+ * In-memory storage with MCP protocol support
  */
 
-const http = require('http');
+import { Server } from '@modelcontextprotocol/sdk/server/index.js';
+import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
+import {
+  CallToolRequestSchema,
+  ListToolsRequestSchema,
+} from '@modelcontextprotocol/sdk/types.js';
 
 class SimpleMemoryMCP {
   constructor() {
-    this.port = process.env.PORT || 3201;
     this.memories = new Map();
-    this.server = null;
     this.startTime = Date.now();
+    this.server = new Server(
+      {
+        name: 'memory-simple',
+        version: '1.0.0',
+      },
+      {
+        capabilities: {
+          tools: {},
+        },
+      }
+    );
+    
+    this.setupHandlers();
   }
 
-  createServer() {
-    this.server = http.createServer((req, res) => {
-      // CORS headers
-      res.setHeader('Access-Control-Allow-Origin', '*');
-      res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-      res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-
-      if (req.method === 'OPTIONS') {
-        res.writeHead(200);
-        res.end();
-        return;
-      }
-
-      const url = new URL(req.url, `http://${req.headers.host}`);
-      
-      if (url.pathname === '/health' && req.method === 'GET') {
-        res.writeHead(200, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({
-          status: 'healthy',
-          service: 'memory-mcp-simple',
-          version: '1.0.0',
-          uptime: Date.now() - this.startTime,
-          memoriesCount: this.memories.size,
-          timestamp: new Date().toISOString()
-        }));
-        return;
-      }
-
-      if (url.pathname === '/memory' && req.method === 'POST') {
-        let body = '';
-        req.on('data', chunk => body += chunk);
-        req.on('end', () => {
-          try {
-            const { content, importance = 1.0, tags = [] } = JSON.parse(body);
-            const id = `mem_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-            
-            this.memories.set(id, {
-              id,
-              content,
-              importance,
-              tags,
-              created: new Date().toISOString()
-            });
-
-            res.writeHead(201, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify({ success: true, id, content }));
-          } catch (error) {
-            res.writeHead(400, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify({ error: 'Invalid JSON' }));
+  setupHandlers() {
+    this.server.setRequestHandler(ListToolsRequestSchema, async () => {
+      return {
+        tools: [
+          {
+            name: 'store_memory',
+            description: 'Store a memory with a key-value pair',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                key: { type: 'string' },
+                value: { type: 'string' },
+                metadata: { type: 'object' }
+              },
+              required: ['key', 'value']
+            }
+          },
+          {
+            name: 'retrieve_memory',
+            description: 'Retrieve a memory by key',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                key: { type: 'string' }
+              },
+              required: ['key']
+            }
+          },
+          {
+            name: 'list_memories',
+            description: 'List all stored memories',
+            inputSchema: {
+              type: 'object',
+              properties: {}
+            }
+          },
+          {
+            name: 'delete_memory',
+            description: 'Delete a memory by key',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                key: { type: 'string' }
+              },
+              required: ['key']
+            }
+          },
+          {
+            name: 'health_check',
+            description: 'Check server health status',
+            inputSchema: {
+              type: 'object',
+              properties: {}
+            }
           }
-        });
-        return;
+        ]
+      };
+    });
+
+    this.server.setRequestHandler(CallToolRequestSchema, async (request) => {
+      const { name, arguments: args } = request.params;
+
+      switch (name) {
+        case 'store_memory':
+          return this.storeMemory(args);
+        case 'retrieve_memory':
+          return this.retrieveMemory(args);
+        case 'list_memories':
+          return this.listMemories();
+        case 'delete_memory':
+          return this.deleteMemory(args);
+        case 'health_check':
+          return this.healthCheck();
+        default:
+          throw new Error(`Unknown tool: ${name}`);
       }
-
-      if (url.pathname === '/memory/search' && req.method === 'POST') {
-        let body = '';
-        req.on('data', chunk => body += chunk);
-        req.on('end', () => {
-          try {
-            const { query } = JSON.parse(body);
-            const results = Array.from(this.memories.values())
-              .filter(m => m.content.toLowerCase().includes(query.toLowerCase()))
-              .slice(0, 10);
-
-            res.writeHead(200, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify({ success: true, results }));
-          } catch (error) {
-            res.writeHead(400, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify({ error: 'Invalid JSON' }));
-          }
-        });
-        return;
-      }
-
-      res.writeHead(404, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify({ error: 'Not found' }));
     });
   }
 
-  start() {
-    this.createServer();
-    this.server.listen(this.port, '0.0.0.0', () => {
-      console.log(`🧠 Simple Memory MCP running on port ${this.port}`);
-      console.log(`📊 Health: http://localhost:${this.port}/health`);
+  async storeMemory(args) {
+    const { key, value, metadata = {} } = args;
+    
+    this.memories.set(key, {
+      key,
+      value,
+      metadata,
+      created: new Date().toISOString(),
+      updated: new Date().toISOString()
     });
+
+    return {
+      content: [
+        {
+          type: 'text',
+          text: `Memory stored successfully: ${key}`
+        }
+      ]
+    };
+  }
+
+  async retrieveMemory(args) {
+    const { key } = args;
+    const memory = this.memories.get(key);
+
+    if (!memory) {
+      return {
+        content: [
+          {
+            type: 'text',
+            text: `Memory not found: ${key}`
+          }
+        ]
+      };
+    }
+
+    return {
+      content: [
+        {
+          type: 'text',
+          text: JSON.stringify(memory, null, 2)
+        }
+      ]
+    };
+  }
+
+  async listMemories() {
+    const memories = Array.from(this.memories.values());
+
+    return {
+      content: [
+        {
+          type: 'text',
+          text: JSON.stringify({
+            count: memories.length,
+            memories: memories.map(m => ({ key: m.key, created: m.created }))
+          }, null, 2)
+        }
+      ]
+    };
+  }
+
+  async deleteMemory(args) {
+    const { key } = args;
+    const existed = this.memories.has(key);
+    
+    if (existed) {
+      this.memories.delete(key);
+    }
+
+    return {
+      content: [
+        {
+          type: 'text',
+          text: existed ? `Memory deleted: ${key}` : `Memory not found: ${key}`
+        }
+      ]
+    };
+  }
+
+  async healthCheck() {
+    return {
+      content: [
+        {
+          type: 'text',
+          text: JSON.stringify({
+            status: 'healthy',
+            service: 'memory-simple',
+            version: '1.0.0',
+            uptime: Date.now() - this.startTime,
+            memoriesCount: this.memories.size,
+            timestamp: new Date().toISOString()
+          }, null, 2)
+        }
+      ]
+    };
+  }
+
+  async start() {
+    const transport = new StdioServerTransport();
+    await this.server.connect(transport);
+    console.error('Memory Simple MCP server started');
   }
 }
 
-if (require.main === module) {
+// Start the server if this file is run directly
+if (import.meta.url === `file://${process.argv[1]}`) {
   const server = new SimpleMemoryMCP();
-  server.start();
+  server.start().catch(console.error);
 }
 
-module.exports = SimpleMemoryMCP;
+export default SimpleMemoryMCP;

@@ -1,7 +1,6 @@
-import { BaseServer } from '../../../shared/src/base-server';
+import { BaseMCPServer } from "../../shared/base-server";
 import { MCPError } from '../../../shared/src/errors';
 import { HealthChecker } from '../../../shared/src/health';
-import * as express from 'express';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import { exec } from 'child_process';
@@ -1467,7 +1466,7 @@ export class OptimizationService {
 }
 
 // Optimization MCP Server
-export class OptimizationServer extends BaseServer {
+export class OptimizationServer extends BaseMCPServer {
   private optimizationService: OptimizationService;
   
   // Memory optimization: Enable garbage collection and monitoring

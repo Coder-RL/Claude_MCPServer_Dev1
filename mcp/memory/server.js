@@ -6,8 +6,8 @@
  * Enterprise-grade implementation with health monitoring and error handling
  */
 
-const http = require('http');
-const { Client } = require('pg');
+import http from 'http';
+import { Client } from 'pg';
 
 class MemoryMCPServer {
   constructor() {
@@ -738,7 +738,7 @@ class MemoryMCPServer {
 }
 
 // Start server if this file is run directly
-if (require.main === module) {
+if (import.meta.url === `file://${process.argv[1]}`) {
   const server = new MemoryMCPServer();
   
   // Graceful shutdown
@@ -754,4 +754,4 @@ if (require.main === module) {
   });
 }
 
-module.exports = MemoryMCPServer;
+export default MemoryMCPServer;
