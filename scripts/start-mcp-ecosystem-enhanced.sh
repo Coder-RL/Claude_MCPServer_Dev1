@@ -395,6 +395,21 @@ main() {
         "tsx servers/data-analytics/src/data-governance.ts" \
         "3015"
     
+    # New Advanced MCP Servers (Week 12+)
+    log "${BLUE}🔒 Starting Advanced MCP servers...${NC}"
+    
+    start_background_service "security-vulnerability" \
+        "tsx servers/security-vulnerability/src/security-vulnerability.ts" \
+        "3016"
+    
+    start_background_service "ui-design" \
+        "tsx servers/ui-design/src/ui-design.ts" \
+        "3017"
+    
+    start_background_service "optimization" \
+        "tsx servers/optimization/src/optimization.ts" \
+        "3018"
+    
     # Step 5: Final health checks
     log "${BLUE}🏥 Phase 5: Final Health Assessment${NC}"
     sleep 5
@@ -431,6 +446,17 @@ main() {
         fi
     done
     
+    # Check Advanced MCP servers
+    local advanced_services=("Security Vulnerability" "UI Design" "Optimization")
+    for i in {0..2}; do
+        local port=$((3016 + i))
+        if check_port $port; then
+            services_status+="${GREEN}✅ ${advanced_services[$i]} ($port)${NC}\n"
+        else
+            services_status+="${RED}❌ ${advanced_services[$i]} ($port)${NC}\n"
+        fi
+    done
+    
     echo -e "$services_status" | tee -a "$STARTUP_LOG"
     
     # Step 6: Summary and next steps
@@ -443,6 +469,9 @@ main() {
     log "   • Data Warehouse: http://localhost:3013/health"
     log "   • ML Deployment: http://localhost:3014/health"
     log "   • Data Governance: http://localhost:3015/health"
+    log "   • Security Vulnerability: http://localhost:3016/health"
+    log "   • UI Design: http://localhost:3017/health"
+    log "   • Optimization: http://localhost:3018/health"
     
     log "${BLUE}🛠️  Management commands:${NC}"
     log "   • Stop all services: bash scripts/stop-mcp-ecosystem.sh"

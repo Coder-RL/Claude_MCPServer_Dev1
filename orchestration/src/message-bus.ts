@@ -41,7 +41,7 @@ export interface MessageBusMetrics {
 
 export class MessageBus {
   private redis: RedisConnectionManager;
-  private consumers: Map<string, { handler: MessageHandler; running: boolean }> = new Map();
+  private consumers: Map<string, { handler: MessageHandler; running: boolean; timeoutId?: NodeJS.Timeout }> = new Map();
   private metrics: MessageBusMetrics = {
     messagesSent: 0,
     messagesReceived: 0,
@@ -51,6 +51,7 @@ export class MessageBus {
     streamCount: 0,
   };
   private shutdownPromise: Promise<void> | null = null;
+  private maxConsumerInactivityMs = 300000; // 5 minutes
 
   constructor(redis: RedisConnectionManager) {
     this.redis = redis;
@@ -105,8 +106,12 @@ export class MessageBus {
     try {
       await this.createConsumerGroup(streamName, options.group, options.startId || '0');
       
-      this.consumers.set(consumerKey, { handler, running: true });
+      const consumerData = { handler, running: true };
+      this.consumers.set(consumerKey, consumerData);
       this.metrics.activeConsumers++;
+
+      // Set up inactivity timeout
+      this.resetConsumerTimeout(consumerKey);
 
       this.startConsumer(streamName, options, handler);
       
@@ -142,38 +147,49 @@ export class MessageBus {
     
     const processMessages = async (): Promise<void> => {
       const consumer = this.consumers.get(consumerKey);
-      if (!consumer?.running) {
-        return;
-      }
+      
+      while (consumer?.running) {
+        try {
+          const results = await this.redis.getClient().xreadgroup(
+            'GROUP', options.group, options.consumer,
+            'COUNT', options.count || 10,
+            'BLOCK', options.block || 1000,
+            'STREAMS', streamName, '>'
+          );
 
-      try {
-        const results = await this.redis.getClient().xreadgroup(
-          'GROUP', options.group, options.consumer,
-          'COUNT', options.count || 10,
-          'BLOCK', options.block || 1000,
-          'STREAMS', streamName, '>'
-        );
-
-        if (results && results.length > 0) {
-          for (const [_stream, messages] of results) {
-            for (const [messageId, fields] of messages) {
-              await this.processMessage(streamName, options, messageId, fields, handler);
+          if (results && results.length > 0) {
+            for (const [_stream, messages] of results) {
+              for (const [messageId, fields] of messages) {
+                if (!consumer.running) break;
+                await this.processMessage(streamName, options, messageId, fields, handler);
+              }
             }
           }
+        } catch (error) {
+          if (consumer?.running) {
+            logger.error(`Error reading from stream ${streamName}`, { error });
+            await new Promise(resolve => setTimeout(resolve, 5000));
+          }
         }
-      } catch (error) {
-        if (consumer?.running) {
-          logger.error(`Error reading from stream ${streamName}`, { error });
-          await new Promise(resolve => setTimeout(resolve, 5000));
-        }
+        
+        // Allow event loop to process other tasks
+        await new Promise(resolve => setImmediate(resolve));
       }
-
-      if (consumer?.running) {
-        setImmediate(processMessages);
-      }
+      
+      logger.info(`Consumer stopped for stream ${streamName}`, {
+        group: options.group,
+        consumer: options.consumer
+      });
     };
 
-    processMessages();
+    // Start processing in next tick to avoid blocking
+    setImmediate(() => processMessages().catch(error => {
+      logger.error(`Fatal error in consumer ${consumerKey}`, { error });
+      const consumer = this.consumers.get(consumerKey);
+      if (consumer) {
+        consumer.running = false;
+      }
+    }));
   }
 
   private async processMessage(
@@ -199,6 +215,10 @@ export class MessageBus {
       
       await this.redis.getClient().xack(streamName, options.group, messageId);
       this.metrics.messagesProcessed++;
+      
+      // Reset consumer timeout on successful processing
+      const consumerKey = `${streamName}:${options.group}:${options.consumer}`;
+      this.resetConsumerTimeout(consumerKey);
       
       logger.debug(`Successfully processed message ${messageId}`);
     } catch (error) {
@@ -254,6 +274,11 @@ export class MessageBus {
       return;
     }
 
+    // Clear timeout
+    if (consumer.timeoutId) {
+      clearTimeout(consumer.timeoutId);
+    }
+
     consumer.running = false;
     this.consumers.delete(consumerKey);
     this.metrics.activeConsumers--;
@@ -270,6 +295,23 @@ export class MessageBus {
     } catch (error) {
       logger.error(`Failed to delete consumer ${consumerKey}`, { error });
     }
+  }
+
+  private resetConsumerTimeout(consumerKey: string): void {
+    const consumer = this.consumers.get(consumerKey);
+    if (!consumer) return;
+
+    // Clear existing timeout
+    if (consumer.timeoutId) {
+      clearTimeout(consumer.timeoutId);
+    }
+
+    // Set new timeout
+    consumer.timeoutId = setTimeout(() => {
+      logger.warn(`Consumer ${consumerKey} inactive, removing`);
+      const [streamName, group, consumerName] = consumerKey.split(':');
+      this.unsubscribeFromStream(streamName, { group, consumer: consumerName });
+    }, this.maxConsumerInactivityMs);
   }
 
   async getStreamInfo(streamName: string): Promise<any> {

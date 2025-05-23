@@ -18,7 +18,9 @@ export type RedisClient = RedisClientType<RedisDefaultModules & RedisModules, Re
 
 class RedisConnectionManager {
   private client: RedisClient | null = null;
+  private subscribers: Map<string, RedisClient> = new Map();
   private isConnected = false;
+  private isShuttingDown = false;
   private connectionMetrics = {
     connectionAttempts: 0,
     successfulConnections: 0,
@@ -294,20 +296,54 @@ class RedisConnectionManager {
   /**
    * Subscribe to channels
    */
-  async subscribe(channels: string[], onMessage: (channel: string, message: string) => void): Promise<void> {
+  async subscribe(channels: string[], onMessage: (channel: string, message: string) => void): Promise<string> {
     if (!this.client) {
       throw new Error('Redis client not connected');
     }
 
+    const subscriberId = `sub_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     const subscriber = this.client.duplicate();
-    await subscriber.connect();
+    
+    try {
+      await subscriber.connect();
+      this.subscribers.set(subscriberId, subscriber);
 
-    await subscriber.subscribe(channels, (message, channel) => {
-      logger.debug('Redis message received', { channel, messageLength: message.length });
-      onMessage(channel, message);
-    });
+      await subscriber.subscribe(channels, (message, channel) => {
+        logger.debug('Redis message received', { channel, messageLength: message.length });
+        onMessage(channel, message);
+      });
 
-    logger.info('Redis subscribed to channels', { channels });
+      logger.info('Redis subscribed to channels', { channels, subscriberId });
+      return subscriberId;
+    } catch (error) {
+      // Clean up on failure
+      if (subscriber.isOpen) {
+        await subscriber.disconnect();
+      }
+      throw error;
+    }
+  }
+
+  /**
+   * Unsubscribe from channels
+   */
+  async unsubscribe(subscriberId: string): Promise<void> {
+    const subscriber = this.subscribers.get(subscriberId);
+    if (!subscriber) {
+      logger.warn(`Subscriber ${subscriberId} not found`);
+      return;
+    }
+
+    try {
+      await subscriber.unsubscribe();
+      await subscriber.disconnect();
+      this.subscribers.delete(subscriberId);
+      logger.info(`Unsubscribed and cleaned up subscriber ${subscriberId}`);
+    } catch (error) {
+      logger.error(`Failed to unsubscribe ${subscriberId}`, {
+        error: error instanceof Error ? error.message : 'Unknown error',
+      });
+    }
   }
 
   /**
@@ -381,6 +417,23 @@ class RedisConnectionManager {
    * Close the Redis connection
    */
   async close(): Promise<void> {
+    if (this.isShuttingDown) return;
+    this.isShuttingDown = true;
+
+    // Close all subscribers first
+    for (const [subscriberId, subscriber] of this.subscribers) {
+      try {
+        await subscriber.disconnect();
+        logger.debug(`Closed subscriber ${subscriberId}`);
+      } catch (error) {
+        logger.error(`Failed to close subscriber ${subscriberId}`, {
+          error: error instanceof Error ? error.message : 'Unknown error',
+        });
+      }
+    }
+    this.subscribers.clear();
+
+    // Close main client
     if (this.client) {
       await this.client.quit();
       this.client = null;

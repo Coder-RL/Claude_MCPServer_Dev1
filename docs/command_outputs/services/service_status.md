@@ -9,12 +9,17 @@
 | 4000 | Development Server | ❌ Not Running | None | N/A |
 | 5000 | Flask/Python Dev | ❌ Not Running | None | N/A |
 | 5173 | Vite Dev Server | ❌ Not Running | None | N/A |
-| 8000 | Backend API/Django | ❌ Not Running | None | N/A |
+| 8000 | Backend API/Django | ✅ Running | Python (PID: 30042) | ✅ HTTP Responding + /health |
 | 8080 | Alternative Backend | ✅ Running | nginx (PID: 11261) | ✅ HTTP Responding + /health |
 | 8081 | Proxy/Alternative | ❌ Not Running | None | N/A |
 | 9000 | Admin/Monitoring | ✅ Running | php-fpm (PID: 2396) | N/A |
 
 ## Service Response Examples
+### Port 8000 Response
+```bash
+$ curl -s --max-time 5 http://localhost:8000
+{"message":"ClarusRev ASC 606 API is running","status":"healthy"}```
+
 ### Port 8080 Response
 ```bash
 $ curl -s --max-time 5 http://localhost:8080

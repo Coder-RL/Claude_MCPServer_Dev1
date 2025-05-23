@@ -84,6 +84,8 @@ export class DynamicMemoryManager extends EventEmitter {
   private monitoringInterval: NodeJS.Timeout | null = null;
   private totalSystemMemory: number;
   private gcStrategy: 'aggressive' | 'balanced' | 'conservative' = 'balanced';
+  private processEventHandlers: Array<{ event: string; handler: Function }> = [];
+  private isShuttingDown = false;
 
   constructor(systemMemoryLimit?: number) {
     super();
@@ -95,10 +97,8 @@ export class DynamicMemoryManager extends EventEmitter {
     this.startMemoryMonitoring();
     this.startPeriodicOptimization();
     
-    // Handle process events
-    process.on('exit', () => this.cleanup());
-    process.on('SIGINT', () => this.cleanup());
-    process.on('SIGTERM', () => this.cleanup());
+    // Handle process events with proper cleanup tracking
+    this.setupProcessHandlers();
     
     this.logger.info('Dynamic Memory Manager initialized', {
       totalMemory: this.formatBytes(this.totalSystemMemory),
@@ -876,12 +876,24 @@ export class DynamicMemoryManager extends EventEmitter {
     this.logger.info('Updated memory pressure thresholds', this.memoryPressureThresholds);
   }
 
-  private cleanup(): void {
+  private async cleanup(): Promise<void> {
     if (this.monitoringInterval) {
       clearInterval(this.monitoringInterval);
+      this.monitoringInterval = null;
     }
     if (this.optimizationInterval) {
       clearInterval(this.optimizationInterval);
+      this.optimizationInterval = null;
+    }
+    
+    // Deallocate all remaining allocations
+    const allocationIds = Array.from(this.globalAllocations.keys());
+    for (const id of allocationIds) {
+      try {
+        await this.deallocate(id);
+      } catch (error) {
+        this.logger.error(`Failed to deallocate ${id} during cleanup:`, error);
+      }
     }
     
     this.logger.info('Dynamic Memory Manager cleanup completed');
@@ -893,6 +905,44 @@ export class DynamicMemoryManager extends EventEmitter {
     const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     return `${parseFloat((bytes / Math.pow(k, i)).toFixed(2))} ${sizes[i]}`;
+  }
+
+  private setupProcessHandlers(): void {
+    const exitHandler = async () => {
+      if (!this.isShuttingDown) {
+        this.isShuttingDown = true;
+        await this.cleanup();
+      }
+    };
+
+    const events = ['exit', 'SIGINT', 'SIGTERM'];
+    events.forEach(event => {
+      process.on(event, exitHandler);
+      this.processEventHandlers.push({ event, handler: exitHandler });
+    });
+  }
+
+  async destroy(): Promise<void> {
+    if (this.isShuttingDown) return;
+    this.isShuttingDown = true;
+
+    // Remove process event handlers
+    this.processEventHandlers.forEach(({ event, handler }) => {
+      process.removeListener(event, handler as any);
+    });
+    this.processEventHandlers = [];
+
+    // Cleanup resources
+    await this.cleanup();
+    
+    // Clear all allocations
+    this.globalAllocations.clear();
+    this.pools.clear();
+    
+    // Remove all event listeners
+    this.removeAllListeners();
+    
+    this.logger.info('Memory Manager destroyed');
   }
 }
 

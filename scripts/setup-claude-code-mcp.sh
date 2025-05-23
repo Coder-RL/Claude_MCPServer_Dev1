@@ -32,7 +32,7 @@ check_claude_code() {
 check_mcp_servers() {
     log "${BLUE}🔍 Checking MCP servers...${NC}"
     
-    local servers=(3301 3011 3012 3013 3014 3015)
+    local servers=(3301 3011 3012 3013 3014 3015 3016 3017 3018)
     local failed=0
     
     for port in "${servers[@]}"; do
@@ -54,7 +54,7 @@ check_mcp_servers() {
 cleanup_existing() {
     log "${BLUE}🧹 Cleaning up existing MCP servers...${NC}"
     
-    local servers=("memory-simple" "sequential-thinking" "data-pipeline" "realtime-analytics" "data-warehouse" "ml-deployment" "data-governance")
+    local servers=("memory-simple" "sequential-thinking" "data-pipeline" "realtime-analytics" "data-warehouse" "ml-deployment" "data-governance" "security-vulnerability" "ui-design" "optimization")
     
     for server in "${servers[@]}"; do
         if claude mcp list | grep -q "$server"; then
@@ -108,6 +108,22 @@ add_mcp_servers() {
     claude mcp add data-governance \
         -e DATA_GOVERNANCE_PORT=3015 \
         -- tsx "$PROJECT_ROOT/servers/data-analytics/src/data-governance.ts"
+    
+    # Advanced MCP Servers
+    log "${BLUE}🔒 Adding Security Vulnerability MCP...${NC}"
+    claude mcp add security-vulnerability \
+        -e SECURITY_VULNERABILITY_PORT=3016 \
+        -- tsx "$PROJECT_ROOT/servers/security-vulnerability/src/security-vulnerability.ts"
+    
+    log "${BLUE}🎨 Adding UI Design MCP...${NC}"
+    claude mcp add ui-design \
+        -e UI_DESIGN_PORT=3017 \
+        -- tsx "$PROJECT_ROOT/servers/ui-design/src/ui-design.ts"
+    
+    log "${BLUE}⚡ Adding Optimization MCP...${NC}"
+    claude mcp add optimization \
+        -e OPTIMIZATION_PORT=3018 \
+        -- tsx "$PROJECT_ROOT/servers/optimization/src/optimization.ts"
 }
 
 # Verify setup
@@ -117,7 +133,7 @@ verify_setup() {
     log "${BLUE}📋 Configured MCP servers:${NC}"
     claude mcp list
     
-    log "${GREEN}✅ All 6 MCP servers configured in Claude Code!${NC}"
+    log "${GREEN}✅ All 9 MCP servers configured in Claude Code!${NC}"
 }
 
 # Show usage instructions
@@ -131,6 +147,9 @@ show_usage() {
     log "   • 'Query the data warehouse' (Data Warehouse)"
     log "   • 'Deploy ML models' (ML Deployment)"
     log "   • 'Check data governance policies' (Data Governance)"
+    log "   • 'Scan for security vulnerabilities' (Security Vulnerability)"
+    log "   • 'Analyze UI design consistency' (UI Design)"
+    log "   • 'Profile performance and optimize' (Optimization)"
     echo ""
     log "${BLUE}🔧 Management commands:${NC}"
     log "   • claude mcp list               # List all servers"
@@ -144,6 +163,9 @@ show_usage() {
     log "   • Data Warehouse: http://localhost:3013/health"
     log "   • ML Deployment: http://localhost:3014/health"
     log "   • Data Governance: http://localhost:3015/health"
+    log "   • Security Vulnerability: http://localhost:3016/health"
+    log "   • UI Design: http://localhost:3017/health"
+    log "   • Optimization: http://localhost:3018/health"
 }
 
 # Main execution

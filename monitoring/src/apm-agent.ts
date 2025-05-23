@@ -143,6 +143,10 @@ export class APMAgent extends EventEmitter {
   private errorCount = 0;
   private transactionCount = 0;
   private spanCount = 0;
+  private metricsInterval: NodeJS.Timeout | null = null;
+  private isShuttingDown = false;
+  private maxMapSize = 10000; // Prevent unbounded growth
+  private cleanupInterval: NodeJS.Timeout | null = null;
 
   constructor(
     private config: APMConfig,
@@ -573,7 +577,7 @@ export class APMAgent extends EventEmitter {
   }
 
   private startMetricsCollection(): void {
-    setInterval(() => {
+    this.metricsInterval = setInterval(() => {
       // Record agent metrics
       this.recordMetric('apm.transactions.active', this.activeTransactions.size);
       this.recordMetric('apm.spans.active', this.activeSpans.size);
@@ -587,6 +591,11 @@ export class APMAgent extends EventEmitter {
       this.recordMetric('process.memory.heap_total', memoryUsage.heapTotal);
       this.recordMetric('process.memory.rss', memoryUsage.rss);
     }, 30000); // Every 30 seconds
+
+    // Start cleanup interval to prevent memory leaks
+    this.cleanupInterval = setInterval(() => {
+      this.cleanupStaleData();
+    }, 60000); // Every minute
   }
 
   private setupErrorHandling(): void {
@@ -673,5 +682,83 @@ export class APMAgent extends EventEmitter {
 
       next();
     };
+  }
+
+  private cleanupStaleData(): void {
+    const now = Date.now();
+    const staleThreshold = 5 * 60 * 1000; // 5 minutes
+
+    // Clean up old transactions
+    for (const [id, transaction] of this.activeTransactions) {
+      if (now - transaction.startTime.getTime() > staleThreshold) {
+        this.activeTransactions.delete(id);
+        this.emit('transactionStale', { transactionId: id });
+      }
+    }
+
+    // Clean up old spans
+    for (const [id, span] of this.activeSpans) {
+      if (now - span.startTime.getTime() > staleThreshold) {
+        this.activeSpans.delete(id);
+        this.emit('spanStale', { spanId: id });
+      }
+    }
+
+    // Clean up sampling decisions (keep last 1000)
+    if (this.samplingDecisions.size > 1000) {
+      const keysToKeep = Array.from(this.samplingDecisions.keys()).slice(-1000);
+      const newDecisions = new Map<string, boolean>();
+      keysToKeep.forEach(key => {
+        const value = this.samplingDecisions.get(key);
+        if (value !== undefined) {
+          newDecisions.set(key, value);
+        }
+      });
+      this.samplingDecisions = newDecisions;
+    }
+
+    // Enforce max map sizes
+    if (this.activeTransactions.size > this.maxMapSize) {
+      const overflow = this.activeTransactions.size - this.maxMapSize;
+      const iterator = this.activeTransactions.keys();
+      for (let i = 0; i < overflow; i++) {
+        const key = iterator.next().value;
+        if (key) this.activeTransactions.delete(key);
+      }
+    }
+
+    if (this.activeSpans.size > this.maxMapSize) {
+      const overflow = this.activeSpans.size - this.maxMapSize;
+      const iterator = this.activeSpans.keys();
+      for (let i = 0; i < overflow; i++) {
+        const key = iterator.next().value;
+        if (key) this.activeSpans.delete(key);
+      }
+    }
+  }
+
+  async shutdown(): Promise<void> {
+    if (this.isShuttingDown) return;
+    this.isShuttingDown = true;
+
+    // Clear intervals
+    if (this.metricsInterval) {
+      clearInterval(this.metricsInterval);
+      this.metricsInterval = null;
+    }
+    if (this.cleanupInterval) {
+      clearInterval(this.cleanupInterval);
+      this.cleanupInterval = null;
+    }
+
+    // Clear all maps
+    this.activeTransactions.clear();
+    this.activeSpans.clear();
+    this.samplingDecisions.clear();
+
+    // Remove all listeners
+    this.removeAllListeners();
+
+    this.emit('shutdown');
   }
 }

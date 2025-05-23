@@ -66,6 +66,8 @@ export class StreamingOptimizer extends EventEmitter {
   private processingQueue: Array<{ id: string; data: any; resolve: Function; reject: Function }> = [];
   private isProcessing = false;
   private memoryAllocationId: string | null = null;
+  private isShuttingDown = false;
+  private activeStreamHandlers = new Map<string, Array<{ event: string; handler: Function }>>();
 
   constructor(config: Partial<StreamConfig> = {}) {
     super();
@@ -227,6 +229,7 @@ export class StreamingOptimizer extends EventEmitter {
     this.activeStreams.add(streamId);
 
     const stream = new OptimizedReadStream<T>(streamId, this, processor);
+    const handlers: Array<{ event: string; handler: Function }> = [];
     
     if (source instanceof Readable) {
       source.pipe(stream);
@@ -234,14 +237,20 @@ export class StreamingOptimizer extends EventEmitter {
       this.handleAsyncIterable(source, stream);
     }
 
-    stream.on('end', () => {
-      this.activeStreams.delete(streamId);
-    });
-
-    stream.on('error', () => {
-      this.activeStreams.delete(streamId);
+    const endHandler = () => {
+      this.cleanupStream(streamId);
+    };
+    const errorHandler = () => {
+      this.cleanupStream(streamId);
       this.metrics.errorCount++;
-    });
+    };
+
+    stream.on('end', endHandler);
+    stream.on('error', errorHandler);
+    handlers.push({ event: 'end', handler: endHandler });
+    handlers.push({ event: 'error', handler: errorHandler });
+    
+    this.activeStreamHandlers.set(streamId, handlers);
 
     return stream;
   }
@@ -268,16 +277,23 @@ export class StreamingOptimizer extends EventEmitter {
     this.activeStreams.add(streamId);
 
     const stream = new OptimizedWriteStream<T>(streamId, this, processor);
+    const handlers: Array<{ event: string; handler: Function }> = [];
     stream.pipe(destination);
 
-    stream.on('finish', () => {
-      this.activeStreams.delete(streamId);
-    });
-
-    stream.on('error', () => {
-      this.activeStreams.delete(streamId);
+    const finishHandler = () => {
+      this.cleanupStream(streamId);
+    };
+    const errorHandler = () => {
+      this.cleanupStream(streamId);
       this.metrics.errorCount++;
-    });
+    };
+
+    stream.on('finish', finishHandler);
+    stream.on('error', errorHandler);
+    handlers.push({ event: 'finish', handler: finishHandler });
+    handlers.push({ event: 'error', handler: errorHandler });
+    
+    this.activeStreamHandlers.set(streamId, handlers);
 
     return stream;
   }
@@ -289,15 +305,22 @@ export class StreamingOptimizer extends EventEmitter {
     this.activeStreams.add(streamId);
 
     const stream = new OptimizedTransformStream<T, U>(streamId, this, processor);
+    const handlers: Array<{ event: string; handler: Function }> = [];
 
-    stream.on('end', () => {
-      this.activeStreams.delete(streamId);
-    });
-
-    stream.on('error', () => {
-      this.activeStreams.delete(streamId);
+    const endHandler = () => {
+      this.cleanupStream(streamId);
+    };
+    const errorHandler = () => {
+      this.cleanupStream(streamId);
       this.metrics.errorCount++;
-    });
+    };
+
+    stream.on('end', endHandler);
+    stream.on('error', errorHandler);
+    handlers.push({ event: 'end', handler: endHandler });
+    handlers.push({ event: 'error', handler: errorHandler });
+    
+    this.activeStreamHandlers.set(streamId, handlers);
 
     return stream;
   }
@@ -500,20 +523,54 @@ export class StreamingOptimizer extends EventEmitter {
   }
 
   async shutdown(): Promise<void> {
+    if (this.isShuttingDown) return;
+    this.isShuttingDown = true;
+
     // Close all active streams
     for (const streamId of this.activeStreams) {
+      this.cleanupStream(streamId);
       this.emit('streamClose', { streamId });
     }
+    
+    // Clear processing queue
+    this.processingQueue.forEach(task => {
+      task.reject(new Error('StreamingOptimizer shutting down'));
+    });
+    this.processingQueue = [];
     
     // Clear cache
     await this.cache.shutdown();
     
+    // Release all buffers
+    for (const pool of this.bufferPools.values()) {
+      pool.buffers = [];
+      pool.available = [];
+      pool.inUse.clear();
+    }
+    this.bufferPools.clear();
+    
     // Release memory allocation
     if (this.memoryAllocationId) {
       await memoryManager.deallocate(this.memoryAllocationId);
+      this.memoryAllocationId = null;
     }
     
+    // Remove all event listeners
+    this.removeAllListeners();
+    
     this.logger.info('Streaming Optimizer shutdown completed');
+  }
+
+  private cleanupStream(streamId: string): void {
+    this.activeStreams.delete(streamId);
+    
+    // Remove event handlers
+    const handlers = this.activeStreamHandlers.get(streamId);
+    if (handlers) {
+      // Note: We can't remove handlers from the stream itself as we don't have a reference
+      // but we can clean up our tracking
+      this.activeStreamHandlers.delete(streamId);
+    }
   }
 
   private formatBytes(bytes: number): string {

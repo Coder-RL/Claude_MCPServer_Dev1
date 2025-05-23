@@ -253,16 +253,30 @@ const dbConfig: DatabaseConfig = {
 export const db = new DatabasePool(dbConfig);
 
 // Graceful shutdown handler
-process.on('SIGINT', async () => {
-  logger.info('Received SIGINT, closing database pool...');
-  await db.close();
-  process.exit(0);
-});
+let isShuttingDown = false;
 
-process.on('SIGTERM', async () => {
-  logger.info('Received SIGTERM, closing database pool...');
-  await db.close();
-  process.exit(0);
-});
+const gracefulShutdown = async (signal: string) => {
+  if (isShuttingDown) return;
+  isShuttingDown = true;
+  
+  logger.info(`Received ${signal}, closing database pool...`);
+  
+  try {
+    await db.close();
+    logger.info('Database pool closed successfully');
+  } catch (error) {
+    logger.error('Error closing database pool', {
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+  
+  // Give time for cleanup before exit
+  setTimeout(() => {
+    process.exit(0);
+  }, 100);
+};
+
+process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
 
 export { DatabasePool };
