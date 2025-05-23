@@ -19,7 +19,7 @@ export abstract class BaseMCPServer {
   protected tools: Map<string, MCPTool> = new Map();
   protected name: string;
   protected description: string;
-  protected httpServer: http.Server;
+  protected httpServer!: http.Server;
   protected port: number = 8000;
 
   constructor(name: string, description: string) {
@@ -69,10 +69,14 @@ export abstract class BaseMCPServer {
 
         // List tools endpoint
         if (path === '/tools') {
-          const toolNames = Array.from(this.tools.keys());
+          const tools = Array.from(this.tools.values()).map(tool => ({
+            name: tool.name,
+            description: tool.description,
+            inputSchema: tool.inputSchema
+          }));
 
           res.writeHead(200, { 'Content-Type': 'application/json' });
-          res.end(JSON.stringify({ tools: toolNames }));
+          res.end(JSON.stringify({ tools }));
           return;
         }
 
@@ -193,7 +197,7 @@ export abstract class BaseMCPServer {
 
   // Utility methods for common operations
   protected generateId(): string {
-    return `${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    return `${Date.now()}_${Math.random().toString(36).substring(2, 11)}`;
   }
 
   protected validateRequired(params: any, required: string[]): void {

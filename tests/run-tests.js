@@ -109,11 +109,10 @@ async function runTests() {
 
 // Run performance tests
 async function runPerformanceTests() {
-  // Import the performance tests module
-  const { runPerformanceTests } = require('./performance/performance-tests');
-
   try {
-    const exitCode = await runPerformanceTests();
+    // Import the performance tests module using dynamic import
+    const performanceModule = await import('./performance/performance-tests.js');
+    const exitCode = await performanceModule.runPerformanceTests();
     return exitCode;
   } catch (error) {
     console.error('❌ Error running performance tests:', error);

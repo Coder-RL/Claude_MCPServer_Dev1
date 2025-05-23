@@ -374,7 +374,7 @@ async function testTokenCounting(results) {
       generateLongText(1000) // Generate a long text with approximately 1000 words
     ];
 
-    const results = [];
+    const tokenResults = [];
 
     for (let i = 0; i < testTexts.length; i++) {
       const text = testTexts[i];
@@ -392,7 +392,7 @@ async function testTokenCounting(results) {
         throw new Error(`Failed to count tokens for text ${i+1}`);
       }
 
-      results.push({
+      tokenResults.push({
         textLength: text.length,
         tokenCount: tokenData.tokenCount
       });
@@ -406,7 +406,7 @@ async function testTokenCounting(results) {
       name: 'Token Counting',
       passed: true,
       details: {
-        results: results
+        results: tokenResults
       }
     });
 
