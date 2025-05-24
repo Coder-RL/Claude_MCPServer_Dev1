@@ -5,7 +5,7 @@
       "command": "node",
       "args": ["/Users/robertlee/GitHubProjects/Claude_MCPServer/mcp/memory/simple-server.js"],
       "env": {
-        "PORT": "3301"
+        "MEMORY_ID": "memory-simple"
       }
     },
     "sequential-thinking": {
@@ -45,6 +45,20 @@
       "args": ["/Users/robertlee/GitHubProjects/Claude_MCPServer/servers/data-analytics/src/data-governance.ts"],
       "env": {
         "DATA_GOVERNANCE_ID": "data-governance-server"
+      }
+    },
+    "security-vulnerability": {
+      "command": "npx",
+      "args": ["tsx", "/Users/robertlee/GitHubProjects/Claude_MCPServer/servers/security-vulnerability/src/security-vulnerability.ts"],
+      "env": {
+        "SECURITY_ID": "security-vulnerability-server"
+      }
+    },
+    "ui-design": {
+      "command": "npx",
+      "args": ["tsx", "/Users/robertlee/GitHubProjects/Claude_MCPServer/servers/ui-design/src/ui-design.ts"],
+      "env": {
+        "UI_DESIGN_ID": "ui-design-server"
       }
     }
   }

@@ -1,4 +1,4 @@
-import { BaseMCPServer } from '../../shared/base-server.js';
+import { StandardMCPServer, MCPTool } from '../../shared/base-server.js';
 
 export interface CrossAttentionConfig {
   id: string;
@@ -145,7 +145,7 @@ export interface AdaptiveCrossAttention {
   performance: Record<string, number>;
 }
 
-export class CrossAttentionController extends BaseMCPServer {
+export class CrossAttentionController extends StandardMCPServer {
   private configs: Map<string, CrossAttentionConfig> = new Map();
   private sessions: Map<string, CrossAttentionSession> = new Map();
   private analyses: Map<string, CrossAttentionAnalysis> = new Map();
@@ -458,7 +458,7 @@ export class CrossAttentionController extends BaseMCPServer {
     });
   }
 
-  async createCrossAttentionConfig(params: any): Promise<any> {
+  async createCrossAttentionConfig(params: any): Promise<{ content: { type: string; text: string }[] }> {
     const { name, type, queryModality, contextModality, architectureParams = {}, domainParams = {} } = params;
     
     this.validateRequired(params, ['name', 'type', 'queryModality', 'contextModality']);
@@ -494,7 +494,7 @@ export class CrossAttentionController extends BaseMCPServer {
     };
   }
 
-  async initializeCrossAttentionSession(params: any): Promise<any> {
+  async initializeCrossAttentionSession(params: any): Promise<{ content: { type: string; text: string }[] }> {
     const { configId, queryData, contextData, sessionOptions = {} } = params;
     
     this.validateRequired(params, ['configId', 'queryData', 'contextData']);
@@ -549,7 +549,7 @@ export class CrossAttentionController extends BaseMCPServer {
     };
   }
 
-  async computeCrossAttention(params: any): Promise<any> {
+  async computeCrossAttention(params: any): Promise<{ content: { type: string; text: string }[] }> {
     const { sessionId, layerIndex, returnWeights = false, analyzePatterns = false } = params;
     
     this.validateRequired(params, ['sessionId']);
@@ -611,7 +611,7 @@ export class CrossAttentionController extends BaseMCPServer {
     return results;
   }
 
-  async analyzeCrossAttention(params: any): Promise<any> {
+  async analyzeCrossAttention(params: any): Promise<{ content: { type: string; text: string }[] }> {
     const { sessionId, analysisType, focusLayers, generateVisualization = false } = params;
     
     this.validateRequired(params, ['sessionId', 'analysisType']);
@@ -847,7 +847,7 @@ export class CrossAttentionController extends BaseMCPServer {
     layer: number,
     returnWeights: boolean,
     analyzePatterns: boolean
-  ): Promise<any> {
+  ): Promise<{ content: { type: string; text: string }[] }> {
     // Simulate cross-attention computation for the layer
     const querySeqLen = session.queryModalityInfo.sequenceLength;
     const contextSeqLen = session.contextModalityInfo.sequenceLength;
@@ -1497,7 +1497,7 @@ export class CrossAttentionController extends BaseMCPServer {
     };
   }
 
-  async handleRequest(method: string, params: any): Promise<any> {
+  async handleRequest(method: string, params: any): Promise<{ content: { type: string; text: string }[] }> {
     switch (method) {
       case 'create_cross_attention_config':
         return this.createCrossAttentionConfig(params);
@@ -1520,7 +1520,7 @@ export class CrossAttentionController extends BaseMCPServer {
     }
   }
 
-  private async optimizeCrossAttentionFusion(params: any): Promise<any> {
+  private async optimizeCrossAttentionFusion(params: any): Promise<{ content: { type: string; text: string }[] }> {
     const { sessionId, targetMetrics, optimizationStrategy = 'greedy', constraints = {} } = params;
     
     this.validateRequired(params, ['sessionId', 'targetMetrics']);
@@ -1547,7 +1547,7 @@ export class CrossAttentionController extends BaseMCPServer {
     };
   }
 
-  private async adaptiveCrossAttention(params: any): Promise<any> {
+  private async adaptiveCrossAttention(params: any): Promise<{ content: { type: string; text: string }[] }> {
     const { configId, adaptationType, adaptationParams = {}, monitoringWindow = 100 } = params;
     
     this.validateRequired(params, ['configId', 'adaptationType']);
@@ -1587,7 +1587,7 @@ export class CrossAttentionController extends BaseMCPServer {
     };
   }
 
-  private async multimodalAlignmentAnalysis(params: any): Promise<any> {
+  private async multimodalAlignmentAnalysis(params: any): Promise<{ content: { type: string; text: string }[] }> {
     const { sessionId, alignmentMetrics, referenceAlignment, generateAlignmentMap = false } = params;
     
     this.validateRequired(params, ['sessionId', 'alignmentMetrics']);
@@ -1634,7 +1634,7 @@ export class CrossAttentionController extends BaseMCPServer {
     return analysisResults;
   }
 
-  private async crossAttentionDebugging(params: any): Promise<any> {
+  private async crossAttentionDebugging(params: any): Promise<{ content: { type: string; text: string }[] }> {
     const { sessionId, debugLevel = 'basic', checkpoints = [], compareWithBaseline = false } = params;
     
     this.validateRequired(params, ['sessionId']);
@@ -1687,7 +1687,7 @@ export class CrossAttentionController extends BaseMCPServer {
     targetMetrics: any,
     strategy: string,
     constraints: any
-  ): Promise<any> {
+  ): Promise<{ content: { type: string; text: string }[] }> {
     const fusionStrategies = ['add', 'concat', 'gate', 'attention_weighted', 'learned_fusion'];
     let bestStrategy = config.fusionStrategy;
     let bestScore = 0;

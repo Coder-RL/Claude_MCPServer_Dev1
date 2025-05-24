@@ -1,4 +1,4 @@
-import { BaseMCPServer } from './base-server.js';
+import { StandardMCPServer, MCPTool } from '../../shared/standard-mcp-server';
 
 export interface PositionalEncodingConfig {
   id: string;
@@ -56,7 +56,7 @@ export interface AdaptivePositionConfig {
   };
 }
 
-export class PositionalEncodingService extends BaseMCPServer {
+export class PositionalEncodingService extends StandardMCPServer {
   private configs: Map<string, PositionalEncodingConfig> = new Map();
   private caches: Map<string, EncodingCache> = new Map();
   private benchmarks: Map<string, EncodingBenchmark> = new Map();
@@ -262,7 +262,7 @@ export class PositionalEncodingService extends BaseMCPServer {
     });
   }
 
-  async createPositionalEncoding(params: any): Promise<any> {
+  async createPositionalEncoding(params: any): Promise<{ content: { type: string; text: string }[] }> {
     const { name, type, maxLength, dimensions, customParameters = {} } = params;
     
     const configId = `pos_enc_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
@@ -307,7 +307,7 @@ export class PositionalEncodingService extends BaseMCPServer {
     };
   }
 
-  async generatePositionEncodings(params: any): Promise<any> {
+  async generatePositionEncodings(params: any): Promise<{ content: { type: string; text: string }[] }> {
     const { configId, sequenceLength, batchSize = 1, startPosition = 0, useCache = true } = params;
     
     if (!this.configs.has(configId)) {
@@ -350,7 +350,7 @@ export class PositionalEncodingService extends BaseMCPServer {
     };
   }
 
-  async benchmarkEncodingPerformance(params: any): Promise<any> {
+  async benchmarkEncodingPerformance(params: any): Promise<{ content: { type: string; text: string }[] }> {
     const { configId, sequenceLengths, iterations = 10, includeMemoryProfiling = false } = params;
     
     if (!this.configs.has(configId)) {
@@ -411,7 +411,7 @@ export class PositionalEncodingService extends BaseMCPServer {
     };
   }
 
-  async adaptPositionEncoding(params: any): Promise<any> {
+  async adaptPositionEncoding(params: any): Promise<{ content: { type: string; text: string }[] }> {
     const { baseConfigId, targetLength, adaptationStrategy, validationData } = params;
     
     if (!this.configs.has(baseConfigId)) {
@@ -476,7 +476,7 @@ export class PositionalEncodingService extends BaseMCPServer {
     };
   }
 
-  async compareEncodingSchemes(params: any): Promise<any> {
+  async compareEncodingSchemes(params: any): Promise<{ content: { type: string; text: string }[] }> {
     const { configIds, testSequenceLengths, metrics, generateVisualization = false } = params;
     
     const comparison: any = {
@@ -527,7 +527,7 @@ export class PositionalEncodingService extends BaseMCPServer {
     return comparison;
   }
 
-  async analyzePositionPatterns(params: any): Promise<any> {
+  async analyzePositionPatterns(params: any): Promise<{ content: { type: string; text: string }[] }> {
     const { configId, analysisType, sequenceLength } = params;
     
     if (!this.configs.has(configId)) {
@@ -841,7 +841,7 @@ export class PositionalEncodingService extends BaseMCPServer {
     }
   }
 
-  private async validateAdaptation(adaptationId: string, validationData: any): Promise<any> {
+  private async validateAdaptation(adaptationId: string, validationData: any): Promise<{ content: { type: string; text: string }[] }> {
     // Simulate validation process
     return {
       perplexity: Math.random() * 2 + 3, // 3-5 range
@@ -868,7 +868,7 @@ export class PositionalEncodingService extends BaseMCPServer {
     return recommendations;
   }
 
-  private async measurePerformanceMetric(config: PositionalEncodingConfig, testLengths: number[]): Promise<any> {
+  private async measurePerformanceMetric(config: PositionalEncodingConfig, testLengths: number[]): Promise<{ content: { type: string; text: string }[] }> {
     const times: number[] = [];
     
     for (const length of testLengths) {
@@ -894,7 +894,7 @@ export class PositionalEncodingService extends BaseMCPServer {
     };
   }
 
-  private async measureInterpolationAbility(config: PositionalEncodingConfig, testLengths: number[]): Promise<any> {
+  private async measureInterpolationAbility(config: PositionalEncodingConfig, testLengths: number[]): Promise<{ content: { type: string; text: string }[] }> {
     const scores: number[] = [];
     
     for (const length of testLengths) {
@@ -981,7 +981,7 @@ export class PositionalEncodingService extends BaseMCPServer {
     return similarity;
   }
 
-  private async analyzeInterpolationQuality(config: PositionalEncodingConfig, maxLength: number): Promise<any> {
+  private async analyzeInterpolationQuality(config: PositionalEncodingConfig, maxLength: number): Promise<{ content: { type: string; text: string }[] }> {
     const testLengths = [maxLength / 4, maxLength / 2, maxLength * 0.75, maxLength];
     const quality: number[] = [];
     
@@ -997,7 +997,7 @@ export class PositionalEncodingService extends BaseMCPServer {
     };
   }
 
-  private async analyzeExtrapolationBehavior(config: PositionalEncodingConfig, baseLength: number): Promise<any> {
+  private async analyzeExtrapolationBehavior(config: PositionalEncodingConfig, baseLength: number): Promise<{ content: { type: string; text: string }[] }> {
     const extrapolationLengths = [baseLength * 1.5, baseLength * 2, baseLength * 3];
     const behavior: any[] = [];
     
@@ -1160,7 +1160,7 @@ export class PositionalEncodingService extends BaseMCPServer {
     return bottlenecks;
   }
 
-  async handleRequest(method: string, params: any): Promise<any> {
+  async handleRequest(method: string, params: any): Promise<{ content: { type: string; text: string }[] }> {
     switch (method) {
       case 'create_positional_encoding':
         return this.createPositionalEncoding(params);
@@ -1181,7 +1181,7 @@ export class PositionalEncodingService extends BaseMCPServer {
     }
   }
 
-  private async optimizeEncodingCache(params: any): Promise<any> {
+  private async optimizeEncodingCache(params: any): Promise<{ content: { type: string; text: string }[] }> {
     const { strategy, maxMemoryUsage, precomputeLengths } = params;
     
     let optimizedCaches = 0;

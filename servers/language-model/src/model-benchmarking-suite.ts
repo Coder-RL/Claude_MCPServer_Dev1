@@ -1,5 +1,5 @@
 import { Server } from 'http';
-import { BaseMCPServer } from '../../shared/base-server';
+import { StandardMCPServer, MCPTool } from '../../shared/base-server';
 import { v4 as uuidv4 } from 'uuid';
 
 // Benchmark types and categories
@@ -341,7 +341,7 @@ interface AnalysisRecommendation {
 }
 
 // Main Model Benchmarking Suite class
-export class ModelBenchmarkingSuite extends BaseMCPServer {
+export class ModelBenchmarkingSuite extends StandardMCPServer {
   private benchmarks: Map<string, BenchmarkDefinition> = new Map();
   private runs: Map<string, BenchmarkRun> = new Map();
   private leaderboards: Map<string, Leaderboard> = new Map();
@@ -574,7 +574,7 @@ export class ModelBenchmarkingSuite extends BaseMCPServer {
   }
 
   // Benchmark definition management
-  async createBenchmark(params: any): Promise<any> {
+  async createBenchmark(params: any): Promise<{ content: { type: string; text: string }[] }> {
     this.validateRequired(params, ['name', 'category', 'modelType', 'tasks']);
     
     const id = params.id || uuidv4();
@@ -669,7 +669,7 @@ export class ModelBenchmarkingSuite extends BaseMCPServer {
     };
   }
   
-  async getBenchmark(params: any): Promise<any> {
+  async getBenchmark(params: any): Promise<{ content: { type: string; text: string }[] }> {
     this.validateRequired(params, ['id']);
     const { id } = params;
     
@@ -687,7 +687,7 @@ export class ModelBenchmarkingSuite extends BaseMCPServer {
     };
   }
   
-  async listBenchmarks(params: any): Promise<any> {
+  async listBenchmarks(params: any): Promise<{ content: { type: string; text: string }[] }> {
     const category = params?.category;
     const modelType = params?.modelType;
     const tags = params?.tags as string[];
@@ -725,7 +725,7 @@ export class ModelBenchmarkingSuite extends BaseMCPServer {
   }
 
   // Benchmark execution
-  async runBenchmark(params: any): Promise<any> {
+  async runBenchmark(params: any): Promise<{ content: { type: string; text: string }[] }> {
     this.validateRequired(params, ['benchmarkId', 'modelIds']);
     const { benchmarkId, modelIds } = params;
     
@@ -1173,7 +1173,7 @@ export class ModelBenchmarkingSuite extends BaseMCPServer {
   }
 
   // Results and analysis methods
-  async getBenchmarkRun(params: any): Promise<any> {
+  async getBenchmarkRun(params: any): Promise<{ content: { type: string; text: string }[] }> {
     this.validateRequired(params, ['id']);
     const { id } = params;
     
@@ -1191,7 +1191,7 @@ export class ModelBenchmarkingSuite extends BaseMCPServer {
     };
   }
   
-  async getResults(params: any): Promise<any> {
+  async getResults(params: any): Promise<{ content: { type: string; text: string }[] }> {
     this.validateRequired(params, ['runId']);
     const { runId } = params;
     
@@ -1245,19 +1245,19 @@ export class ModelBenchmarkingSuite extends BaseMCPServer {
   }
 
   // Required method implementations (simplified)
-  async updateBenchmark(params: any): Promise<any> {
+  async updateBenchmark(params: any): Promise<{ content: { type: string; text: string }[] }> {
     return { success: true, message: "Update benchmark not implemented" };
   }
   
-  async deleteBenchmark(params: any): Promise<any> {
+  async deleteBenchmark(params: any): Promise<{ content: { type: string; text: string }[] }> {
     return { success: true, message: "Delete benchmark not implemented" };
   }
   
-  async cloneBenchmark(params: any): Promise<any> {
+  async cloneBenchmark(params: any): Promise<{ content: { type: string; text: string }[] }> {
     return { success: true, message: "Clone benchmark not implemented" };
   }
   
-  async listBenchmarkRuns(params: any): Promise<any> {
+  async listBenchmarkRuns(params: any): Promise<{ content: { type: string; text: string }[] }> {
     const benchmarkId = params?.benchmarkId;
     let runs = Array.from(this.runs.values());
     
@@ -1280,7 +1280,7 @@ export class ModelBenchmarkingSuite extends BaseMCPServer {
     };
   }
   
-  async cancelBenchmarkRun(params: any): Promise<any> {
+  async cancelBenchmarkRun(params: any): Promise<{ content: { type: string; text: string }[] }> {
     this.validateRequired(params, ['id']);
     const { id } = params;
     
@@ -1307,71 +1307,71 @@ export class ModelBenchmarkingSuite extends BaseMCPServer {
     };
   }
   
-  async retryBenchmarkRun(params: any): Promise<any> {
+  async retryBenchmarkRun(params: any): Promise<{ content: { type: string; text: string }[] }> {
     return { success: true, message: "Retry benchmark run not implemented" };
   }
   
-  async compareModels(params: any): Promise<any> {
+  async compareModels(params: any): Promise<{ content: { type: string; text: string }[] }> {
     return { success: true, message: "Compare models not implemented" };
   }
   
-  async analyzePerformance(params: any): Promise<any> {
+  async analyzePerformance(params: any): Promise<{ content: { type: string; text: string }[] }> {
     return { success: true, message: "Analyze performance not implemented" };
   }
   
-  async generateReport(params: any): Promise<any> {
+  async generateReport(params: any): Promise<{ content: { type: string; text: string }[] }> {
     return { success: true, message: "Generate report not implemented" };
   }
   
-  async exportResults(params: any): Promise<any> {
+  async exportResults(params: any): Promise<{ content: { type: string; text: string }[] }> {
     return { success: true, message: "Export results not implemented" };
   }
   
-  async createLeaderboard(params: any): Promise<any> {
+  async createLeaderboard(params: any): Promise<{ content: { type: string; text: string }[] }> {
     return { success: true, message: "Create leaderboard not implemented" };
   }
   
-  async getLeaderboard(params: any): Promise<any> {
+  async getLeaderboard(params: any): Promise<{ content: { type: string; text: string }[] }> {
     return { success: true, message: "Get leaderboard not implemented" };
   }
   
-  async updateLeaderboard(params: any): Promise<any> {
+  async updateLeaderboard(params: any): Promise<{ content: { type: string; text: string }[] }> {
     return { success: true, message: "Update leaderboard not implemented" };
   }
   
-  async submitToLeaderboard(params: any): Promise<any> {
+  async submitToLeaderboard(params: any): Promise<{ content: { type: string; text: string }[] }> {
     return { success: true, message: "Submit to leaderboard not implemented" };
   }
   
-  async uploadDataset(params: any): Promise<any> {
+  async uploadDataset(params: any): Promise<{ content: { type: string; text: string }[] }> {
     return { success: true, message: "Upload dataset not implemented" };
   }
   
-  async getDataset(params: any): Promise<any> {
+  async getDataset(params: any): Promise<{ content: { type: string; text: string }[] }> {
     return { success: true, message: "Get dataset not implemented" };
   }
   
-  async listDatasets(params: any): Promise<any> {
+  async listDatasets(params: any): Promise<{ content: { type: string; text: string }[] }> {
     return { success: true, datasets: [] };
   }
   
-  async validateDataset(params: any): Promise<any> {
+  async validateDataset(params: any): Promise<{ content: { type: string; text: string }[] }> {
     return { success: true, message: "Validate dataset not implemented" };
   }
   
-  async evaluateTask(params: any): Promise<any> {
+  async evaluateTask(params: any): Promise<{ content: { type: string; text: string }[] }> {
     return { success: true, message: "Evaluate task not implemented" };
   }
   
-  async calculateMetric(params: any): Promise<any> {
+  async calculateMetric(params: any): Promise<{ content: { type: string; text: string }[] }> {
     return { success: true, message: "Calculate metric not implemented" };
   }
   
-  async addCustomMetric(params: any): Promise<any> {
+  async addCustomMetric(params: any): Promise<{ content: { type: string; text: string }[] }> {
     return { success: true, message: "Add custom metric not implemented" };
   }
   
-  async getSystemStatus(params: any): Promise<any> {
+  async getSystemStatus(params: any): Promise<{ content: { type: string; text: string }[] }> {
     return {
       success: true,
       status: {
@@ -1384,7 +1384,7 @@ export class ModelBenchmarkingSuite extends BaseMCPServer {
     };
   }
   
-  async clearCache(params: any): Promise<any> {
+  async clearCache(params: any): Promise<{ content: { type: string; text: string }[] }> {
     this.resultCache.clear();
     return {
       success: true,
@@ -1393,7 +1393,7 @@ export class ModelBenchmarkingSuite extends BaseMCPServer {
   }
 
   // BaseMCPServer abstract method implementation
-  async handleRequest(method: string, params: any): Promise<any> {
+  async handleRequest(method: string, params: any): Promise<{ content: { type: string; text: string }[] }> {
     const tool = this.tools.get(method);
     
     if (!tool) {

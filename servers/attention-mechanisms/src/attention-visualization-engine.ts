@@ -1,5 +1,5 @@
 import { Server } from 'http';
-import { BaseMCPServer } from '../../shared/base-server';
+import { StandardMCPServer, MCPTool } from '../../shared/base-server';
 import { v4 as uuidv4 } from 'uuid';
 
 // Types for visualization configurations and states
@@ -188,7 +188,7 @@ interface AnalyticsOverlay {
 }
 
 // Main Attention Visualization Engine class
-export class AttentionVisualizationEngine extends BaseMCPServer {
+export class AttentionVisualizationEngine extends StandardMCPServer {
   private configs: Map<string, VisualizationConfig> = new Map();
   private sessions: Map<string, VisualizationSession> = new Map();
   private comparativeViews: Map<string, ComparativeView> = new Map();
@@ -406,7 +406,7 @@ export class AttentionVisualizationEngine extends BaseMCPServer {
   }
 
   // Configuration Management Methods
-  async createVisualizationConfig(params: any): Promise<any> {
+  async createVisualizationConfig(params: any): Promise<{ content: { type: string; text: string }[] }> {
     this.validateRequired(params, ['name', 'format']);
     
     const id = params.id || uuidv4();
@@ -487,7 +487,7 @@ export class AttentionVisualizationEngine extends BaseMCPServer {
     }
   }
 
-  async getVisualizationConfig(params: any): Promise<any> {
+  async getVisualizationConfig(params: any): Promise<{ content: { type: string; text: string }[] }> {
     this.validateRequired(params, ['id']);
     const { id } = params;
     
@@ -505,7 +505,7 @@ export class AttentionVisualizationEngine extends BaseMCPServer {
     };
   }
   
-  async updateVisualizationConfig(params: any): Promise<any> {
+  async updateVisualizationConfig(params: any): Promise<{ content: { type: string; text: string }[] }> {
     this.validateRequired(params, ['id']);
     const { id } = params;
     
@@ -554,7 +554,7 @@ export class AttentionVisualizationEngine extends BaseMCPServer {
     };
   }
   
-  async deleteVisualizationConfig(params: any): Promise<any> {
+  async deleteVisualizationConfig(params: any): Promise<{ content: { type: string; text: string }[] }> {
     this.validateRequired(params, ['id']);
     const { id } = params;
     
@@ -586,7 +586,7 @@ export class AttentionVisualizationEngine extends BaseMCPServer {
     };
   }
   
-  async listVisualizationConfigs(params: any): Promise<any> {
+  async listVisualizationConfigs(params: any): Promise<{ content: { type: string; text: string }[] }> {
     // Optional filtering parameters
     const format = params?.format as VisualizationFormat;
     const interactivity = params?.interactivity as InteractivityLevel;
@@ -615,7 +615,7 @@ export class AttentionVisualizationEngine extends BaseMCPServer {
     };
   }
   
-  async getConfigTemplate(params: any): Promise<any> {
+  async getConfigTemplate(params: any): Promise<{ content: { type: string; text: string }[] }> {
     const templateName = params?.template || 'standard';
     
     if (!this.configTemplates[templateName]) {
@@ -633,7 +633,7 @@ export class AttentionVisualizationEngine extends BaseMCPServer {
   }
 
   // Session Management Methods
-  async createVisualizationSession(params: any): Promise<any> {
+  async createVisualizationSession(params: any): Promise<{ content: { type: string; text: string }[] }> {
     this.validateRequired(params, ['configId', 'targetId', 'targetType']);
     const { configId, targetId, targetType } = params;
     
@@ -712,7 +712,7 @@ export class AttentionVisualizationEngine extends BaseMCPServer {
     };
   }
   
-  async getVisualizationSession(params: any): Promise<any> {
+  async getVisualizationSession(params: any): Promise<{ content: { type: string; text: string }[] }> {
     this.validateRequired(params, ['id']);
     const { id } = params;
     
@@ -739,7 +739,7 @@ export class AttentionVisualizationEngine extends BaseMCPServer {
     };
   }
   
-  async updateVisualizationSession(params: any): Promise<any> {
+  async updateVisualizationSession(params: any): Promise<{ content: { type: string; text: string }[] }> {
     this.validateRequired(params, ['id']);
     const { id } = params;
     
@@ -790,7 +790,7 @@ export class AttentionVisualizationEngine extends BaseMCPServer {
     };
   }
   
-  async deleteVisualizationSession(params: any): Promise<any> {
+  async deleteVisualizationSession(params: any): Promise<{ content: { type: string; text: string }[] }> {
     this.validateRequired(params, ['id']);
     const { id } = params;
     
@@ -821,7 +821,7 @@ export class AttentionVisualizationEngine extends BaseMCPServer {
     };
   }
   
-  async listVisualizationSessions(params: any): Promise<any> {
+  async listVisualizationSessions(params: any): Promise<{ content: { type: string; text: string }[] }> {
     // Optional filtering parameters
     const targetType = params?.targetType;
     const status = params?.status;
@@ -860,7 +860,7 @@ export class AttentionVisualizationEngine extends BaseMCPServer {
   }
 
   // Core Visualization Operations
-  async renderAttentionVisualization(params: any): Promise<any> {
+  async renderAttentionVisualization(params: any): Promise<{ content: { type: string; text: string }[] }> {
     this.validateRequired(params, ['sessionId', 'attentionData']);
     const { sessionId, attentionData } = params;
     
@@ -1125,7 +1125,7 @@ export class AttentionVisualizationEngine extends BaseMCPServer {
     return insights;
   }
   
-  async addVisualizationLayer(params: any): Promise<any> {
+  async addVisualizationLayer(params: any): Promise<{ content: { type: string; text: string }[] }> {
     this.validateRequired(params, ['sessionId', 'name', 'type']);
     const { sessionId, name, type } = params;
     
@@ -1172,7 +1172,7 @@ export class AttentionVisualizationEngine extends BaseMCPServer {
     };
   }
   
-  async toggleLayerVisibility(params: any): Promise<any> {
+  async toggleLayerVisibility(params: any): Promise<{ content: { type: string; text: string }[] }> {
     this.validateRequired(params, ['sessionId', 'layerId']);
     const { sessionId, layerId } = params;
     
@@ -1203,7 +1203,7 @@ export class AttentionVisualizationEngine extends BaseMCPServer {
     };
   }
   
-  async updateLayerSettings(params: any): Promise<any> {
+  async updateLayerSettings(params: any): Promise<{ content: { type: string; text: string }[] }> {
     this.validateRequired(params, ['sessionId', 'layerId']);
     const { sessionId, layerId } = params;
     
@@ -1238,7 +1238,7 @@ export class AttentionVisualizationEngine extends BaseMCPServer {
     };
   }
   
-  async saveViewState(params: any): Promise<any> {
+  async saveViewState(params: any): Promise<{ content: { type: string; text: string }[] }> {
     this.validateRequired(params, ['sessionId', 'viewParameters']);
     const { sessionId, viewParameters } = params;
     
@@ -1272,7 +1272,7 @@ export class AttentionVisualizationEngine extends BaseMCPServer {
     };
   }
   
-  async restoreViewState(params: any): Promise<any> {
+  async restoreViewState(params: any): Promise<{ content: { type: string; text: string }[] }> {
     this.validateRequired(params, ['sessionId']);
     const { sessionId } = params;
     
@@ -1315,7 +1315,7 @@ export class AttentionVisualizationEngine extends BaseMCPServer {
     };
   }
   
-  async createAnnotation(params: any): Promise<any> {
+  async createAnnotation(params: any): Promise<{ content: { type: string; text: string }[] }> {
     this.validateRequired(params, ['sessionId', 'type', 'content', 'position']);
     const { sessionId, type, content, position } = params;
     
@@ -1358,7 +1358,7 @@ export class AttentionVisualizationEngine extends BaseMCPServer {
   }
 
   // Advanced Visualization Methods
-  async createComparativeView(params: any): Promise<any> {
+  async createComparativeView(params: any): Promise<{ content: { type: string; text: string }[] }> {
     this.validateRequired(params, ['name', 'sessionIds', 'layout']);
     const { name, sessionIds, layout } = params;
     
@@ -1438,7 +1438,7 @@ export class AttentionVisualizationEngine extends BaseMCPServer {
     ];
   }
   
-  async generateAnalyticsOverlay(params: any): Promise<any> {
+  async generateAnalyticsOverlay(params: any): Promise<{ content: { type: string; text: string }[] }> {
     this.validateRequired(params, ['sessionId', 'type', 'name']);
     const { sessionId, type, name } = params;
     
@@ -1483,7 +1483,7 @@ export class AttentionVisualizationEngine extends BaseMCPServer {
     };
   }
   
-  private async processAnalyticsOverlay(overlay: AnalyticsOverlay, session: VisualizationSession): Promise<any> {
+  private async processAnalyticsOverlay(overlay: AnalyticsOverlay, session: VisualizationSession): Promise<{ content: { type: string; text: string }[] }> {
     // This would implement the actual analytics processing
     // Here we return a placeholder response
     
@@ -1531,7 +1531,7 @@ export class AttentionVisualizationEngine extends BaseMCPServer {
     };
   }
   
-  async createAnimationSequence(params: any): Promise<any> {
+  async createAnimationSequence(params: any): Promise<{ content: { type: string; text: string }[] }> {
     this.validateRequired(params, ['sessionId', 'name']);
     const { sessionId, name } = params;
     
@@ -1590,7 +1590,7 @@ export class AttentionVisualizationEngine extends BaseMCPServer {
     };
   }
   
-  async extractVisualInsights(params: any): Promise<any> {
+  async extractVisualInsights(params: any): Promise<{ content: { type: string; text: string }[] }> {
     this.validateRequired(params, ['sessionId']);
     const { sessionId } = params;
     
@@ -1636,7 +1636,7 @@ export class AttentionVisualizationEngine extends BaseMCPServer {
     ];
   }
   
-  async exportVisualization(params: any): Promise<any> {
+  async exportVisualization(params: any): Promise<{ content: { type: string; text: string }[] }> {
     this.validateRequired(params, ['sessionId', 'format']);
     const { sessionId, format } = params;
     
@@ -1685,7 +1685,7 @@ export class AttentionVisualizationEngine extends BaseMCPServer {
     };
   }
   
-  private async processExport(session: VisualizationSession, config: VisualizationConfig, options: ExportOptions): Promise<any> {
+  private async processExport(session: VisualizationSession, config: VisualizationConfig, options: ExportOptions): Promise<{ content: { type: string; text: string }[] }> {
     // This would implement actual export processing
     // Here we return a placeholder response
     
@@ -1706,7 +1706,7 @@ export class AttentionVisualizationEngine extends BaseMCPServer {
   }
 
   // Utility Methods
-  async calculateOptimalLayout(params: any): Promise<any> {
+  async calculateOptimalLayout(params: any): Promise<{ content: { type: string; text: string }[] }> {
     this.validateRequired(params, ['sessionId']);
     const { sessionId } = params;
     
@@ -1744,7 +1744,7 @@ export class AttentionVisualizationEngine extends BaseMCPServer {
     };
   }
   
-  private async optimizeLayout(config: VisualizationConfig, data: any, constraints?: any): Promise<any> {
+  private async optimizeLayout(config: VisualizationConfig, data: any, constraints?: any): Promise<{ content: { type: string; text: string }[] }> {
     // This would implement layout optimization algorithms
     // Here we return a placeholder
     
@@ -1759,7 +1759,7 @@ export class AttentionVisualizationEngine extends BaseMCPServer {
     return optimizedLayout;
   }
   
-  async getSupportedRenderingBackends(params: any): Promise<any> {
+  async getSupportedRenderingBackends(params: any): Promise<{ content: { type: string; text: string }[] }> {
     // Optional filtering parameters
     const format = params?.format as VisualizationFormat;
     const needs3D = params?.requires3D === true;
@@ -1788,7 +1788,7 @@ export class AttentionVisualizationEngine extends BaseMCPServer {
     };
   }
   
-  async getColorPaletteOptions(params: any): Promise<any> {
+  async getColorPaletteOptions(params: any): Promise<{ content: { type: string; text: string }[] }> {
     // Optional filtering parameters
     const perceptuallyUniform = params?.perceptuallyUniform === true;
     const colorblindFriendly = params?.colorblindFriendly === true;
@@ -1818,7 +1818,7 @@ export class AttentionVisualizationEngine extends BaseMCPServer {
     };
   }
   
-  async optimizeForDisplayDevice(params: any): Promise<any> {
+  async optimizeForDisplayDevice(params: any): Promise<{ content: { type: string; text: string }[] }> {
     this.validateRequired(params, ['sessionId', 'displayProperties']);
     const { sessionId, displayProperties } = params;
     
@@ -1866,7 +1866,7 @@ export class AttentionVisualizationEngine extends BaseMCPServer {
     };
   }
   
-  async generateThumbnail(params: any): Promise<any> {
+  async generateThumbnail(params: any): Promise<{ content: { type: string; text: string }[] }> {
     this.validateRequired(params, ['sessionId']);
     const { sessionId } = params;
     
@@ -1894,7 +1894,7 @@ export class AttentionVisualizationEngine extends BaseMCPServer {
   }
 
   // BaseMCPServer abstract method implementation
-  async handleRequest(method: string, params: any): Promise<any> {
+  async handleRequest(method: string, params: any): Promise<{ content: { type: string; text: string }[] }> {
     const tool = this.tools.get(method);
     
     if (!tool) {

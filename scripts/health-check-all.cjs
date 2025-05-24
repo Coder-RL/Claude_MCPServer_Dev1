@@ -29,7 +29,7 @@ class HealthChecker {
       { name: 'Data Governance', type: 'analytics', host: 'localhost', port: 3015, path: '/health' },
       
       // Attention Mechanisms (Week 14)
-      { name: 'Attention Pattern Analyzer', type: 'attention', host: 'localhost', port: 8000, path: '/health' },
+      { name: 'Attention Pattern Analyzer', type: 'attention', host: 'localhost', port: 8010, path: '/health' },
       { name: 'Sparse Attention Engine', type: 'attention', host: 'localhost', port: 8001, path: '/health' },
       { name: 'Memory Efficient Attention', type: 'attention', host: 'localhost', port: 8002, path: '/health' },
       { name: 'Attention Visualization', type: 'attention', host: 'localhost', port: 8004, path: '/health' },

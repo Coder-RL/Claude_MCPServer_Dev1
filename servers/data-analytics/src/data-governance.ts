@@ -1,4 +1,5 @@
 import { StandardMCPServer } from "../../shared/standard-mcp-server";
+import { CallToolResult } from '@modelcontextprotocol/sdk/types.js';
 import { MCPError } from '../../../shared/src/errors';
 import { withPerformanceMonitoring } from '../../../shared/src/monitoring';
 import { withRetry } from '../../../shared/src/retry';
@@ -1978,11 +1979,7 @@ export class DataGovernanceMCPServer extends StandardMCPServer {
   private dataGovernanceService: DataGovernanceService;
 
   constructor() {
-    super({
-      name: 'data-governance-server',
-      port: parseInt(process.env.DATA_GOVERNANCE_PORT || '8115'),
-      host: process.env.DATA_GOVERNANCE_HOST || 'localhost'
-    });
+    super('data-governance-server', 'Data governance and compliance management server');
     this.dataGovernanceService = new DataGovernanceService();
   }
 
@@ -2194,28 +2191,35 @@ export class DataGovernanceMCPServer extends StandardMCPServer {
     ];
   }
 
-  protected async handleToolCall(name: string, args: any): Promise<any> {
+  async handleToolCall(name: string, args: any): Promise<CallToolResult> {
     switch (name) {
       case 'register_data_asset':
-        return { id: await this.dataGovernanceService.registerDataAsset(args) };
+        const assetId = await this.dataGovernanceService.registerDataAsset(args);
+        return { content: [{ type: 'text', text: JSON.stringify({ id: assetId }) }] };
 
       case 'assess_data_quality':
-        return { assessmentId: await this.dataGovernanceService.assessDataQuality(args.assetId, args.assessmentType || 'full') };
+        const assessmentId = await this.dataGovernanceService.assessDataQuality(args.assetId, args.assessmentType || 'full');
+        return { content: [{ type: 'text', text: JSON.stringify({ assessmentId }) }] };
 
       case 'create_data_policy':
-        return { id: await this.dataGovernanceService.createDataPolicy(args) };
+        const policyId = await this.dataGovernanceService.createDataPolicy(args);
+        return { content: [{ type: 'text', text: JSON.stringify({ id: policyId }) }] };
 
       case 'evaluate_compliance':
-        return await this.dataGovernanceService.evaluateCompliance(args.assetId, args.frameworks);
+        const compliance = await this.dataGovernanceService.evaluateCompliance(args.assetId, args.frameworks);
+        return { content: [{ type: 'text', text: JSON.stringify(compliance) }] };
 
       case 'monitor_data_access':
-        return await this.dataGovernanceService.monitorDataAccess(args.assetId, args.period || 'daily');
+        const accessData = await this.dataGovernanceService.monitorDataAccess(args.assetId, args.period || 'daily');
+        return { content: [{ type: 'text', text: JSON.stringify(accessData) }] };
 
       case 'trace_data_lineage':
-        return await this.dataGovernanceService.traceDataLineage(args.assetId, args.direction || 'both', args.depth || 3);
+        const lineage = await this.dataGovernanceService.traceDataLineage(args.assetId, args.direction || 'both', args.depth || 3);
+        return { content: [{ type: 'text', text: JSON.stringify(lineage) }] };
 
       case 'get_governance_metrics':
-        return await this.dataGovernanceService.getGovernanceMetrics();
+        const metrics = await this.dataGovernanceService.getGovernanceMetrics();
+        return { content: [{ type: 'text', text: JSON.stringify(metrics) }] };
 
       default:
         throw new MCPError('METHOD_NOT_FOUND', `Unknown tool: ${name}`);

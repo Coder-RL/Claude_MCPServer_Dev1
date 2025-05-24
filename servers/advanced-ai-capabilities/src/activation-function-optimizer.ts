@@ -1,7 +1,7 @@
 import { DatabasePool } from '../../../database/pg-pool.js';
 import { RedisConnectionManager } from '../../../database/redis-client.js';
 import { getLogger } from '../../../shared/logger.js';
-import { BaseMCPServer } from '../../../shared/mcp/server.js';
+import { StandardMCPServer, MCPTool } from '../../../shared/mcp/server.js';
 
 const logger = getLogger('ActivationFunctionOptimizer');
 
@@ -161,7 +161,7 @@ export interface ParameterUpdate {
   performanceImpact: number;
 }
 
-export class ActivationFunctionOptimizer extends BaseMCPServer {
+export class ActivationFunctionOptimizer extends StandardMCPServer {
   private dbPool: DatabasePool;
   private redis: RedisConnectionManager;
   private activationFunctions: Map<string, ActivationFunction> = new Map();
@@ -471,7 +471,7 @@ export class ActivationFunctionOptimizer extends BaseMCPServer {
     });
   }
 
-  async createActivationFunction(params: any): Promise<any> {
+  async createActivationFunction(params: any): Promise<{ content: { type: string; text: string }[] }> {
     try {
       const functionId = `act_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       
@@ -520,7 +520,7 @@ export class ActivationFunctionOptimizer extends BaseMCPServer {
     }
   }
 
-  async analyzeLayerActivations(params: any): Promise<any> {
+  async analyzeLayerActivations(params: any): Promise<{ content: { type: string; text: string }[] }> {
     try {
       const { networkId, layerIds, activationData, gradientData = {} } = params;
       
@@ -560,7 +560,7 @@ export class ActivationFunctionOptimizer extends BaseMCPServer {
     }
   }
 
-  async optimizeActivations(params: any): Promise<any> {
+  async optimizeActivations(params: any): Promise<{ content: { type: string; text: string }[] }> {
     try {
       const { networkId, strategy, searchSpace = {}, optimizationConfig = {} } = params;
       
@@ -602,7 +602,7 @@ export class ActivationFunctionOptimizer extends BaseMCPServer {
     }
   }
 
-  async recommendActivation(params: any): Promise<any> {
+  async recommendActivation(params: any): Promise<{ content: { type: string; text: string }[] }> {
     try {
       const { layerType, networkType, taskType, constraints = {}, currentProblems = [] } = params;
       
@@ -636,7 +636,7 @@ export class ActivationFunctionOptimizer extends BaseMCPServer {
     }
   }
 
-  async createAdaptiveActivation(params: any): Promise<any> {
+  async createAdaptiveActivation(params: any): Promise<{ content: { type: string; text: string }[] }> {
     try {
       const { baseFunction, adaptationMechanism, adaptiveParameters = {}, updateRule = 'gradient_descent' } = params;
       
@@ -675,7 +675,7 @@ export class ActivationFunctionOptimizer extends BaseMCPServer {
     }
   }
 
-  async benchmarkActivations(params: any): Promise<any> {
+  async benchmarkActivations(params: any): Promise<{ content: { type: string; text: string }[] }> {
     try {
       const { functionIds, benchmarkType, inputSizes = [1000, 10000, 100000], deviceType = 'cpu' } = params;
       
@@ -962,7 +962,7 @@ export class ActivationFunctionOptimizer extends BaseMCPServer {
     };
   }
 
-  private async executeOptimization(session: OptimizationSession, config: any): Promise<any> {
+  private async executeOptimization(session: OptimizationSession, config: any): Promise<{ content: { type: string; text: string }[] }> {
     // Simulate optimization process
     session.metrics.generationsCompleted = 1;
     session.currentCandidate.score = 0.7 + Math.random() * 0.3;
@@ -1088,7 +1088,7 @@ export class ActivationFunctionOptimizer extends BaseMCPServer {
     return advice;
   }
 
-  private async suggestCustomActivation(layerType: string, networkType: string, taskType: string, constraints: any): Promise<any> {
+  private async suggestCustomActivation(layerType: string, networkType: string, taskType: string, constraints: any): Promise<{ content: { type: string; text: string }[] }> {
     // Generate custom activation suggestion based on requirements
     if (constraints.speed === 'critical' && constraints.accuracy === 'high') {
       return {
@@ -1178,7 +1178,7 @@ export class ActivationFunctionOptimizer extends BaseMCPServer {
     return benefits;
   }
 
-  private async runBenchmark(func: ActivationFunction, benchmarkType: string, inputSizes: number[], deviceType: string): Promise<any> {
+  private async runBenchmark(func: ActivationFunction, benchmarkType: string, inputSizes: number[], deviceType: string): Promise<{ content: { type: string; text: string }[] }> {
     const results: any = {
       functionId: func.id,
       benchmarkType,
@@ -1296,7 +1296,7 @@ export class ActivationFunctionOptimizer extends BaseMCPServer {
     ]);
   }
 
-  async getHealth(): Promise<any> {
+  async getHealth(): Promise<{ content: { type: string; text: string }[] }> {
     return {
       status: 'healthy',
       timestamp: new Date().toISOString(),

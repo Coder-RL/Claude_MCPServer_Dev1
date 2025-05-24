@@ -1,4 +1,5 @@
 import { StandardMCPServer } from '../../shared/standard-mcp-server';
+import { CallToolResult } from '@modelcontextprotocol/sdk/types.js';
 import { MCPError } from '../../../shared/src/errors';
 import { HealthChecker } from '../../../shared/src/health';
 import * as fs from 'fs/promises';
@@ -884,7 +885,7 @@ export class RealtimeAnalyticsServer extends StandardMCPServer {
     });
   }
 
-  async handleToolCall(name: string, args: any): Promise<any> {
+  async handleToolCall(name: string, args: any): Promise<CallToolResult> {
     switch (name) {
       case 'create_stream':
         return { 

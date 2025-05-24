@@ -1,5 +1,5 @@
 import { Server } from 'http';
-import { BaseMCPServer } from '../../shared/base-server';
+import { StandardMCPServer, MCPTool } from '../../shared/base-server';
 import { v4 as uuidv4 } from 'uuid';
 
 // Define integration types
@@ -281,7 +281,7 @@ interface LoadBalancerTarget {
 }
 
 // Main Model Integration Hub class
-export class ModelIntegrationHub extends BaseMCPServer {
+export class ModelIntegrationHub extends StandardMCPServer {
   private connections: Map<string, ConnectionConfig> = new Map();
   private authConfigs: Map<string, AuthConfig> = new Map();
   private adapters: Map<string, IntegrationAdapter> = new Map();
@@ -509,7 +509,7 @@ export class ModelIntegrationHub extends BaseMCPServer {
   }
 
   // Connection management methods
-  async createConnection(params: any): Promise<any> {
+  async createConnection(params: any): Promise<{ content: { type: string; text: string }[] }> {
     this.validateRequired(params, ['name', 'provider', 'type', 'endpoint']);
     
     const id = params.id || uuidv4();
@@ -579,7 +579,7 @@ export class ModelIntegrationHub extends BaseMCPServer {
     };
   }
   
-  async getConnection(params: any): Promise<any> {
+  async getConnection(params: any): Promise<{ content: { type: string; text: string }[] }> {
     this.validateRequired(params, ['id']);
     const { id } = params;
     
@@ -597,7 +597,7 @@ export class ModelIntegrationHub extends BaseMCPServer {
     };
   }
   
-  async updateConnection(params: any): Promise<any> {
+  async updateConnection(params: any): Promise<{ content: { type: string; text: string }[] }> {
     this.validateRequired(params, ['id']);
     const { id } = params;
     
@@ -629,7 +629,7 @@ export class ModelIntegrationHub extends BaseMCPServer {
     };
   }
   
-  async deleteConnection(params: any): Promise<any> {
+  async deleteConnection(params: any): Promise<{ content: { type: string; text: string }[] }> {
     this.validateRequired(params, ['id']);
     const { id } = params;
     
@@ -669,7 +669,7 @@ export class ModelIntegrationHub extends BaseMCPServer {
     };
   }
   
-  async listConnections(params: any): Promise<any> {
+  async listConnections(params: any): Promise<{ content: { type: string; text: string }[] }> {
     const provider = params?.provider;
     const type = params?.type;
     const status = params?.status;
@@ -713,7 +713,7 @@ export class ModelIntegrationHub extends BaseMCPServer {
     };
   }
   
-  async testConnection(params: any): Promise<any> {
+  async testConnection(params: any): Promise<{ content: { type: string; text: string }[] }> {
     this.validateRequired(params, ['id']);
     const { id } = params;
     
@@ -754,7 +754,7 @@ export class ModelIntegrationHub extends BaseMCPServer {
     }
   }
   
-  private async performConnectionTest(connection: ConnectionConfig): Promise<any> {
+  private async performConnectionTest(connection: ConnectionConfig): Promise<{ content: { type: string; text: string }[] }> {
     // Simulate connection test with random success/failure
     const isHealthy = Math.random() > 0.1; // 90% success rate
     
@@ -768,7 +768,7 @@ export class ModelIntegrationHub extends BaseMCPServer {
   }
 
   // Authentication management methods
-  async createAuthConfig(params: any): Promise<any> {
+  async createAuthConfig(params: any): Promise<{ content: { type: string; text: string }[] }> {
     this.validateRequired(params, ['connectionId', 'method']);
     const { connectionId, method } = params;
     
@@ -803,7 +803,7 @@ export class ModelIntegrationHub extends BaseMCPServer {
     };
   }
   
-  async updateAuthConfig(params: any): Promise<any> {
+  async updateAuthConfig(params: any): Promise<{ content: { type: string; text: string }[] }> {
     this.validateRequired(params, ['id']);
     const { id } = params;
     
@@ -829,7 +829,7 @@ export class ModelIntegrationHub extends BaseMCPServer {
     };
   }
   
-  async deleteAuthConfig(params: any): Promise<any> {
+  async deleteAuthConfig(params: any): Promise<{ content: { type: string; text: string }[] }> {
     this.validateRequired(params, ['id']);
     const { id } = params;
     
@@ -848,7 +848,7 @@ export class ModelIntegrationHub extends BaseMCPServer {
     };
   }
   
-  async refreshAuth(params: any): Promise<any> {
+  async refreshAuth(params: any): Promise<{ content: { type: string; text: string }[] }> {
     this.validateRequired(params, ['authConfigId']);
     const { authConfigId } = params;
     
@@ -890,7 +890,7 @@ export class ModelIntegrationHub extends BaseMCPServer {
     }
   }
   
-  private async performAuthRefresh(authConfig: AuthConfig): Promise<any> {
+  private async performAuthRefresh(authConfig: AuthConfig): Promise<{ content: { type: string; text: string }[] }> {
     // Simulate auth refresh
     return {
       credentials: {
@@ -902,7 +902,7 @@ export class ModelIntegrationHub extends BaseMCPServer {
   }
 
   // Adapter management methods  
-  async createAdapter(params: any): Promise<any> {
+  async createAdapter(params: any): Promise<{ content: { type: string; text: string }[] }> {
     this.validateRequired(params, ['name', 'provider', 'type']);
     
     const id = params.id || uuidv4();
@@ -936,7 +936,7 @@ export class ModelIntegrationHub extends BaseMCPServer {
     };
   }
   
-  async getAdapter(params: any): Promise<any> {
+  async getAdapter(params: any): Promise<{ content: { type: string; text: string }[] }> {
     this.validateRequired(params, ['id']);
     const { id } = params;
     
@@ -954,7 +954,7 @@ export class ModelIntegrationHub extends BaseMCPServer {
     };
   }
   
-  async updateAdapter(params: any): Promise<any> {
+  async updateAdapter(params: any): Promise<{ content: { type: string; text: string }[] }> {
     this.validateRequired(params, ['id']);
     const { id } = params;
     
@@ -988,7 +988,7 @@ export class ModelIntegrationHub extends BaseMCPServer {
     };
   }
   
-  async deleteAdapter(params: any): Promise<any> {
+  async deleteAdapter(params: any): Promise<{ content: { type: string; text: string }[] }> {
     this.validateRequired(params, ['id']);
     const { id } = params;
     
@@ -1019,7 +1019,7 @@ export class ModelIntegrationHub extends BaseMCPServer {
     };
   }
   
-  async listAdapters(params: any): Promise<any> {
+  async listAdapters(params: any): Promise<{ content: { type: string; text: string }[] }> {
     const provider = params?.provider;
     const type = params?.type;
     const isActive = params?.isActive;
@@ -1055,7 +1055,7 @@ export class ModelIntegrationHub extends BaseMCPServer {
     };
   }
   
-  async getAdapterTemplate(params: any): Promise<any> {
+  async getAdapterTemplate(params: any): Promise<{ content: { type: string; text: string }[] }> {
     const templateId = params?.template;
     
     if (!templateId) {
@@ -1080,7 +1080,7 @@ export class ModelIntegrationHub extends BaseMCPServer {
   }
 
   // Session management methods
-  async createSession(params: any): Promise<any> {
+  async createSession(params: any): Promise<{ content: { type: string; text: string }[] }> {
     this.validateRequired(params, ['connectionId', 'adapterId']);
     const { connectionId, adapterId } = params;
     
@@ -1154,7 +1154,7 @@ export class ModelIntegrationHub extends BaseMCPServer {
     };
   }
   
-  private async establishConnection(connectionId: string, adapterId: string): Promise<any> {
+  private async establishConnection(connectionId: string, adapterId: string): Promise<{ content: { type: string; text: string }[] }> {
     // In a real implementation, this would establish the actual connection
     // Here we simulate the connection process
     
@@ -1191,7 +1191,7 @@ export class ModelIntegrationHub extends BaseMCPServer {
     };
   }
   
-  async getSession(params: any): Promise<any> {
+  async getSession(params: any): Promise<{ content: { type: string; text: string }[] }> {
     this.validateRequired(params, ['id']);
     const { id } = params;
     
@@ -1209,7 +1209,7 @@ export class ModelIntegrationHub extends BaseMCPServer {
     };
   }
   
-  async closeSession(params: any): Promise<any> {
+  async closeSession(params: any): Promise<{ content: { type: string; text: string }[] }> {
     this.validateRequired(params, ['id']);
     const { id } = params;
     
@@ -1232,7 +1232,7 @@ export class ModelIntegrationHub extends BaseMCPServer {
     };
   }
   
-  async listSessions(params: any): Promise<any> {
+  async listSessions(params: any): Promise<{ content: { type: string; text: string }[] }> {
     const connectionId = params?.connectionId;
     const status = params?.status;
     const adapterId = params?.adapterId;
@@ -1269,7 +1269,7 @@ export class ModelIntegrationHub extends BaseMCPServer {
   }
 
   // Model registry methods
-  async registerModel(params: any): Promise<any> {
+  async registerModel(params: any): Promise<{ content: { type: string; text: string }[] }> {
     this.validateRequired(params, ['name', 'provider', 'modelId', 'connectionId', 'adapterId']);
     
     const id = params.id || uuidv4();
@@ -1328,7 +1328,7 @@ export class ModelIntegrationHub extends BaseMCPServer {
     };
   }
   
-  async getModel(params: any): Promise<any> {
+  async getModel(params: any): Promise<{ content: { type: string; text: string }[] }> {
     this.validateRequired(params, ['id']);
     const { id } = params;
     
@@ -1346,7 +1346,7 @@ export class ModelIntegrationHub extends BaseMCPServer {
     };
   }
   
-  async updateModel(params: any): Promise<any> {
+  async updateModel(params: any): Promise<{ content: { type: string; text: string }[] }> {
     this.validateRequired(params, ['id']);
     const { id } = params;
     
@@ -1377,7 +1377,7 @@ export class ModelIntegrationHub extends BaseMCPServer {
     };
   }
   
-  async unregisterModel(params: any): Promise<any> {
+  async unregisterModel(params: any): Promise<{ content: { type: string; text: string }[] }> {
     this.validateRequired(params, ['id']);
     const { id } = params;
     
@@ -1397,7 +1397,7 @@ export class ModelIntegrationHub extends BaseMCPServer {
     };
   }
   
-  async listModels(params: any): Promise<any> {
+  async listModels(params: any): Promise<{ content: { type: string; text: string }[] }> {
     const provider = params?.provider;
     const status = params?.status;
     const tags = params?.tags as string[];
@@ -1454,7 +1454,7 @@ export class ModelIntegrationHub extends BaseMCPServer {
     };
   }
   
-  async searchModels(params: any): Promise<any> {
+  async searchModels(params: any): Promise<{ content: { type: string; text: string }[] }> {
     this.validateRequired(params, ['query']);
     const { query } = params;
     
@@ -1497,7 +1497,7 @@ export class ModelIntegrationHub extends BaseMCPServer {
   }
 
   // Request execution methods
-  async executeRequest(params: any): Promise<any> {
+  async executeRequest(params: any): Promise<{ content: { type: string; text: string }[] }> {
     this.validateRequired(params, ['modelId', 'operation', 'payload']);
     const { modelId, operation, payload } = params;
     
@@ -1621,7 +1621,7 @@ export class ModelIntegrationHub extends BaseMCPServer {
     }
   }
   
-  private async performRequest(session: IntegrationSession, model: ModelRegistry, operation: string, payload: any): Promise<any> {
+  private async performRequest(session: IntegrationSession, model: ModelRegistry, operation: string, payload: any): Promise<{ content: { type: string; text: string }[] }> {
     // In a real implementation, this would make the actual API call
     // Here we simulate the request execution
     
@@ -1952,57 +1952,57 @@ export class ModelIntegrationHub extends BaseMCPServer {
   }
 
   // Additional required methods for completeness
-  async routeRequest(params: any): Promise<any> {
+  async routeRequest(params: any): Promise<{ content: { type: string; text: string }[] }> {
     // Route request to the best available model/connection
     return { success: true, message: "Route request not implemented" };
   }
   
-  async bulkExecute(params: any): Promise<any> {
+  async bulkExecute(params: any): Promise<{ content: { type: string; text: string }[] }> {
     // Execute multiple requests in parallel
     return { success: true, message: "Bulk execute not implemented" };
   }
   
-  async createTransformer(params: any): Promise<any> {
+  async createTransformer(params: any): Promise<{ content: { type: string; text: string }[] }> {
     // Create data transformer
     return { success: true, message: "Create transformer not implemented" };
   }
   
-  async updateTransformer(params: any): Promise<any> {
+  async updateTransformer(params: any): Promise<{ content: { type: string; text: string }[] }> {
     // Update data transformer
     return { success: true, message: "Update transformer not implemented" };
   }
   
-  async deleteTransformer(params: any): Promise<any> {
+  async deleteTransformer(params: any): Promise<{ content: { type: string; text: string }[] }> {
     // Delete data transformer
     return { success: true, message: "Delete transformer not implemented" };
   }
   
-  async testTransformation(params: any): Promise<any> {
+  async testTransformation(params: any): Promise<{ content: { type: string; text: string }[] }> {
     // Test data transformation
     return { success: true, message: "Test transformation not implemented" };
   }
   
-  async createLoadBalancer(params: any): Promise<any> {
+  async createLoadBalancer(params: any): Promise<{ content: { type: string; text: string }[] }> {
     // Create load balancer
     return { success: true, message: "Create load balancer not implemented" };
   }
   
-  async updateLoadBalancer(params: any): Promise<any> {
+  async updateLoadBalancer(params: any): Promise<{ content: { type: string; text: string }[] }> {
     // Update load balancer
     return { success: true, message: "Update load balancer not implemented" };
   }
   
-  async deleteLoadBalancer(params: any): Promise<any> {
+  async deleteLoadBalancer(params: any): Promise<{ content: { type: string; text: string }[] }> {
     // Delete load balancer
     return { success: true, message: "Delete load balancer not implemented" };
   }
   
-  async getLoadBalancerStatus(params: any): Promise<any> {
+  async getLoadBalancerStatus(params: any): Promise<{ content: { type: string; text: string }[] }> {
     // Get load balancer status
     return { success: true, message: "Get load balancer status not implemented" };
   }
   
-  async getMetrics(params: any): Promise<any> {
+  async getMetrics(params: any): Promise<{ content: { type: string; text: string }[] }> {
     const connectionId = params?.connectionId;
     
     if (connectionId) {
@@ -2027,7 +2027,7 @@ export class ModelIntegrationHub extends BaseMCPServer {
     };
   }
   
-  async getHealthStatus(params: any): Promise<any> {
+  async getHealthStatus(params: any): Promise<{ content: { type: string; text: string }[] }> {
     const connectionId = params?.connectionId;
     
     if (connectionId) {
@@ -2057,7 +2057,7 @@ export class ModelIntegrationHub extends BaseMCPServer {
     };
   }
   
-  async getErrorReport(params: any): Promise<any> {
+  async getErrorReport(params: any): Promise<{ content: { type: string; text: string }[] }> {
     const connectionId = params?.connectionId;
     const sessionId = params?.sessionId;
     const since = params?.since ? new Date(params.since) : new Date(Date.now() - 3600000);
@@ -2093,7 +2093,7 @@ export class ModelIntegrationHub extends BaseMCPServer {
     };
   }
   
-  async resetMetrics(params: any): Promise<any> {
+  async resetMetrics(params: any): Promise<{ content: { type: string; text: string }[] }> {
     const connectionId = params?.connectionId;
     
     if (connectionId) {
@@ -2114,7 +2114,7 @@ export class ModelIntegrationHub extends BaseMCPServer {
   }
 
   // BaseMCPServer abstract method implementation
-  async handleRequest(method: string, params: any): Promise<any> {
+  async handleRequest(method: string, params: any): Promise<{ content: { type: string; text: string }[] }> {
     const tool = this.tools.get(method);
     
     if (!tool) {

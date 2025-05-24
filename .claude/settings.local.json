@@ -17,7 +17,15 @@
       "Bash(python:*)",
       "Bash(kill:*)",
       "Bash(claude --version)",
-      "Bash(true)"
+      "Bash(true)",
+      "mcp__memory-simple__store_memory",
+      "mcp__memory-simple__store_memory",
+      "Bash(git -C /Users/robertlee/GitHubProjects/ClarusRev log --oneline -10)",
+      "Bash(bash:*)",
+      "Bash(timeout 5s npx tsx servers/data-analytics/src/data-governance.ts)",
+      "Bash(cp:*)",
+      "Bash(timeout:*)",
+      "Bash(mkdir:*)"
     ],
     "deny": []
   }

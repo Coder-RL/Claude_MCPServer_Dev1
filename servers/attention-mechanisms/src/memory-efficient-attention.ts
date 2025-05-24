@@ -1,4 +1,4 @@
-import { BaseMCPServer } from '../../shared/base-server.js';
+import { StandardMCPServer, MCPTool } from '../../shared/base-server.js';
 
 export interface MemoryEfficientConfig {
   id: string;
@@ -196,7 +196,7 @@ export interface LinearAttentionApproximation {
   gradientStability: number;
 }
 
-export class MemoryEfficientAttention extends BaseMCPServer {
+export class MemoryEfficientAttention extends StandardMCPServer {
   static async main() {
     const server = new MemoryEfficientAttention();
     await server.start();
@@ -214,7 +214,7 @@ export class MemoryEfficientAttention extends BaseMCPServer {
     this.setupTools();
   }
 
-  async handleRequest(method: string, params: any): Promise<any> {
+  async handleRequest(method: string, params: any): Promise<{ content: { type: string; text: string }[] }> {
     this.logOperation(method, params);
 
     switch (method) {
@@ -519,7 +519,7 @@ export class MemoryEfficientAttention extends BaseMCPServer {
     });
   }
 
-  async createMemoryEfficientConfig(params: any): Promise<any> {
+  async createMemoryEfficientConfig(params: any): Promise<{ content: { type: string; text: string }[] }> {
     const { name, algorithm, maxMemoryUsage, optimizationParams = {}, performanceTargets = {} } = params;
 
     this.validateRequired(params, ['name', 'algorithm', 'maxMemoryUsage']);
@@ -562,7 +562,7 @@ export class MemoryEfficientAttention extends BaseMCPServer {
     };
   }
 
-  async startMemoryOptimizationSession(params: any): Promise<any> {
+  async startMemoryOptimizationSession(params: any): Promise<{ content: { type: string; text: string }[] }> {
     const { configId, inputShape, modelSpecs, optimizationObjectives = ['memory_reduction'] } = params;
 
     this.validateRequired(params, ['configId', 'inputShape', 'modelSpecs']);
@@ -619,7 +619,7 @@ export class MemoryEfficientAttention extends BaseMCPServer {
     };
   }
 
-  async profileMemoryUsage(params: any): Promise<any> {
+  async profileMemoryUsage(params: any): Promise<{ content: { type: string; text: string }[] }> {
     const { sessionId, operationType, measurementPoints = [], includeTimeline = false } = params;
 
     this.validateRequired(params, ['sessionId', 'operationType']);
@@ -667,7 +667,7 @@ export class MemoryEfficientAttention extends BaseMCPServer {
     };
   }
 
-  async optimizeAttentionChunks(params: any): Promise<any> {
+  async optimizeAttentionChunks(params: any): Promise<{ content: { type: string; text: string }[] }> {
     const { sessionId, chunkingStrategy, targetMemoryUsage, qualityThreshold = 0.95 } = params;
 
     this.validateRequired(params, ['sessionId', 'chunkingStrategy']);
@@ -718,7 +718,7 @@ export class MemoryEfficientAttention extends BaseMCPServer {
     };
   }
 
-  async analyzeMemoryBottlenecks(params: any): Promise<any> {
+  async analyzeMemoryBottlenecks(params: any): Promise<{ content: { type: string; text: string }[] }> {
     const { sessionId, analysisDepth = 'detailed', timeWindow, includeRecommendations = true } = params;
 
     this.validateRequired(params, ['sessionId']);
@@ -772,7 +772,7 @@ export class MemoryEfficientAttention extends BaseMCPServer {
     };
   }
 
-  async compareMemoryAlgorithms(params: any): Promise<any> {
+  async compareMemoryAlgorithms(params: any): Promise<{ content: { type: string; text: string }[] }> {
     const { configIds, testScenarios = [], comparisonMetrics, generateReport = false } = params;
 
     this.validateRequired(params, ['configIds', 'comparisonMetrics']);
@@ -1066,7 +1066,7 @@ export class MemoryEfficientAttention extends BaseMCPServer {
     strategy: string,
     targetMemoryUsage?: number,
     qualityThreshold?: number
-  ): Promise<any> {
+  ): Promise<{ content: { type: string; text: string }[] }> {
     const [batchSize, seqLen, hiddenSize] = session.inputShape;
     const chunks: AttentionChunk[] = [];
 
@@ -1354,7 +1354,7 @@ export class MemoryEfficientAttention extends BaseMCPServer {
     config: MemoryEfficientConfig,
     metric: string,
     scenarios: any[]
-  ): Promise<any> {
+  ): Promise<{ content: { type: string; text: string }[] }> {
     const results: any = {};
 
     for (const scenario of scenarios) {
@@ -1614,7 +1614,7 @@ export class MemoryEfficientAttention extends BaseMCPServer {
   // This method is already implemented above
 
   // Additional methods for remaining tools
-  private async linearAttentionApproximation(params: any): Promise<any> {
+  private async linearAttentionApproximation(params: any): Promise<{ content: { type: string; text: string }[] }> {
     const { sessionId, approximationConfig, qualityMetrics = [], baselineComparison = false } = params;
 
     if (!this.sessions.has(sessionId)) {
@@ -1663,7 +1663,7 @@ export class MemoryEfficientAttention extends BaseMCPServer {
     };
   }
 
-  private async memoryPoolManagement(params: any): Promise<any> {
+  private async memoryPoolManagement(params: any): Promise<{ content: { type: string; text: string }[] }> {
     const { action, poolId, poolSize, allocationStrategy = 'best_fit' } = params;
 
     switch (action) {

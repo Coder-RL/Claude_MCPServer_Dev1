@@ -1,4 +1,5 @@
 import { StandardMCPServer } from '../../shared/standard-mcp-server';
+import { CallToolResult } from '@modelcontextprotocol/sdk/types.js';
 import { MCPError } from '../../../shared/src/errors';
 import { HealthChecker } from '../../../shared/src/health';
 import * as fs from 'fs/promises';
@@ -586,7 +587,7 @@ export class DataPipelineServer extends StandardMCPServer {
     });
   }
 
-  async handleToolCall(name: string, args: any): Promise<any> {
+  async handleToolCall(name: string, args: any): Promise<CallToolResult> {
     switch (name) {
       case 'create_pipeline':
         return { 
@@ -625,7 +626,5 @@ export class DataPipelineServer extends StandardMCPServer {
 }
 
 // Start the server if this file is run directly
-if (import.meta.url === `file://${process.argv[1]}`) {
-  const server = new DataPipelineServer();
-  server.start().catch(console.error);
-}
+const server = new DataPipelineServer();
+server.start().catch(console.error);

@@ -1,7 +1,7 @@
 import { DatabasePool } from '../../../database/pg-pool.js';
 import { RedisConnectionManager } from '../../../database/redis-client.js';
 import { getLogger } from '../../../shared/logger.js';
-import { BaseMCPServer } from '../../../shared/mcp/server.js';
+import { StandardMCPServer, MCPTool } from '../../../shared/mcp/server.js';
 
 const logger = getLogger('GradientOptimizer');
 
@@ -101,7 +101,7 @@ export interface OptimizationAdaptation {
   impact: string;
 }
 
-export class GradientOptimizer extends BaseMCPServer {
+export class GradientOptimizer extends StandardMCPServer {
   private dbPool: DatabasePool;
   private redis: RedisConnectionManager;
   private algorithms: Map<string, OptimizationAlgorithm> = new Map();
@@ -246,7 +246,7 @@ export class GradientOptimizer extends BaseMCPServer {
     });
   }
 
-  async createOptimizer(params: any): Promise<any> {
+  async createOptimizer(params: any): Promise<{ content: { type: string; text: string }[] }> {
     try {
       const algorithmId = `opt_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       
@@ -284,7 +284,7 @@ export class GradientOptimizer extends BaseMCPServer {
     }
   }
 
-  async optimizeGradients(params: any): Promise<any> {
+  async optimizeGradients(params: any): Promise<{ content: { type: string; text: string }[] }> {
     try {
       const { networkId, algorithmId, gradients, weights } = params;
       
@@ -343,7 +343,7 @@ export class GradientOptimizer extends BaseMCPServer {
     }
   }
 
-  async analyzeGradients(params: any): Promise<any> {
+  async analyzeGradients(params: any): Promise<{ content: { type: string; text: string }[] }> {
     try {
       const { sessionId, currentGradients } = params;
       
@@ -384,7 +384,7 @@ export class GradientOptimizer extends BaseMCPServer {
     }
   }
 
-  async adaptOptimizer(params: any): Promise<any> {
+  async adaptOptimizer(params: any): Promise<{ content: { type: string; text: string }[] }> {
     try {
       const { sessionId, adaptationType, triggerCondition } = params;
       
@@ -434,7 +434,7 @@ export class GradientOptimizer extends BaseMCPServer {
     }
   }
 
-  async getConvergenceStatus(params: any): Promise<any> {
+  async getConvergenceStatus(params: any): Promise<{ content: { type: string; text: string }[] }> {
     try {
       const { sessionId } = params;
       
@@ -468,7 +468,7 @@ export class GradientOptimizer extends BaseMCPServer {
     }
   }
 
-  private async performOptimizationStep(algorithm: OptimizationAlgorithm, gradients: any, weights: any, sessionId: string): Promise<any> {
+  private async performOptimizationStep(algorithm: OptimizationAlgorithm, gradients: any, weights: any, sessionId: string): Promise<{ content: { type: string; text: string }[] }> {
     const optimizedWeights: any = {};
     
     switch (algorithm.type) {
@@ -993,7 +993,7 @@ export class GradientOptimizer extends BaseMCPServer {
     return 'poor';
   }
 
-  async getHealth(): Promise<any> {
+  async getHealth(): Promise<{ content: { type: string; text: string }[] }> {
     return {
       status: 'healthy',
       timestamp: new Date().toISOString(),

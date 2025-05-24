@@ -1,5 +1,5 @@
 import { Server } from 'http';
-import { BaseMCPServer } from '../../shared/base-server';
+import { StandardMCPServer, MCPTool } from '../../shared/base-server';
 import { v4 as uuidv4 } from 'uuid';
 
 // Pipeline execution types and states
@@ -367,7 +367,7 @@ interface TemplateExample {
 }
 
 // Main Inference Pipeline Manager class
-export class InferencePipelineManager extends BaseMCPServer {
+export class InferencePipelineManager extends StandardMCPServer {
   private pipelines: Map<string, PipelineDefinition> = new Map();
   private executions: Map<string, PipelineExecution> = new Map();
   private schedules: Map<string, PipelineSchedule> = new Map();
@@ -600,7 +600,7 @@ export class InferencePipelineManager extends BaseMCPServer {
   }
 
   // Pipeline definition management methods
-  async createPipeline(params: any): Promise<any> {
+  async createPipeline(params: any): Promise<{ content: { type: string; text: string }[] }> {
     this.validateRequired(params, ['name', 'steps']);
     
     const id = params.id || uuidv4();
@@ -745,7 +745,7 @@ export class InferencePipelineManager extends BaseMCPServer {
     return false;
   }
   
-  async getPipeline(params: any): Promise<any> {
+  async getPipeline(params: any): Promise<{ content: { type: string; text: string }[] }> {
     this.validateRequired(params, ['id']);
     const { id } = params;
     
@@ -763,7 +763,7 @@ export class InferencePipelineManager extends BaseMCPServer {
     };
   }
   
-  async updatePipeline(params: any): Promise<any> {
+  async updatePipeline(params: any): Promise<{ content: { type: string; text: string }[] }> {
     this.validateRequired(params, ['id']);
     const { id } = params;
     
@@ -822,7 +822,7 @@ export class InferencePipelineManager extends BaseMCPServer {
     };
   }
   
-  async deletePipeline(params: any): Promise<any> {
+  async deletePipeline(params: any): Promise<{ content: { type: string; text: string }[] }> {
     this.validateRequired(params, ['id']);
     const { id } = params;
     
@@ -871,7 +871,7 @@ export class InferencePipelineManager extends BaseMCPServer {
     };
   }
   
-  async listPipelines(params: any): Promise<any> {
+  async listPipelines(params: any): Promise<{ content: { type: string; text: string }[] }> {
     const type = params?.type;
     const tags = params?.tags as string[];
     const createdBy = params?.createdBy;
@@ -923,7 +923,7 @@ export class InferencePipelineManager extends BaseMCPServer {
     };
   }
   
-  async validatePipeline(params: any): Promise<any> {
+  async validatePipeline(params: any): Promise<{ content: { type: string; text: string }[] }> {
     this.validateRequired(params, ['id']);
     const { id } = params;
     
@@ -1044,7 +1044,7 @@ export class InferencePipelineManager extends BaseMCPServer {
     return 'high';
   }
   
-  async clonePipeline(params: any): Promise<any> {
+  async clonePipeline(params: any): Promise<{ content: { type: string; text: string }[] }> {
     this.validateRequired(params, ['id', 'name']);
     const { id, name } = params;
     
@@ -1081,7 +1081,7 @@ export class InferencePipelineManager extends BaseMCPServer {
   }
 
   // Pipeline execution methods
-  async executePipeline(params: any): Promise<any> {
+  async executePipeline(params: any): Promise<{ content: { type: string; text: string }[] }> {
     this.validateRequired(params, ['pipelineId']);
     const { pipelineId } = params;
     
@@ -1507,7 +1507,7 @@ export class InferencePipelineManager extends BaseMCPServer {
     return hash.toString(36);
   }
   
-  private async executeStepOperation(step: PipelineStep, stepExecution: StepExecution, execution: PipelineExecution): Promise<any> {
+  private async executeStepOperation(step: PipelineStep, stepExecution: StepExecution, execution: PipelineExecution): Promise<{ content: { type: string; text: string }[] }> {
     // In a real implementation, this would integrate with the actual model services
     // Here we'll simulate the step execution
     
@@ -1529,7 +1529,7 @@ export class InferencePipelineManager extends BaseMCPServer {
     }
   }
   
-  private async executeModelInference(step: PipelineStep, stepExecution: StepExecution, execution: PipelineExecution): Promise<any> {
+  private async executeModelInference(step: PipelineStep, stepExecution: StepExecution, execution: PipelineExecution): Promise<{ content: { type: string; text: string }[] }> {
     // Simulate model inference
     await new Promise(resolve => setTimeout(resolve, Math.random() * 2000 + 500));
     
@@ -1552,7 +1552,7 @@ export class InferencePipelineManager extends BaseMCPServer {
     };
   }
   
-  private async executeDataTransformation(step: PipelineStep, stepExecution: StepExecution): Promise<any> {
+  private async executeDataTransformation(step: PipelineStep, stepExecution: StepExecution): Promise<{ content: { type: string; text: string }[] }> {
     // Simulate data transformation
     await new Promise(resolve => setTimeout(resolve, Math.random() * 500 + 100));
     
@@ -1567,7 +1567,7 @@ export class InferencePipelineManager extends BaseMCPServer {
     };
   }
   
-  private async executeValidation(step: PipelineStep, stepExecution: StepExecution): Promise<any> {
+  private async executeValidation(step: PipelineStep, stepExecution: StepExecution): Promise<{ content: { type: string; text: string }[] }> {
     // Simulate validation
     await new Promise(resolve => setTimeout(resolve, Math.random() * 200 + 50));
     
@@ -1588,7 +1588,7 @@ export class InferencePipelineManager extends BaseMCPServer {
     };
   }
   
-  private async executeAggregation(step: PipelineStep, stepExecution: StepExecution): Promise<any> {
+  private async executeAggregation(step: PipelineStep, stepExecution: StepExecution): Promise<{ content: { type: string; text: string }[] }> {
     // Simulate aggregation
     await new Promise(resolve => setTimeout(resolve, Math.random() * 300 + 100));
     
@@ -1640,7 +1640,7 @@ export class InferencePipelineManager extends BaseMCPServer {
   }
 
   // Additional execution control methods
-  async getExecution(params: any): Promise<any> {
+  async getExecution(params: any): Promise<{ content: { type: string; text: string }[] }> {
     this.validateRequired(params, ['id']);
     const { id } = params;
     
@@ -1658,7 +1658,7 @@ export class InferencePipelineManager extends BaseMCPServer {
     };
   }
   
-  async listExecutions(params: any): Promise<any> {
+  async listExecutions(params: any): Promise<{ content: { type: string; text: string }[] }> {
     const pipelineId = params?.pipelineId;
     const status = params?.status;
     const createdBy = params?.createdBy;
@@ -1706,7 +1706,7 @@ export class InferencePipelineManager extends BaseMCPServer {
     };
   }
   
-  async cancelExecution(params: any): Promise<any> {
+  async cancelExecution(params: any): Promise<{ content: { type: string; text: string }[] }> {
     this.validateRequired(params, ['id']);
     const { id } = params;
     
@@ -1738,31 +1738,31 @@ export class InferencePipelineManager extends BaseMCPServer {
   }
 
   // Simplified implementations for required methods
-  async pauseExecution(params: any): Promise<any> {
+  async pauseExecution(params: any): Promise<{ content: { type: string; text: string }[] }> {
     return { success: true, message: "Pause execution not implemented" };
   }
   
-  async resumeExecution(params: any): Promise<any> {
+  async resumeExecution(params: any): Promise<{ content: { type: string; text: string }[] }> {
     return { success: true, message: "Resume execution not implemented" };
   }
   
-  async retryExecution(params: any): Promise<any> {
+  async retryExecution(params: any): Promise<{ content: { type: string; text: string }[] }> {
     return { success: true, message: "Retry execution not implemented" };
   }
   
-  async executeStep(params: any): Promise<any> {
+  async executeStep(params: any): Promise<{ content: { type: string; text: string }[] }> {
     return { success: true, message: "Execute step not implemented" };
   }
   
-  async retryStep(params: any): Promise<any> {
+  async retryStep(params: any): Promise<{ content: { type: string; text: string }[] }> {
     return { success: true, message: "Retry step not implemented" };
   }
   
-  async skipStep(params: any): Promise<any> {
+  async skipStep(params: any): Promise<{ content: { type: string; text: string }[] }> {
     return { success: true, message: "Skip step not implemented" };
   }
   
-  async getStepLogs(params: any): Promise<any> {
+  async getStepLogs(params: any): Promise<{ content: { type: string; text: string }[] }> {
     this.validateRequired(params, ['executionId', 'stepId']);
     const { executionId, stepId } = params;
     
@@ -1789,11 +1789,11 @@ export class InferencePipelineManager extends BaseMCPServer {
   }
 
   // Template methods (simplified)
-  async createTemplate(params: any): Promise<any> {
+  async createTemplate(params: any): Promise<{ content: { type: string; text: string }[] }> {
     return { success: true, message: "Create template not implemented" };
   }
   
-  async getTemplate(params: any): Promise<any> {
+  async getTemplate(params: any): Promise<{ content: { type: string; text: string }[] }> {
     this.validateRequired(params, ['id']);
     const { id } = params;
     
@@ -1811,7 +1811,7 @@ export class InferencePipelineManager extends BaseMCPServer {
     };
   }
   
-  async listTemplates(params: any): Promise<any> {
+  async listTemplates(params: any): Promise<{ content: { type: string; text: string }[] }> {
     const category = params?.category;
     
     let templates = Array.from(this.templates.values());
@@ -1835,46 +1835,46 @@ export class InferencePipelineManager extends BaseMCPServer {
     };
   }
   
-  async instantiateTemplate(params: any): Promise<any> {
+  async instantiateTemplate(params: any): Promise<{ content: { type: string; text: string }[] }> {
     return { success: true, message: "Instantiate template not implemented" };
   }
 
   // Scheduling methods (simplified)
-  async createSchedule(params: any): Promise<any> {
+  async createSchedule(params: any): Promise<{ content: { type: string; text: string }[] }> {
     return { success: true, message: "Create schedule not implemented" };
   }
   
-  async updateSchedule(params: any): Promise<any> {
+  async updateSchedule(params: any): Promise<{ content: { type: string; text: string }[] }> {
     return { success: true, message: "Update schedule not implemented" };
   }
   
-  async deleteSchedule(params: any): Promise<any> {
+  async deleteSchedule(params: any): Promise<{ content: { type: string; text: string }[] }> {
     return { success: true, message: "Delete schedule not implemented" };
   }
   
-  async listSchedules(params: any): Promise<any> {
+  async listSchedules(params: any): Promise<{ content: { type: string; text: string }[] }> {
     return { success: true, schedules: [] };
   }
   
-  async triggerSchedule(params: any): Promise<any> {
+  async triggerSchedule(params: any): Promise<{ content: { type: string; text: string }[] }> {
     return { success: true, message: "Trigger schedule not implemented" };
   }
 
   // Optimization methods (simplified)
-  async optimizePipeline(params: any): Promise<any> {
+  async optimizePipeline(params: any): Promise<{ content: { type: string; text: string }[] }> {
     return { success: true, message: "Optimize pipeline not implemented" };
   }
   
-  async analyzePipelinePerformance(params: any): Promise<any> {
+  async analyzePipelinePerformance(params: any): Promise<{ content: { type: string; text: string }[] }> {
     return { success: true, message: "Analyze pipeline performance not implemented" };
   }
   
-  async applyOptimization(params: any): Promise<any> {
+  async applyOptimization(params: any): Promise<{ content: { type: string; text: string }[] }> {
     return { success: true, message: "Apply optimization not implemented" };
   }
 
   // Monitoring methods
-  async getExecutionMetrics(params: any): Promise<any> {
+  async getExecutionMetrics(params: any): Promise<{ content: { type: string; text: string }[] }> {
     this.validateRequired(params, ['executionId']);
     const { executionId } = params;
     
@@ -1894,7 +1894,7 @@ export class InferencePipelineManager extends BaseMCPServer {
     };
   }
   
-  async getSystemMetrics(params: any): Promise<any> {
+  async getSystemMetrics(params: any): Promise<{ content: { type: string; text: string }[] }> {
     const allExecutions = Array.from(this.executions.values());
     
     const metrics = {
@@ -1929,7 +1929,7 @@ export class InferencePipelineManager extends BaseMCPServer {
     };
   }
   
-  async clearCache(params: any): Promise<any> {
+  async clearCache(params: any): Promise<{ content: { type: string; text: string }[] }> {
     const pipelineId = params?.pipelineId;
     const stepId = params?.stepId;
     
@@ -2006,7 +2006,7 @@ export class InferencePipelineManager extends BaseMCPServer {
   }
 
   // BaseMCPServer abstract method implementation
-  async handleRequest(method: string, params: any): Promise<any> {
+  async handleRequest(method: string, params: any): Promise<{ content: { type: string; text: string }[] }> {
     const tool = this.tools.get(method);
     
     if (!tool) {

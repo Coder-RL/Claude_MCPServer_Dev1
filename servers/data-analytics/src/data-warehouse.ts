@@ -1,4 +1,5 @@
 import { StandardMCPServer } from '../../shared/standard-mcp-server';
+import { CallToolResult } from '@modelcontextprotocol/sdk/types.js';
 import { MCPError } from '../../../shared/src/errors';
 import { withPerformanceMonitoring } from '../../../shared/src/monitoring';
 import { withRetry } from '../../../shared/src/retry';
@@ -1619,7 +1620,7 @@ export class DataWarehouseMCPServer extends StandardMCPServer {
     });
   }
 
-  async handleToolCall(name: string, args: any): Promise<any> {
+  async handleToolCall(name: string, args: any): Promise<CallToolResult> {
     switch (name) {
       case 'create_warehouse':
         return { 

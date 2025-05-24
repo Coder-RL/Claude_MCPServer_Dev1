@@ -1,4 +1,4 @@
-import { BaseMCPServer } from './base-server.js';
+import { StandardMCPServer, MCPTool } from '../../shared/standard-mcp-server';
 
 export interface FineTuningConfig {
   id: string;
@@ -215,7 +215,7 @@ export interface TrialResult {
   }>;
 }
 
-export class FineTuningOptimizationEngine extends BaseMCPServer {
+export class FineTuningOptimizationEngine extends StandardMCPServer {
   private configs: Map<string, FineTuningConfig> = new Map();
   private sessions: Map<string, TrainingSession> = new Map();
   private optimizations: Map<string, OptimizationStrategy> = new Map();
@@ -451,7 +451,7 @@ export class FineTuningOptimizationEngine extends BaseMCPServer {
     });
   }
 
-  async createFineTuningConfig(params: any): Promise<any> {
+  async createFineTuningConfig(params: any): Promise<{ content: { type: string; text: string }[] }> {
     const { name, baseModelId, taskType, preset, customParameters = {} } = params;
     
     let baseConfig: Partial<FineTuningConfig> = {};
@@ -490,7 +490,7 @@ export class FineTuningOptimizationEngine extends BaseMCPServer {
     };
   }
 
-  async startFineTuning(params: any): Promise<any> {
+  async startFineTuning(params: any): Promise<{ content: { type: string; text: string }[] }> {
     const { configId, datasetPath, resumeFromCheckpoint, experimentName } = params;
     
     if (!this.configs.has(configId)) {
@@ -543,7 +543,7 @@ export class FineTuningOptimizationEngine extends BaseMCPServer {
     };
   }
 
-  async monitorTraining(params: any): Promise<any> {
+  async monitorTraining(params: any): Promise<{ content: { type: string; text: string }[] }> {
     const { sessionId, includeMetrics = false, includeLogs = false } = params;
     
     if (!this.sessions.has(sessionId)) {
@@ -595,7 +595,7 @@ export class FineTuningOptimizationEngine extends BaseMCPServer {
     return monitoring;
   }
 
-  async optimizeModel(params: any): Promise<any> {
+  async optimizeModel(params: any): Promise<{ content: { type: string; text: string }[] }> {
     const { modelId, optimizationType, targetMetrics = {}, constraints = {} } = params;
     
     const strategyId = `opt_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
@@ -639,7 +639,7 @@ export class FineTuningOptimizationEngine extends BaseMCPServer {
     };
   }
 
-  async hyperparameterSearch(params: any): Promise<any> {
+  async hyperparameterSearch(params: any): Promise<{ content: { type: string; text: string }[] }> {
     const { name, baseConfigId, searchSpace, searchAlgorithm, maxTrials, objectiveMetric } = params;
     
     if (!this.configs.has(baseConfigId)) {
@@ -684,7 +684,7 @@ export class FineTuningOptimizationEngine extends BaseMCPServer {
     };
   }
 
-  async analyzeTrainingResults(params: any): Promise<any> {
+  async analyzeTrainingResults(params: any): Promise<{ content: { type: string; text: string }[] }> {
     const { sessionId, analysisType, generateRecommendations = false } = params;
     
     if (!this.sessions.has(sessionId)) {
@@ -1268,7 +1268,7 @@ export class FineTuningOptimizationEngine extends BaseMCPServer {
     return (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
   }
 
-  async handleRequest(method: string, params: any): Promise<any> {
+  async handleRequest(method: string, params: any): Promise<{ content: { type: string; text: string }[] }> {
     switch (method) {
       case 'create_fine_tuning_config':
         return this.createFineTuningConfig(params);
@@ -1291,7 +1291,7 @@ export class FineTuningOptimizationEngine extends BaseMCPServer {
     }
   }
 
-  private async compareTrainingRuns(params: any): Promise<any> {
+  private async compareTrainingRuns(params: any): Promise<{ content: { type: string; text: string }[] }> {
     const { sessionIds, metrics, generateVisualization = false } = params;
     
     const comparison: any = {
@@ -1336,7 +1336,7 @@ export class FineTuningOptimizationEngine extends BaseMCPServer {
     return comparison;
   }
 
-  private async exportOptimizedModel(params: any): Promise<any> {
+  private async exportOptimizedModel(params: any): Promise<{ content: { type: string; text: string }[] }> {
     const { modelId, format, optimizationLevel = 'basic', includeTokenizer = false } = params;
     
     const exportPath = `/exports/${modelId}_${format}_${Date.now()}`;

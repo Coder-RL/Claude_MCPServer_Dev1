@@ -1,7 +1,7 @@
 import { DatabasePool } from '../../../database/pg-pool.js';
 import { RedisConnectionManager } from '../../../database/redis-client.js';
 import { getLogger } from '../../../shared/logger.js';
-import { BaseMCPServer } from '../../../shared/mcp/server.js';
+import { StandardMCPServer, MCPTool } from '../../../shared/mcp/server.js';
 
 const logger = getLogger('HyperparameterTuner');
 
@@ -218,7 +218,7 @@ export interface StrategyPerformance {
   scalability: number;
 }
 
-export class HyperparameterTuner extends BaseMCPServer {
+export class HyperparameterTuner extends StandardMCPServer {
   private dbPool: DatabasePool;
   private redis: RedisConnectionManager;
   private searchSpaces: Map<string, HyperparameterSpace> = new Map();
@@ -411,7 +411,7 @@ export class HyperparameterTuner extends BaseMCPServer {
     });
   }
 
-  async defineSearchSpace(params: any): Promise<any> {
+  async defineSearchSpace(params: any): Promise<{ content: { type: string; text: string }[] }> {
     try {
       const spaceId = `space_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       
@@ -455,7 +455,7 @@ export class HyperparameterTuner extends BaseMCPServer {
     }
   }
 
-  async startTuning(params: any): Promise<any> {
+  async startTuning(params: any): Promise<{ content: { type: string; text: string }[] }> {
     try {
       const { spaceId, strategy, strategyParams = {}, evaluationFunction, adaptiveSettings = {} } = params;
       
@@ -546,7 +546,7 @@ export class HyperparameterTuner extends BaseMCPServer {
     }
   }
 
-  async suggestConfiguration(params: any): Promise<any> {
+  async suggestConfiguration(params: any): Promise<{ content: { type: string; text: string }[] }> {
     try {
       const { sessionId } = params;
       
@@ -590,7 +590,7 @@ export class HyperparameterTuner extends BaseMCPServer {
     }
   }
 
-  async reportEvaluation(params: any): Promise<any> {
+  async reportEvaluation(params: any): Promise<{ content: { type: string; text: string }[] }> {
     try {
       const { sessionId, configurationId, primaryMetric, auxiliaryMetrics = {}, resourceUsage = {} } = params;
       
@@ -653,7 +653,7 @@ export class HyperparameterTuner extends BaseMCPServer {
     }
   }
 
-  async analyzeResults(params: any): Promise<any> {
+  async analyzeResults(params: any): Promise<{ content: { type: string; text: string }[] }> {
     try {
       const { sessionId, analysisType = 'comprehensive' } = params;
       
@@ -693,7 +693,7 @@ export class HyperparameterTuner extends BaseMCPServer {
     }
   }
 
-  async optimizeStrategy(params: any): Promise<any> {
+  async optimizeStrategy(params: any): Promise<{ content: { type: string; text: string }[] }> {
     try {
       const { sessionId, adaptationGoal } = params;
       
@@ -724,7 +724,7 @@ export class HyperparameterTuner extends BaseMCPServer {
     }
   }
 
-  async transferKnowledge(params: any): Promise<any> {
+  async transferKnowledge(params: any): Promise<{ content: { type: string; text: string }[] }> {
     try {
       const { sourceSessionIds, targetSessionId, transferStrategy } = params;
       
@@ -1459,7 +1459,7 @@ export class HyperparameterTuner extends BaseMCPServer {
     ]);
   }
 
-  async getHealth(): Promise<any> {
+  async getHealth(): Promise<{ content: { type: string; text: string }[] }> {
     return {
       status: 'healthy',
       timestamp: new Date().toISOString(),

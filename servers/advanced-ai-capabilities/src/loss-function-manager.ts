@@ -1,7 +1,7 @@
 import { DatabasePool } from '../../../database/pg-pool.js';
 import { RedisConnectionManager } from '../../../database/redis-client.js';
 import { getLogger } from '../../../shared/logger.js';
-import { BaseMCPServer } from '../../../shared/mcp/server.js';
+import { StandardMCPServer, MCPTool } from '../../../shared/mcp/server.js';
 
 const logger = getLogger('LossFunctionManager');
 
@@ -123,7 +123,7 @@ export interface LossCombination {
   };
 }
 
-export class LossFunctionManager extends BaseMCPServer {
+export class LossFunctionManager extends StandardMCPServer {
   private dbPool: DatabasePool;
   private redis: RedisConnectionManager;
   private lossFunctions: Map<string, LossFunction> = new Map();
@@ -372,7 +372,7 @@ export class LossFunctionManager extends BaseMCPServer {
     });
   }
 
-  async createLossFunction(params: any): Promise<any> {
+  async createLossFunction(params: any): Promise<{ content: { type: string; text: string }[] }> {
     try {
       const functionId = `loss_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       
@@ -420,7 +420,7 @@ export class LossFunctionManager extends BaseMCPServer {
     }
   }
 
-  async evaluateLossFunction(params: any): Promise<any> {
+  async evaluateLossFunction(params: any): Promise<{ content: { type: string; text: string }[] }> {
     try {
       const { functionId, datasetId, taskType, evaluationConfig = {} } = params;
       
@@ -453,7 +453,7 @@ export class LossFunctionManager extends BaseMCPServer {
     }
   }
 
-  async recommendLossFunction(params: any): Promise<any> {
+  async recommendLossFunction(params: any): Promise<{ content: { type: string; text: string }[] }> {
     try {
       const { taskType, datasetCharacteristics, performanceRequirements = {}, constraints = {} } = params;
       
@@ -488,7 +488,7 @@ export class LossFunctionManager extends BaseMCPServer {
     }
   }
 
-  async createAdaptiveLoss(params: any): Promise<any> {
+  async createAdaptiveLoss(params: any): Promise<{ content: { type: string; text: string }[] }> {
     try {
       const { baseFunctionId, adaptationStrategy, adaptationParams = {}, conditions = [] } = params;
       
@@ -529,7 +529,7 @@ export class LossFunctionManager extends BaseMCPServer {
     }
   }
 
-  async combineLossFunctions(params: any): Promise<any> {
+  async combineLossFunctions(params: any): Promise<{ content: { type: string; text: string }[] }> {
     try {
       const { name, functions, combinationStrategy, metadata = {} } = params;
       
@@ -583,7 +583,7 @@ export class LossFunctionManager extends BaseMCPServer {
     }
   }
 
-  async analyzeLossLandscape(params: any): Promise<any> {
+  async analyzeLossLandscape(params: any): Promise<{ content: { type: string; text: string }[] }> {
     try {
       const { functionId, networkId, analysisType } = params;
       
@@ -732,7 +732,7 @@ export class LossFunctionManager extends BaseMCPServer {
     return evaluation;
   }
 
-  private async compareWithBaselines(evaluation: LossEvaluation, taskType: string): Promise<any> {
+  private async compareWithBaselines(evaluation: LossEvaluation, taskType: string): Promise<{ content: { type: string; text: string }[] }> {
     const baselines = this.getBaselineFunctions(taskType);
     const comparisons = baselines.map(baseline => ({
       baselineId: baseline.id,
@@ -873,7 +873,7 @@ export class LossFunctionManager extends BaseMCPServer {
     return reasoning;
   }
 
-  private async suggestCustomLoss(taskType: string, datasetAnalysis: any, requirements: any): Promise<any> {
+  private async suggestCustomLoss(taskType: string, datasetAnalysis: any, requirements: any): Promise<{ content: { type: string; text: string }[] }> {
     const suggestions: any = {
       recommended: false,
       reason: '',
@@ -995,7 +995,7 @@ export class LossFunctionManager extends BaseMCPServer {
     }
   }
 
-  private async analyzeCurvature(lossFunction: LossFunction, networkId: string): Promise<any> {
+  private async analyzeCurvature(lossFunction: LossFunction, networkId: string): Promise<{ content: { type: string; text: string }[] }> {
     // Simulate curvature analysis
     return {
       hessianEigenvalues: Array.from({length: 10}, () => Math.random() * 100),
@@ -1005,7 +1005,7 @@ export class LossFunctionManager extends BaseMCPServer {
     };
   }
 
-  private async analyzeSharpness(lossFunction: LossFunction, networkId: string): Promise<any> {
+  private async analyzeSharpness(lossFunction: LossFunction, networkId: string): Promise<{ content: { type: string; text: string }[] }> {
     return {
       sharpnessMetric: Math.random() * 100,
       flatnessScore: Math.random(),
@@ -1013,7 +1013,7 @@ export class LossFunctionManager extends BaseMCPServer {
     };
   }
 
-  private async analyzeSmoothness(lossFunction: LossFunction, networkId: string): Promise<any> {
+  private async analyzeSmoothness(lossFunction: LossFunction, networkId: string): Promise<{ content: { type: string; text: string }[] }> {
     return {
       lipschitzConstant: 1 + Math.random() * 10,
       smoothnessScore: Math.random(),
@@ -1021,7 +1021,7 @@ export class LossFunctionManager extends BaseMCPServer {
     };
   }
 
-  private async analyzeGradientFlow(lossFunction: LossFunction, networkId: string): Promise<any> {
+  private async analyzeGradientFlow(lossFunction: LossFunction, networkId: string): Promise<{ content: { type: string; text: string }[] }> {
     return {
       flowDirection: 'towards_minimum',
       flowMagnitude: Math.random() * 5,
@@ -1115,7 +1115,7 @@ export class LossFunctionManager extends BaseMCPServer {
     ]);
   }
 
-  async getHealth(): Promise<any> {
+  async getHealth(): Promise<{ content: { type: string; text: string }[] }> {
     return {
       status: 'healthy',
       timestamp: new Date().toISOString(),

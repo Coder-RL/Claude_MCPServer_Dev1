@@ -1,4 +1,5 @@
 import { StandardMCPServer } from "../../shared/standard-mcp-server";
+import { CallToolResult } from '@modelcontextprotocol/sdk/types.js';
 import { MCPError } from '../../../shared/src/errors';
 import { withPerformanceMonitoring } from '../../../shared/src/monitoring';
 import { withRetry } from '../../../shared/src/retry';
@@ -1747,11 +1748,7 @@ export class MLDeploymentMCPServer extends StandardMCPServer {
   private mlDeploymentService: MLDeploymentService;
 
   constructor() {
-    super({
-      name: 'ml-deployment-server',
-      port: parseInt(process.env.ML_DEPLOYMENT_PORT || '8114'),
-      host: process.env.ML_DEPLOYMENT_HOST || 'localhost'
-    });
+    super('ml-deployment-server', 'Machine learning model deployment and serving');
     this.mlDeploymentService = new MLDeploymentService();
   }
 
@@ -1935,13 +1932,15 @@ export class MLDeploymentMCPServer extends StandardMCPServer {
     ];
   }
 
-  protected async handleToolCall(name: string, args: any): Promise<any> {
+  async handleToolCall(name: string, args: any): Promise<CallToolResult> {
     switch (name) {
       case 'register_model':
-        return { id: await this.mlDeploymentService.registerModel(args) };
+        const modelId = await this.mlDeploymentService.registerModel(args);
+        return { content: [{ type: 'text', text: JSON.stringify({ id: modelId }) }] };
 
       case 'deploy_model':
-        return { endpointId: await this.mlDeploymentService.deployModel(args.modelId, args.deploymentConfig) };
+        const endpointId = await this.mlDeploymentService.deployModel(args.modelId, args.deploymentConfig);
+        return { content: [{ type: 'text', text: JSON.stringify({ endpointId }) }] };
 
       case 'predict':
         const request: InferenceRequest = {
@@ -1953,17 +1952,20 @@ export class MLDeploymentMCPServer extends StandardMCPServer {
           metadata: args.metadata,
           timestamp: new Date()
         };
-        return await this.mlDeploymentService.predict(request);
+        const prediction = await this.mlDeploymentService.predict(request);
+        return { content: [{ type: 'text', text: JSON.stringify(prediction) }] };
 
       case 'undeploy_model':
         await this.mlDeploymentService.undeployModel(args.endpointId);
-        return { success: true };
+        return { content: [{ type: 'text', text: JSON.stringify({ success: true }) }] };
 
       case 'get_model_metrics':
-        return await this.mlDeploymentService.getModelMetrics(args.modelId);
+        const metrics = await this.mlDeploymentService.getModelMetrics(args.modelId);
+        return { content: [{ type: 'text', text: JSON.stringify(metrics) }] };
 
       case 'get_endpoint_status':
-        return await this.mlDeploymentService.getEndpointStatus(args.endpointId);
+        const status = await this.mlDeploymentService.getEndpointStatus(args.endpointId);
+        return { content: [{ type: 'text', text: JSON.stringify(status) }] };
 
       default:
         throw new MCPError('METHOD_NOT_FOUND', `Unknown tool: ${name}`);

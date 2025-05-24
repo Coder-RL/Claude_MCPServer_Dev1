@@ -1,4 +1,4 @@
-import { BaseMCPServer } from '../../shared/base-server.js';
+import { StandardMCPServer, MCPTool } from '../../shared/base-server.js';
 
 export interface AttentionPatternConfig {
   id: string;
@@ -235,7 +235,7 @@ export interface PatternRecommendation {
   measurableOutcomes: string[];
 }
 
-export class AttentionPatternAnalyzer extends BaseMCPServer {
+export class AttentionPatternAnalyzer extends StandardMCPServer {
   static async main() {
     const server = new AttentionPatternAnalyzer();
     await server.start();
@@ -252,7 +252,7 @@ export class AttentionPatternAnalyzer extends BaseMCPServer {
     this.setupTools();
   }
 
-  async handleRequest(method: string, params: any): Promise<any> {
+  async handleRequest(method: string, params: any): Promise<{ content: { type: string; text: string }[] }> {
     this.logOperation(method, params);
 
     switch (method) {
@@ -556,7 +556,7 @@ export class AttentionPatternAnalyzer extends BaseMCPServer {
     });
   }
 
-  async createPatternAnalysisConfig(params: any): Promise<any> {
+  async createPatternAnalysisConfig(params: any): Promise<{ content: { type: string; text: string }[] }> {
     const { name, analysisType, patternTypes, analysisParams = {} } = params;
 
     this.validateRequired(params, ['name', 'analysisType', 'patternTypes']);
@@ -598,7 +598,7 @@ export class AttentionPatternAnalyzer extends BaseMCPServer {
     };
   }
 
-  async startPatternAnalysisSession(params: any): Promise<any> {
+  async startPatternAnalysisSession(params: any): Promise<{ content: { type: string; text: string }[] }> {
     const { configId, modelName, taskType, datasetInfo = {}, sessionOptions = {} } = params;
 
     this.validateRequired(params, ['configId', 'modelName', 'taskType']);
@@ -649,7 +649,7 @@ export class AttentionPatternAnalyzer extends BaseMCPServer {
     };
   }
 
-  async analyzeAttentionPatterns(params: any): Promise<any> {
+  async analyzeAttentionPatterns(params: any): Promise<{ content: { type: string; text: string }[] }> {
     try {
       const { sessionId, attentionWeights, layerIndex, headIndex, metadata = {} } = params;
 
@@ -753,7 +753,7 @@ export class AttentionPatternAnalyzer extends BaseMCPServer {
     }
   }
 
-  async detectPatternAnomalies(params: any): Promise<any> {
+  async detectPatternAnomalies(params: any): Promise<{ content: { type: string; text: string }[] }> {
     const { sessionId, detectorTypes = ['statistical', 'pattern', 'entropy'], sensitivityLevel = 'medium' } = params;
 
     this.validateRequired(params, ['sessionId']);
@@ -797,7 +797,7 @@ export class AttentionPatternAnalyzer extends BaseMCPServer {
     };
   }
 
-  async generatePatternInsights(params: any): Promise<any> {
+  async generatePatternInsights(params: any): Promise<{ content: { type: string; text: string }[] }> {
     const { sessionId, insightCategories = ['efficiency', 'attention_quality', 'model_behavior'], includeRecommendations = true } = params;
 
     this.validateRequired(params, ['sessionId']);

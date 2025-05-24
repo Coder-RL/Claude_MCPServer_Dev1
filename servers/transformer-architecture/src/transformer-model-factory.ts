@@ -1,4 +1,4 @@
-import { BaseMCPServer } from './base-server.js';
+import { StandardMCPServer, MCPTool } from '../../shared/standard-mcp-server';
 
 export interface ModelArchitectureSpec {
   id: string;
@@ -141,7 +141,7 @@ export interface ModelOptimization {
   completedAt?: Date;
 }
 
-export class TransformerModelFactory extends BaseMCPServer {
+export class TransformerModelFactory extends StandardMCPServer {
   private specifications: Map<string, ModelArchitectureSpec> = new Map();
   private instances: Map<string, ModelInstance> = new Map();
   private templates: Map<string, ModelTemplate> = new Map();
@@ -464,7 +464,7 @@ export class TransformerModelFactory extends BaseMCPServer {
     });
   }
 
-  async createModelSpecification(params: any): Promise<any> {
+  async createModelSpecification(params: any): Promise<{ content: { type: string; text: string }[] }> {
     const { name, template, customizations = {}, targetUseCase } = params;
     
     let baseSpec: Partial<ModelArchitectureSpec> = {
@@ -521,7 +521,7 @@ export class TransformerModelFactory extends BaseMCPServer {
     };
   }
 
-  async instantiateModel(params: any): Promise<any> {
+  async instantiateModel(params: any): Promise<{ content: { type: string; text: string }[] }> {
     const { specId, name, device = 'cpu', precision = 'fp32', loadWeights = false } = params;
     
     if (!this.specifications.has(specId)) {
@@ -634,7 +634,7 @@ export class TransformerModelFactory extends BaseMCPServer {
     return comparison;
   }
 
-  async optimizeModel(params: any): Promise<any> {
+  async optimizeModel(params: any): Promise<{ content: { type: string; text: string }[] }> {
     const { instanceId, optimizationType, parameters = {}, targetMetrics } = params;
     
     if (!this.instances.has(instanceId)) {
@@ -682,7 +682,7 @@ export class TransformerModelFactory extends BaseMCPServer {
     };
   }
 
-  async profileModelPerformance(params: any): Promise<any> {
+  async profileModelPerformance(params: any): Promise<{ content: { type: string; text: string }[] }> {
     const { instanceId, profileType, testConfigurations = [] } = params;
     
     if (!this.instances.has(instanceId)) {
@@ -731,7 +731,7 @@ export class TransformerModelFactory extends BaseMCPServer {
     return profile;
   }
 
-  async scaleModelArchitecture(params: any): Promise<any> {
+  async scaleModelArchitecture(params: any): Promise<{ content: { type: string; text: string }[] }> {
     const { baseSpecId, scalingFactor, scalingStrategy, targetConstraints = {} } = params;
     
     if (!this.specifications.has(baseSpecId)) {
@@ -1002,7 +1002,7 @@ export class TransformerModelFactory extends BaseMCPServer {
     return tradeoffs;
   }
 
-  private async performOptimization(instance: ModelInstance, spec: ModelArchitectureSpec, type: string, params: any): Promise<any> {
+  private async performOptimization(instance: ModelInstance, spec: ModelArchitectureSpec, type: string, params: any): Promise<{ content: { type: string; text: string }[] }> {
     const originalSize = this.calculateParameterCount(spec);
     let optimizedSize = originalSize;
     let speedup = 1.0;
@@ -1057,7 +1057,7 @@ export class TransformerModelFactory extends BaseMCPServer {
     };
   }
 
-  private async profileLatency(instance: ModelInstance, spec: ModelArchitectureSpec, configs: any[]): Promise<any> {
+  private async profileLatency(instance: ModelInstance, spec: ModelArchitectureSpec, configs: any[]): Promise<{ content: { type: string; text: string }[] }> {
     const results: any = { configurations: [], summary: {} };
     
     for (const config of configs) {
@@ -1080,7 +1080,7 @@ export class TransformerModelFactory extends BaseMCPServer {
     return results;
   }
 
-  private async profileThroughput(instance: ModelInstance, spec: ModelArchitectureSpec, configs: any[]): Promise<any> {
+  private async profileThroughput(instance: ModelInstance, spec: ModelArchitectureSpec, configs: any[]): Promise<{ content: { type: string; text: string }[] }> {
     const results: any = { configurations: [], summary: {} };
     
     for (const config of configs) {
@@ -1130,14 +1130,14 @@ export class TransformerModelFactory extends BaseMCPServer {
     return results;
   }
 
-  private async profileAccuracy(instance: ModelInstance, spec: ModelArchitectureSpec, configs: any[]): Promise<any> {
+  private async profileAccuracy(instance: ModelInstance, spec: ModelArchitectureSpec, configs: any[]): Promise<{ content: { type: string; text: string }[] }> {
     return {
       message: 'Accuracy profiling requires task-specific evaluation datasets',
       estimatedAccuracy: 0.85 + Math.random() * 0.1 // Simulated
     };
   }
 
-  private async comprehensiveProfile(instance: ModelInstance, spec: ModelArchitectureSpec, configs: any[]): Promise<any> {
+  private async comprehensiveProfile(instance: ModelInstance, spec: ModelArchitectureSpec, configs: any[]): Promise<{ content: { type: string; text: string }[] }> {
     return {
       latency: await this.profileLatency(instance, spec, configs),
       throughput: await this.profileThroughput(instance, spec, configs),
@@ -1332,7 +1332,7 @@ export class TransformerModelFactory extends BaseMCPServer {
     return satisfied;
   }
 
-  async handleRequest(method: string, params: any): Promise<any> {
+  async handleRequest(method: string, params: any): Promise<{ content: { type: string; text: string }[] }> {
     switch (method) {
       case 'create_model_specification':
         return this.createModelSpecification(params);
@@ -1355,7 +1355,7 @@ export class TransformerModelFactory extends BaseMCPServer {
     }
   }
 
-  private async generateModelConfig(params: any): Promise<any> {
+  private async generateModelConfig(params: any): Promise<{ content: { type: string; text: string }[] }> {
     const { specId, framework, includeTrainingConfig = false, optimizations = [] } = params;
     
     if (!this.specifications.has(specId)) {
@@ -1396,7 +1396,7 @@ export class TransformerModelFactory extends BaseMCPServer {
     };
   }
 
-  private async analyzeModelComplexity(params: any): Promise<any> {
+  private async analyzeModelComplexity(params: any): Promise<{ content: { type: string; text: string }[] }> {
     const { specId, analysisDepth, includeVisualization = false } = params;
     
     if (!this.specifications.has(specId)) {

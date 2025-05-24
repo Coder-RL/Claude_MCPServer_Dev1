@@ -1,7 +1,7 @@
 import { DatabasePool } from '../../../database/pg-pool.js';
 import { RedisConnectionManager } from '../../../database/redis-client.js';
 import { getLogger } from '../../../shared/logger.js';
-import { BaseMCPServer } from '../../../shared/mcp/server.js';
+import { StandardMCPServer, MCPTool } from '../../../shared/mcp/server.js';
 
 const logger = getLogger('NeuralNetworkController');
 
@@ -79,7 +79,7 @@ export interface TrainingMetrics {
   weightHistograms: Map<string, number[]>;
 }
 
-export class NeuralNetworkController extends BaseMCPServer {
+export class NeuralNetworkController extends StandardMCPServer {
   private dbPool: DatabasePool;
   private redis: RedisConnectionManager;
   private networks: Map<string, NetworkArchitecture> = new Map();
@@ -160,7 +160,7 @@ export class NeuralNetworkController extends BaseMCPServer {
     }, this.optimizeArchitecture.bind(this));
   }
 
-  async createNetwork(params: any): Promise<any> {
+  async createNetwork(params: any): Promise<{ content: { type: string; text: string }[] }> {
     try {
       const networkId = `net_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       
@@ -206,7 +206,7 @@ export class NeuralNetworkController extends BaseMCPServer {
     }
   }
 
-  async modifyNetwork(params: any): Promise<any> {
+  async modifyNetwork(params: any): Promise<{ content: { type: string; text: string }[] }> {
     try {
       const { networkId, modifications } = params;
       
@@ -252,7 +252,7 @@ export class NeuralNetworkController extends BaseMCPServer {
     }
   }
 
-  async startTraining(params: any): Promise<any> {
+  async startTraining(params: any): Promise<{ content: { type: string; text: string }[] }> {
     try {
       const { networkId, datasetId, parameters = {} } = params;
       
@@ -305,7 +305,7 @@ export class NeuralNetworkController extends BaseMCPServer {
     }
   }
 
-  async getTrainingStatus(params: any): Promise<any> {
+  async getTrainingStatus(params: any): Promise<{ content: { type: string; text: string }[] }> {
     try {
       const { sessionId } = params;
       
@@ -338,7 +338,7 @@ export class NeuralNetworkController extends BaseMCPServer {
     }
   }
 
-  async optimizeArchitecture(params: any): Promise<any> {
+  async optimizeArchitecture(params: any): Promise<{ content: { type: string; text: string }[] }> {
     try {
       const { taskType, datasetInfo, constraints = {} } = params;
       
@@ -624,7 +624,7 @@ export class NeuralNetworkController extends BaseMCPServer {
     return `${parts[0]}.${parts[1]}.${patch}`;
   }
 
-  async getHealth(): Promise<any> {
+  async getHealth(): Promise<{ content: { type: string; text: string }[] }> {
     return {
       status: 'healthy',
       timestamp: new Date().toISOString(),

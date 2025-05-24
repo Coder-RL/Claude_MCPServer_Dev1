@@ -1,4 +1,4 @@
-import { BaseMCPServer } from './base-server.js';
+import { StandardMCPServer, MCPTool } from '../../shared/standard-mcp-server';
 
 export interface TransformerBlockConfig {
   id: string;
@@ -117,7 +117,7 @@ export interface BlockOptimization {
   completedAt?: Date;
 }
 
-export class TransformerBlockManager extends BaseMCPServer {
+export class TransformerBlockManager extends StandardMCPServer {
   private blocks: Map<string, TransformerBlockConfig> = new Map();
   private executions: Map<string, BlockExecution> = new Map();
   private layerStates: Map<string, LayerState> = new Map();
@@ -310,7 +310,7 @@ export class TransformerBlockManager extends BaseMCPServer {
     });
   }
 
-  async createTransformerBlock(params: any): Promise<any> {
+  async createTransformerBlock(params: any): Promise<{ content: { type: string; text: string }[] }> {
     const { template, name, customConfig = {} } = params;
     
     let baseConfig: Partial<TransformerBlockConfig> = {};
@@ -354,7 +354,7 @@ export class TransformerBlockManager extends BaseMCPServer {
     };
   }
 
-  async executeTransformerBlock(params: any): Promise<any> {
+  async executeTransformerBlock(params: any): Promise<{ content: { type: string; text: string }[] }> {
     const { blockId, input, mode, debugging = false } = params;
     
     if (!this.blocks.has(blockId)) {
@@ -418,7 +418,7 @@ export class TransformerBlockManager extends BaseMCPServer {
     };
   }
 
-  async optimizeTransformerBlock(params: any): Promise<any> {
+  async optimizeTransformerBlock(params: any): Promise<{ content: { type: string; text: string }[] }> {
     const { blockId, optimizationType, parameters = {} } = params;
     
     if (!this.blocks.has(blockId)) {
@@ -462,7 +462,7 @@ export class TransformerBlockManager extends BaseMCPServer {
     };
   }
 
-  async analyzeBlockPerformance(params: any): Promise<any> {
+  async analyzeBlockPerformance(params: any): Promise<{ content: { type: string; text: string }[] }> {
     const { blockId, analysis, timeRange } = params;
     
     if (!this.blocks.has(blockId)) {
@@ -786,7 +786,7 @@ export class TransformerBlockManager extends BaseMCPServer {
     return arr.length > 0 ? arr.reduce((a, b) => a + b, 0) / arr.length : 0;
   }
 
-  async handleRequest(method: string, params: any): Promise<any> {
+  async handleRequest(method: string, params: any): Promise<{ content: { type: string; text: string }[] }> {
     switch (method) {
       case 'create_transformer_block':
         return this.createTransformerBlock(params);
@@ -807,7 +807,7 @@ export class TransformerBlockManager extends BaseMCPServer {
     }
   }
 
-  private async compareTransformerBlocks(params: any): Promise<any> {
+  private async compareTransformerBlocks(params: any): Promise<{ content: { type: string; text: string }[] }> {
     const { blockIds, metrics, visualization = false } = params;
     
     const comparison: any = {
@@ -834,7 +834,7 @@ export class TransformerBlockManager extends BaseMCPServer {
     return comparison;
   }
 
-  private async profileLayerPerformance(params: any): Promise<any> {
+  private async profileLayerPerformance(params: any): Promise<{ content: { type: string; text: string }[] }> {
     const { blockId, layerTypes, executionId } = params;
     
     if (!this.blocks.has(blockId)) {
@@ -860,7 +860,7 @@ export class TransformerBlockManager extends BaseMCPServer {
     return profile;
   }
 
-  private async exportBlockConfiguration(params: any): Promise<any> {
+  private async exportBlockConfiguration(params: any): Promise<{ content: { type: string; text: string }[] }> {
     const { blockId, format, includeWeights = false } = params;
     
     if (!this.blocks.has(blockId)) {

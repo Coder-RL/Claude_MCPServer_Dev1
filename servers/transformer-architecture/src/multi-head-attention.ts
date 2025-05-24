@@ -1,7 +1,7 @@
 import { DatabasePool } from '../../../database/pg-pool.js';
 import { RedisConnectionManager } from '../../../database/redis-client.js';
 import { getLogger } from '../../../shared/logger.js';
-import { BaseMCPServer } from '../../../shared/mcp/server.js';
+import { StandardMCPServer, MCPTool } from '../../../shared/mcp/server.js';
 
 const logger = getLogger('MultiHeadAttention');
 
@@ -140,7 +140,7 @@ export interface OptimizationStep {
   timestamp: Date;
 }
 
-export class MultiHeadAttentionEngine extends BaseMCPServer {
+export class MultiHeadAttentionEngine extends StandardMCPServer {
   private dbPool: DatabasePool;
   private redis: RedisConnectionManager;
   private configurations: Map<string, AttentionConfiguration> = new Map();
@@ -390,7 +390,7 @@ export class MultiHeadAttentionEngine extends BaseMCPServer {
     });
   }
 
-  async createAttentionConfig(params: any): Promise<any> {
+  async createAttentionConfig(params: any): Promise<{ content: { type: string; text: string }[] }> {
     try {
       const configId = `attn_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       
@@ -437,7 +437,7 @@ export class MultiHeadAttentionEngine extends BaseMCPServer {
     }
   }
 
-  async computeAttention(params: any): Promise<any> {
+  async computeAttention(params: any): Promise<{ content: { type: string; text: string }[] }> {
     try {
       const { configId, sequences, options = {} } = params;
       
@@ -489,7 +489,7 @@ export class MultiHeadAttentionEngine extends BaseMCPServer {
     }
   }
 
-  async analyzeAttentionPatterns(params: any): Promise<any> {
+  async analyzeAttentionPatterns(params: any): Promise<{ content: { type: string; text: string }[] }> {
     try {
       const { sessionId, analysisType = 'patterns' } = params;
       
@@ -535,7 +535,7 @@ export class MultiHeadAttentionEngine extends BaseMCPServer {
     }
   }
 
-  async optimizeAttentionHeads(params: any): Promise<any> {
+  async optimizeAttentionHeads(params: any): Promise<{ content: { type: string; text: string }[] }> {
     try {
       const { configId, optimizationGoal, constraints = {} } = params;
       
@@ -574,7 +574,7 @@ export class MultiHeadAttentionEngine extends BaseMCPServer {
     }
   }
 
-  async visualizeAttention(params: any): Promise<any> {
+  async visualizeAttention(params: any): Promise<{ content: { type: string; text: string }[] }> {
     try {
       const { sessionId, visualizationType, headIndices } = params;
       
@@ -607,7 +607,7 @@ export class MultiHeadAttentionEngine extends BaseMCPServer {
     }
   }
 
-  async benchmarkAttention(params: any): Promise<any> {
+  async benchmarkAttention(params: any): Promise<{ content: { type: string; text: string }[] }> {
     try {
       const { configIds, benchmarkSuite, metrics = ['speed', 'memory', 'accuracy'] } = params;
       
@@ -642,7 +642,7 @@ export class MultiHeadAttentionEngine extends BaseMCPServer {
     }));
   }
 
-  private async executeAttentionComputation(session: AttentionSession, config: AttentionConfiguration, options: any): Promise<any> {
+  private async executeAttentionComputation(session: AttentionSession, config: AttentionConfiguration, options: any): Promise<{ content: { type: string; text: string }[] }> {
     const startTime = Date.now();
     const outputs: AttentionOutput[] = [];
     const metrics: AttentionMetrics[] = [];
@@ -1044,7 +1044,7 @@ export class MultiHeadAttentionEngine extends BaseMCPServer {
     };
   }
 
-  private async runBenchmarkSuite(configs: AttentionConfiguration[], suite: string, metrics: string[]): Promise<any> {
+  private async runBenchmarkSuite(configs: AttentionConfiguration[], suite: string, metrics: string[]): Promise<{ content: { type: string; text: string }[] }> {
     const results = [];
 
     for (const config of configs) {
@@ -1075,7 +1075,7 @@ export class MultiHeadAttentionEngine extends BaseMCPServer {
     return results;
   }
 
-  private async benchmarkSpeed(config: AttentionConfiguration): Promise<any> {
+  private async benchmarkSpeed(config: AttentionConfiguration): Promise<{ content: { type: string; text: string }[] }> {
     // Simulate speed benchmark
     const baseTime = 100; // milliseconds
     const complexityFactor = (config.sequenceLength * config.numHeads * config.modelDimension) / (512 * 8 * 512);
@@ -1088,7 +1088,7 @@ export class MultiHeadAttentionEngine extends BaseMCPServer {
     };
   }
 
-  private async benchmarkMemory(config: AttentionConfiguration): Promise<any> {
+  private async benchmarkMemory(config: AttentionConfiguration): Promise<{ content: { type: string; text: string }[] }> {
     // Simulate memory benchmark
     const baseMemory = config.sequenceLength * config.sequenceLength * 4; // bytes for attention matrix
     const totalMemory = baseMemory * config.numHeads + config.modelDimension * config.sequenceLength * 4;
@@ -1102,7 +1102,7 @@ export class MultiHeadAttentionEngine extends BaseMCPServer {
     };
   }
 
-  private async benchmarkAccuracy(config: AttentionConfiguration): Promise<any> {
+  private async benchmarkAccuracy(config: AttentionConfiguration): Promise<{ content: { type: string; text: string }[] }> {
     // Simulate accuracy benchmark
     const baseAccuracy = 0.85;
     const architectureBonus = config.architecture.type === 'scaled_dot_product' ? 0.05 : 0.0;
@@ -1403,7 +1403,7 @@ export class MultiHeadAttentionEngine extends BaseMCPServer {
     return optimizedConfig;
   }
 
-  private async benchmarkOptimizations(original: AttentionConfiguration, optimized: AttentionConfiguration): Promise<any> {
+  private async benchmarkOptimizations(original: AttentionConfiguration, optimized: AttentionConfiguration): Promise<{ content: { type: string; text: string }[] }> {
     const originalBench = await this.benchmarkSpeed(original);
     const optimizedBench = await this.benchmarkSpeed(optimized);
 
@@ -1559,7 +1559,7 @@ export class MultiHeadAttentionEngine extends BaseMCPServer {
     ]);
   }
 
-  async getHealth(): Promise<any> {
+  async getHealth(): Promise<{ content: { type: string; text: string }[] }> {
     return {
       status: 'healthy',
       timestamp: new Date().toISOString(),

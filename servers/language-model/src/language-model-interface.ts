@@ -1,5 +1,5 @@
 import { Server } from 'http';
-import { BaseMCPServer } from '../../shared/base-server';
+import { StandardMCPServer, MCPTool } from '../../shared/base-server';
 import { v4 as uuidv4 } from 'uuid';
 
 // Define the supported model providers
@@ -253,7 +253,7 @@ interface ModelLogEntry {
 }
 
 // Main Language Model Interface class
-export class LanguageModelInterface extends BaseMCPServer {
+export class LanguageModelInterface extends StandardMCPServer {
   static async main() {
     const server = new LanguageModelInterface();
     await server.start();
@@ -450,7 +450,7 @@ export class LanguageModelInterface extends BaseMCPServer {
     this.initializeTokenCounters();
   }
 
-  async handleRequest(method: string, params: any): Promise<any> {
+  async handleRequest(method: string, params: any): Promise<{ content: { type: string; text: string }[] }> {
     this.logOperation(method, params);
 
     switch (method) {
@@ -581,7 +581,7 @@ export class LanguageModelInterface extends BaseMCPServer {
   }
 
   // Model management methods
-  async registerModel(params: any): Promise<any> {
+  async registerModel(params: any): Promise<{ content: { type: string; text: string }[] }> {
     this.validateRequired(params, ['name', 'provider']);
 
     const id = params.id || uuidv4();
@@ -705,7 +705,7 @@ export class LanguageModelInterface extends BaseMCPServer {
     this.metrics.set(modelId, metrics);
   }
 
-  async getModel(params: any): Promise<any> {
+  async getModel(params: any): Promise<{ content: { type: string; text: string }[] }> {
     this.validateRequired(params, ['id']);
     const { id } = params;
 
@@ -723,7 +723,7 @@ export class LanguageModelInterface extends BaseMCPServer {
     };
   }
 
-  async updateModel(params: any): Promise<any> {
+  async updateModel(params: any): Promise<{ content: { type: string; text: string }[] }> {
     this.validateRequired(params, ['id']);
     const { id } = params;
 
@@ -781,7 +781,7 @@ export class LanguageModelInterface extends BaseMCPServer {
     };
   }
 
-  async deleteModel(params: any): Promise<any> {
+  async deleteModel(params: any): Promise<{ content: { type: string; text: string }[] }> {
     this.validateRequired(params, ['id']);
     const { id } = params;
 
@@ -823,7 +823,7 @@ export class LanguageModelInterface extends BaseMCPServer {
     };
   }
 
-  async listModels(params: any): Promise<any> {
+  async listModels(params: any): Promise<{ content: { type: string; text: string }[] }> {
     // Optional filtering parameters
     const provider = params?.provider as ModelProvider;
     const capabilities = params?.capabilities as string[];
@@ -877,7 +877,7 @@ export class LanguageModelInterface extends BaseMCPServer {
     };
   }
 
-  async getModelTemplate(params: any): Promise<any> {
+  async getModelTemplate(params: any): Promise<{ content: { type: string; text: string }[] }> {
     const templateName = params?.template;
 
     if (!templateName) {
@@ -902,7 +902,7 @@ export class LanguageModelInterface extends BaseMCPServer {
   }
 
   // Conversation management methods
-  async createConversation(params: any): Promise<any> {
+  async createConversation(params: any): Promise<{ content: { type: string; text: string }[] }> {
     this.validateRequired(params, ['modelId']);
     const { modelId } = params;
 
@@ -963,7 +963,7 @@ export class LanguageModelInterface extends BaseMCPServer {
     };
   }
 
-  async getConversation(params: any): Promise<any> {
+  async getConversation(params: any): Promise<{ content: { type: string; text: string }[] }> {
     this.validateRequired(params, ['id']);
     const { id } = params;
 
@@ -981,7 +981,7 @@ export class LanguageModelInterface extends BaseMCPServer {
     };
   }
 
-  async updateConversation(params: any): Promise<any> {
+  async updateConversation(params: any): Promise<{ content: { type: string; text: string }[] }> {
     this.validateRequired(params, ['id']);
     const { id } = params;
 
@@ -1009,7 +1009,7 @@ export class LanguageModelInterface extends BaseMCPServer {
     };
   }
 
-  async deleteConversation(params: any): Promise<any> {
+  async deleteConversation(params: any): Promise<{ content: { type: string; text: string }[] }> {
     this.validateRequired(params, ['id']);
     const { id } = params;
 
@@ -1053,7 +1053,7 @@ export class LanguageModelInterface extends BaseMCPServer {
     };
   }
 
-  async listConversations(params: any): Promise<any> {
+  async listConversations(params: any): Promise<{ content: { type: string; text: string }[] }> {
     // Optional filtering parameters
     const modelId = params?.modelId;
     const status = params?.status;
@@ -1104,7 +1104,7 @@ export class LanguageModelInterface extends BaseMCPServer {
     };
   }
 
-  async addMessage(params: any): Promise<any> {
+  async addMessage(params: any): Promise<{ content: { type: string; text: string }[] }> {
     this.validateRequired(params, ['conversationId', 'role', 'content']);
     const { conversationId, role, content } = params;
 
@@ -1226,7 +1226,7 @@ export class LanguageModelInterface extends BaseMCPServer {
   }
 
   // Inference methods
-  async generateCompletion(params: any): Promise<any> {
+  async generateCompletion(params: any): Promise<{ content: { type: string; text: string }[] }> {
     this.validateRequired(params, ['modelId', 'prompt']);
     const { modelId, prompt } = params;
 
@@ -1334,7 +1334,7 @@ export class LanguageModelInterface extends BaseMCPServer {
     };
   }
 
-  async generateChatCompletion(params: any): Promise<any> {
+  async generateChatCompletion(params: any): Promise<{ content: { type: string; text: string }[] }> {
     this.validateRequired(params, ['modelId', 'messages']);
     const { modelId, messages } = params;
 
@@ -1543,7 +1543,7 @@ export class LanguageModelInterface extends BaseMCPServer {
     };
   }
 
-  async streamChatCompletion(params: any): Promise<any> {
+  async streamChatCompletion(params: any): Promise<{ content: { type: string; text: string }[] }> {
     this.validateRequired(params, ['modelId', 'messages']);
     const { modelId, messages } = params;
 
@@ -1602,7 +1602,7 @@ export class LanguageModelInterface extends BaseMCPServer {
     return tokenCount;
   }
 
-  async generateWithFunctions(params: any): Promise<any> {
+  async generateWithFunctions(params: any): Promise<{ content: { type: string; text: string }[] }> {
     this.validateRequired(params, ['modelId', 'messages', 'functions']);
     const { modelId, messages, functions } = params;
 
@@ -1676,7 +1676,7 @@ export class LanguageModelInterface extends BaseMCPServer {
   }
 
   // Embeddings methods
-  async generateEmbedding(params: any): Promise<any> {
+  async generateEmbedding(params: any): Promise<{ content: { type: string; text: string }[] }> {
     this.validateRequired(params, ['modelId', 'text']);
     const { modelId, text } = params;
 
@@ -1747,7 +1747,7 @@ export class LanguageModelInterface extends BaseMCPServer {
     };
   }
 
-  async compareEmbeddings(params: any): Promise<any> {
+  async compareEmbeddings(params: any): Promise<{ content: { type: string; text: string }[] }> {
     this.validateRequired(params, ['embedding1', 'embedding2']);
     const { embedding1, embedding2 } = params;
 
@@ -1841,7 +1841,7 @@ export class LanguageModelInterface extends BaseMCPServer {
   }
 
   // Token management methods
-  async countTokens(params: any): Promise<any> {
+  async countTokens(params: any): Promise<{ content: { type: string; text: string }[] }> {
     this.validateRequired(params, ['text', 'modelId']);
     const { text, modelId } = params;
 
@@ -1877,7 +1877,7 @@ export class LanguageModelInterface extends BaseMCPServer {
     };
   }
 
-  async estimateTokenUsage(params: any): Promise<any> {
+  async estimateTokenUsage(params: any): Promise<{ content: { type: string; text: string }[] }> {
     this.validateRequired(params, ['messages', 'modelId']);
     const { messages, modelId } = params;
 
@@ -1966,7 +1966,7 @@ export class LanguageModelInterface extends BaseMCPServer {
   }
 
   // Utility methods
-  async getModelMetrics(params: any): Promise<any> {
+  async getModelMetrics(params: any): Promise<{ content: { type: string; text: string }[] }> {
     this.validateRequired(params, ['modelId']);
     const { modelId } = params;
 
@@ -1996,7 +1996,7 @@ export class LanguageModelInterface extends BaseMCPServer {
     };
   }
 
-  async logModelEvent(params: any): Promise<any> {
+  async logModelEvent(params: any): Promise<{ content: { type: string; text: string }[] }> {
     this.validateRequired(params, ['modelId', 'level', 'message']);
     const { modelId, level, message } = params;
 
@@ -2045,7 +2045,7 @@ export class LanguageModelInterface extends BaseMCPServer {
     };
   }
 
-  async validatePrompt(params: any): Promise<any> {
+  async validatePrompt(params: any): Promise<{ content: { type: string; text: string }[] }> {
     this.validateRequired(params, ['modelId', 'prompt']);
     const { modelId, prompt } = params;
 
@@ -2135,7 +2135,7 @@ export class LanguageModelInterface extends BaseMCPServer {
     };
   }
 
-  async convertMessageFormat(params: any): Promise<any> {
+  async convertMessageFormat(params: any): Promise<{ content: { type: string; text: string }[] }> {
     this.validateRequired(params, ['messages', 'targetFormat']);
     const { messages, targetFormat } = params;
 

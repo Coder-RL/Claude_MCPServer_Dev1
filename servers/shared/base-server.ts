@@ -80,7 +80,7 @@ export abstract class BaseMCPServer {
     }
 
     // Default fallback
-    return 8000;
+    return 8010;
   }
 
   private setupHttpServer(): void {
@@ -224,7 +224,7 @@ export abstract class BaseMCPServer {
 
   async start(): Promise<void> {
     // Get port from environment variable or use default
-    this.port = parseInt(process.env.PORT || '8000', 10);
+    this.port = parseInt(process.env.PORT || '8010', 10);
 
     // Start HTTP server
     this.httpServer.listen(this.port, () => {

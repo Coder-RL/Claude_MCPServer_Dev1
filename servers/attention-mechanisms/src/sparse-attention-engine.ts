@@ -1,4 +1,4 @@
-import { BaseMCPServer } from '../../shared/base-server.js';
+import { StandardMCPServer, MCPTool } from '../../shared/base-server.js';
 
 export interface SparseAttentionConfig {
   id: string;
@@ -88,7 +88,7 @@ export interface PatternAnalysis {
   timestamp: Date;
 }
 
-export class SparseAttentionEngine extends BaseMCPServer {
+export class SparseAttentionEngine extends StandardMCPServer {
   static async main() {
     const server = new SparseAttentionEngine();
     await server.start();
@@ -106,7 +106,7 @@ export class SparseAttentionEngine extends BaseMCPServer {
     this.setupTools();
   }
 
-  async handleRequest(method: string, params: any): Promise<any> {
+  async handleRequest(method: string, params: any): Promise<{ content: { type: string; text: string }[] }> {
     this.logOperation(method, params);
 
     switch (method) {
@@ -362,7 +362,7 @@ export class SparseAttentionEngine extends BaseMCPServer {
     });
   }
 
-  async createSparseAttentionConfig(params: any): Promise<any> {
+  async createSparseAttentionConfig(params: any): Promise<{ content: { type: string; text: string }[] }> {
     const { name, type, sequenceLength, numHeads, sparsityRatio, patternParams = {} } = params;
 
     this.validateRequired(params, ['name', 'type', 'sequenceLength', 'numHeads', 'sparsityRatio']);
@@ -402,7 +402,7 @@ export class SparseAttentionEngine extends BaseMCPServer {
     };
   }
 
-  async generateAttentionPattern(params: any): Promise<any> {
+  async generateAttentionPattern(params: any): Promise<{ content: { type: string; text: string }[] }> {
     const { configId, sequenceLength, cachePattern = true } = params;
 
     this.validateRequired(params, ['configId']);
@@ -457,7 +457,7 @@ export class SparseAttentionEngine extends BaseMCPServer {
     };
   }
 
-  async executeSparseAttention(params: any): Promise<any> {
+  async executeSparseAttention(params: any): Promise<{ content: { type: string; text: string }[] }> {
     const { configId, inputTensor, benchmarkDense = false, profileExecution = true } = params;
 
     this.validateRequired(params, ['configId', 'inputTensor']);
@@ -530,7 +530,7 @@ export class SparseAttentionEngine extends BaseMCPServer {
     };
   }
 
-  async analyzeAttentionPattern(params: any): Promise<any> {
+  async analyzeAttentionPattern(params: any): Promise<{ content: { type: string; text: string }[] }> {
     const { patternId, analysisType, generateVisualization = false } = params;
 
     this.validateRequired(params, ['patternId', 'analysisType']);
@@ -1194,7 +1194,7 @@ export class SparseAttentionEngine extends BaseMCPServer {
 
   // This method is already implemented above
 
-  private async optimizeSparsityPattern(params: any): Promise<any> {
+  private async optimizeSparsityPattern(params: any): Promise<{ content: { type: string; text: string }[] }> {
     const { baseConfigId, targetMetrics, constraints = {}, optimizationSteps = 10 } = params;
 
     this.validateRequired(params, ['baseConfigId', 'targetMetrics']);
@@ -1234,7 +1234,7 @@ export class SparseAttentionEngine extends BaseMCPServer {
     };
   }
 
-  private async compareSparsityPatterns(params: any): Promise<any> {
+  private async compareSparsityPatterns(params: any): Promise<{ content: { type: string; text: string }[] }> {
     const { configIds, comparisonMetrics, testSequenceLengths } = params;
 
     this.validateRequired(params, ['configIds', 'comparisonMetrics']);
@@ -1265,7 +1265,7 @@ export class SparseAttentionEngine extends BaseMCPServer {
     return comparison;
   }
 
-  private async adaptiveSparsityTuning(params: any): Promise<any> {
+  private async adaptiveSparsityTuning(params: any): Promise<{ content: { type: string; text: string }[] }> {
     const { baseConfigId, inputCharacteristics, performanceGoals = {}, adaptationStrategy = 'balanced' } = params;
 
     this.validateRequired(params, ['baseConfigId', 'inputCharacteristics']);
@@ -1312,7 +1312,7 @@ export class SparseAttentionEngine extends BaseMCPServer {
     targetMetrics: any,
     constraints: any,
     steps: number
-  ): Promise<any> {
+  ): Promise<{ content: { type: string; text: string }[] }> {
     // Simulate iterative optimization
     let currentSparsity = baseConfig.sparsityRatio;
     let bestSparsity = currentSparsity;
@@ -1387,7 +1387,7 @@ export class SparseAttentionEngine extends BaseMCPServer {
     return score;
   }
 
-  private async measureMetric(config: SparseAttentionConfig, metric: string, seqLengths: number[]): Promise<any> {
+  private async measureMetric(config: SparseAttentionConfig, metric: string, seqLengths: number[]): Promise<{ content: { type: string; text: string }[] }> {
     const results: any = {};
 
     for (const seqLen of seqLengths) {
