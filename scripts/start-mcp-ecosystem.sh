@@ -124,36 +124,36 @@ main() {
     # Step 4: Start MCP servers
     log "${BLUE}🧠 Starting MCP servers...${NC}"
     
-    # Simple Memory MCP (port 3301)
+    # Simple Memory MCP (port 3301) - Fixed HTTP version
     start_background_service "memory-simple" \
-        "cd mcp/memory && PORT=3301 node simple-server.js" \
+        "cd mcp/memory && PORT=3301 node simple-server-http.js" \
         "3301"
     
     # Sequential Thinking MCP (skipped - stdio server)
     log "${BLUE}⏩ Skipping sequential-thinking (stdio MCP server)${NC}"
     
-    # Week 11 Data Analytics Servers
-    log "${BLUE}📊 Starting Week 11 Data Analytics servers...${NC}"
+    # Week 11 Data Analytics Servers - Pure STDIO MCP Servers
+    log "${BLUE}📊 Starting Week 11 Data Analytics servers (STDIO)...${NC}"
     
     start_background_service "data-pipeline" \
-        "DATA_PIPELINE_PORT=3011 tsx servers/data-analytics/src/data-pipeline.ts" \
-        "3011"
+        "DATA_PIPELINE_ID=data-pipeline-3011 tsx servers/data-analytics/src/data-pipeline.ts" \
+        ""
     
     start_background_service "realtime-analytics" \
-        "REALTIME_ANALYTICS_PORT=3012 tsx servers/data-analytics/src/realtime-analytics.ts" \
-        "3012"
+        "REALTIME_ANALYTICS_ID=realtime-analytics-3012 tsx servers/data-analytics/src/realtime-analytics.ts" \
+        ""
     
     start_background_service "data-warehouse" \
-        "DATA_WAREHOUSE_PORT=3013 tsx servers/data-analytics/src/data-warehouse.ts" \
-        "3013"
+        "DATA_WAREHOUSE_ID=data-warehouse-3013 tsx servers/data-analytics/src/data-warehouse.ts" \
+        ""
     
     start_background_service "ml-deployment" \
-        "ML_DEPLOYMENT_PORT=3014 tsx servers/data-analytics/src/ml-deployment.ts" \
-        "3014"
+        "ML_DEPLOYMENT_ID=ml-deployment-3014 tsx servers/data-analytics/src/ml-deployment.ts" \
+        ""
     
     start_background_service "data-governance" \
-        "DATA_GOVERNANCE_PORT=3015 tsx servers/data-analytics/src/data-governance.ts" \
-        "3015"
+        "DATA_GOVERNANCE_ID=data-governance-3015 tsx servers/data-analytics/src/data-governance.ts" \
+        ""
     
     # Advanced MCP Servers
     log "${BLUE}🔒 Starting Advanced MCP servers...${NC}"
@@ -185,12 +185,12 @@ main() {
     # Sequential Thinking skipped
     services_status+="${YELLOW}⏩ Sequential Thinking MCP (skipped)${NC}\n"
     
-    # Check Week 11 servers
-    for port in 3011 3012 3013 3014 3015; do
-        if check_port $port; then
-            services_status+="${GREEN}✅ Data Analytics Server ($port)${NC}\n"
+    # Check Week 11 STDIO servers (no ports to check)
+    for server in data-pipeline realtime-analytics data-warehouse ml-deployment data-governance; do
+        if [ -f "$LOG_DIR/${server}.pid" ] && kill -0 $(cat "$LOG_DIR/${server}.pid") 2>/dev/null; then
+            services_status+="${GREEN}✅ Data Analytics Server (${server})${NC}\n"
         else
-            services_status+="${RED}❌ Data Analytics Server ($port)${NC}\n"
+            services_status+="${RED}❌ Data Analytics Server (${server})${NC}\n"
         fi
     done
     
@@ -210,11 +210,7 @@ main() {
     
     log "${BLUE}🔗 Available endpoints:${NC}"
     log "   • Memory MCP Health: http://localhost:3301/health"
-    log "   • Data Pipeline: http://localhost:3011/health"
-    log "   • Realtime Analytics: http://localhost:3012/health"
-    log "   • Data Warehouse: http://localhost:3013/health"
-    log "   • ML Deployment: http://localhost:3014/health"
-    log "   • Data Governance: http://localhost:3015/health"
+    log "   • Data Analytics Servers: STDIO MCP servers (no HTTP endpoints)"
     log "   • Security Vulnerability: http://localhost:3016/health"
     log "   • UI Design: http://localhost:3017/health"
     log "   • Optimization: http://localhost:3018/health"

@@ -27,6 +27,24 @@ bash scripts/start-mcp-ecosystem.sh
 
 **Infrastructure**: PostgreSQL, Redis, Qdrant databases work via Docker
 
+### ❌ **WHAT IS FUNDAMENTALLY BROKEN** (Evidence: Architecture Analysis 2025-05-23)
+
+**CRITICAL ISSUE IDENTIFIED**: BaseMCPServer architectural confusion
+
+```typescript
+// 🚨 ROOT CAUSE: servers/shared/base-server.ts line 23
+// Tries to be STDIO MCP server AND HTTP server simultaneously
+protected port: number = 8000;  // ← HTTP port
+import { StdioServerTransport } // ← STDIO transport
+this.httpServer.listen(this.port); // ← HTTP server creation
+```
+
+**IMPACT**: 10+ data analytics servers inherit this broken architecture, causing:
+- Port conflicts (multiple servers try to use 8000)
+- STDIO/HTTP transport confusion  
+- Startup failures
+- Claude Desktop/Code incompatibility
+
 ### ⚠️ **WHAT EXISTS BUT IS BROKEN** (Evidence: Build failed with 100+ errors)
 ```
 🏗️ MASSIVE CODEBASE EXISTS:

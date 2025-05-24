@@ -1,4 +1,4 @@
-import { StandardMCPServer } from '../../shared/standard-mcp-server';
+import { BaseMCPServer } from '../../shared/base-server';
 import { MCPError } from '../../../shared/src/errors';
 import { HealthChecker } from '../../../shared/src/health';
 import * as fs from 'fs/promises';
@@ -217,7 +217,7 @@ export class RealtimeAnalyticsService extends EventEmitter {
   constructor(configPath: string = './data/realtime-analytics') {
     super();
     this.configPath = configPath;
-    this.healthChecker = new HealthChecker("realtime-analytics-service");
+    this.healthChecker = new HealthChecker();
     this.setupEventHandlers();
   }
 
@@ -834,17 +834,17 @@ export class RealtimeAnalyticsService extends EventEmitter {
   }
 }
 
-export class RealtimeAnalyticsServer extends StandardMCPServer {
+export class RealtimeAnalyticsServer extends BaseMCPServer {
   private realtimeAnalyticsService: RealtimeAnalyticsService;
 
   constructor() {
     super('realtime-analytics-server', 'Real-time data analytics and stream processing');
     this.realtimeAnalyticsService = new RealtimeAnalyticsService();
-    
+    this.setupTools();
   }
 
-  async setupTools(): Promise<void> {
-    this.registerTool({
+  private setupTools(): void {
+    this.addTool({
       name: 'create_stream',
       description: 'Create a new real-time data stream',
       inputSchema: {
@@ -859,7 +859,7 @@ export class RealtimeAnalyticsServer extends StandardMCPServer {
       }
     });
 
-    this.registerTool({
+    this.addTool({
       name: 'start_stream',
       description: 'Start processing a data stream',
       inputSchema: {
@@ -871,7 +871,7 @@ export class RealtimeAnalyticsServer extends StandardMCPServer {
       }
     });
 
-    this.registerTool({
+    this.addTool({
       name: 'get_stream_metrics',
       description: 'Get real-time metrics for a stream',
       inputSchema: {
@@ -884,31 +884,16 @@ export class RealtimeAnalyticsServer extends StandardMCPServer {
     });
   }
 
-  async handleToolCall(name: string, args: any): Promise<any> {
-    switch (name) {
+  async handleRequest(method: string, params: any): Promise<any> {
+    switch (method) {
       case 'create_stream':
-        return { 
-          content: [{ 
-            type: 'text', 
-            text: JSON.stringify(await this.realtimeAnalyticsService.createStream(args), null, 2) 
-          }] 
-        };
+        return await this.realtimeAnalyticsService.createStream(params);
       case 'start_stream':
-        return { 
-          content: [{ 
-            type: 'text', 
-            text: JSON.stringify(await this.realtimeAnalyticsService.startStream(args.streamId), null, 2) 
-          }] 
-        };
+        return await this.realtimeAnalyticsService.startStream(params.streamId);
       case 'get_stream_metrics':
-        return { 
-          content: [{ 
-            type: 'text', 
-            text: JSON.stringify(await this.realtimeAnalyticsService.getStreamMetrics(args.streamId), null, 2) 
-          }] 
-        };
+        return await this.realtimeAnalyticsService.getStreamMetrics(params.streamId);
       default:
-        throw new Error(`Unknown tool: ${name}`);
+        throw new Error(`Unknown method: ${method}`);
     }
   }
 
@@ -924,5 +909,7 @@ export class RealtimeAnalyticsServer extends StandardMCPServer {
 }
 
 // Start the server if this file is run directly
-const server = new RealtimeAnalyticsServer();
-server.start().catch(console.error);
+if (import.meta.url === `file://${process.argv[1]}`) {
+  const server = new RealtimeAnalyticsServer();
+  server.start().catch(console.error);
+}

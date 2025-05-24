@@ -1,4 +1,4 @@
-import { StandardMCPServer } from '../../shared/standard-mcp-server';
+import { BaseMCPServer } from '../../shared/base-server';
 import { MCPError } from '../../../shared/src/errors';
 import { HealthChecker } from '../../../shared/src/health';
 import * as fs from 'fs/promises';
@@ -162,7 +162,7 @@ export class DataPipelineService {
 
   constructor(configPath: string = './data/data-pipeline') {
     this.configPath = configPath;
-    this.healthChecker = new HealthChecker('data-pipeline-service');
+    this.healthChecker = new HealthChecker();
   }
 
   async initialize(): Promise<void> {
@@ -537,16 +537,17 @@ export class DataPipelineService {
   }
 }
 
-export class DataPipelineServer extends StandardMCPServer {
+export class DataPipelineServer extends BaseMCPServer {
   private dataPipelineService: DataPipelineService;
 
   constructor() {
     super('data-pipeline-server', 'Data pipeline processing and ETL operations');
     this.dataPipelineService = new DataPipelineService();
+    this.setupTools();
   }
 
-  async setupTools(): Promise<void> {
-    this.registerTool({
+  private setupTools(): void {
+    this.addTool({
       name: 'create_pipeline',
       description: 'Create a new data pipeline',
       inputSchema: {
@@ -561,7 +562,7 @@ export class DataPipelineServer extends StandardMCPServer {
       }
     });
 
-    this.registerTool({
+    this.addTool({
       name: 'run_pipeline',
       description: 'Execute a data pipeline',
       inputSchema: {
@@ -573,7 +574,7 @@ export class DataPipelineServer extends StandardMCPServer {
       }
     });
 
-    this.registerTool({
+    this.addTool({
       name: 'get_pipeline_status',
       description: 'Get pipeline execution status',
       inputSchema: {
@@ -586,31 +587,16 @@ export class DataPipelineServer extends StandardMCPServer {
     });
   }
 
-  async handleToolCall(name: string, args: any): Promise<any> {
-    switch (name) {
+  async handleRequest(method: string, params: any): Promise<any> {
+    switch (method) {
       case 'create_pipeline':
-        return { 
-          content: [{ 
-            type: 'text', 
-            text: JSON.stringify(await this.dataPipelineService.createPipeline(args), null, 2) 
-          }] 
-        };
+        return await this.dataPipelineService.createPipeline(params);
       case 'run_pipeline':
-        return { 
-          content: [{ 
-            type: 'text', 
-            text: JSON.stringify(await this.dataPipelineService.executePipeline(args.pipelineId), null, 2) 
-          }] 
-        };
+        return await this.dataPipelineService.executePipeline(params.pipelineId);
       case 'get_pipeline_status':
-        return { 
-          content: [{ 
-            type: 'text', 
-            text: JSON.stringify(await this.dataPipelineService.getPipelineStatus(args.pipelineId), null, 2) 
-          }] 
-        };
+        return await this.dataPipelineService.getPipelineStatus(params.pipelineId);
       default:
-        throw new Error(`Unknown tool: ${name}`);
+        throw new Error(`Unknown method: ${method}`);
     }
   }
 

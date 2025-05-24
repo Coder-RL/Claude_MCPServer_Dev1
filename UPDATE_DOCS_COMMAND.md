@@ -1,6 +1,8 @@
 # COMPREHENSIVE Documentation Update Request - Claude_MCPServer
 
-**Session**: 2025-05-23 at 12:19:08 | **Evidence Package**: Complete
+**Session**: 2025-05-23 at 22:30:00 | **ARCHITECTURE CRISIS ANALYSIS**: Complete
+
+## 🚨 MAJOR UPDATE: ROOT CAUSE IDENTIFIED
 
 Claude, please update SESSION_NOTES.md with **CONCRETE EVIDENCE AND SPECIFIC DETAILS** only.
 

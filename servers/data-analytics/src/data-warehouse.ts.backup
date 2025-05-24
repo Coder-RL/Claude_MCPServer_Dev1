@@ -1,4 +1,4 @@
-import { StandardMCPServer } from '../../shared/standard-mcp-server';
+import { BaseMCPServer } from '../../shared/base-server';
 import { MCPError } from '../../../shared/src/errors';
 import { withPerformanceMonitoring } from '../../../shared/src/monitoring';
 import { withRetry } from '../../../shared/src/retry';
@@ -823,7 +823,7 @@ export class DataWarehouseService {
 
   constructor(configPath: string = './data/data-warehouse') {
     this.configPath = configPath;
-    this.healthChecker = new HealthChecker("data-warehouse-service");
+    this.healthChecker = new HealthChecker();
   }
 
   async registerWarehouse(warehouse: Omit<DataWarehouse, 'id' | 'created' | 'updated'>): Promise<string> {
@@ -1582,17 +1582,17 @@ interface ETLJobMetrics {
   nextExecutionTime: Date;
 }
 
-export class DataWarehouseMCPServer extends StandardMCPServer {
+export class DataWarehouseMCPServer extends BaseMCPServer {
   private dataWarehouseService: DataWarehouseService;
 
   constructor() {
     super('data-warehouse-server', 'Data warehouse operations and analytics');
     this.dataWarehouseService = new DataWarehouseService();
-    
+    this.setupTools();
   }
 
-  async setupTools(): Promise<void> {
-    this.registerTool({
+  private setupTools(): void {
+    this.addTool({
       name: 'create_warehouse',
       description: 'Create a new data warehouse',
       inputSchema: {
@@ -1605,7 +1605,7 @@ export class DataWarehouseMCPServer extends StandardMCPServer {
       }
     });
 
-    this.registerTool({
+    this.addTool({
       name: 'run_query',
       description: 'Execute a query against the data warehouse',
       inputSchema: {
@@ -1619,24 +1619,14 @@ export class DataWarehouseMCPServer extends StandardMCPServer {
     });
   }
 
-  async handleToolCall(name: string, args: any): Promise<any> {
-    switch (name) {
+  async handleRequest(method: string, params: any): Promise<any> {
+    switch (method) {
       case 'create_warehouse':
-        return { 
-          content: [{ 
-            type: 'text', 
-            text: JSON.stringify(await this.dataWarehouseService.createWarehouse(args), null, 2) 
-          }] 
-        };
+        return await this.dataWarehouseService.createWarehouse(params);
       case 'run_query':
-        return { 
-          content: [{ 
-            type: 'text', 
-            text: JSON.stringify(await this.dataWarehouseService.executeQuery(args.warehouseId, args.query), null, 2) 
-          }] 
-        };
+        return await this.dataWarehouseService.executeQuery(params.warehouseId, params.query);
       default:
-        throw new Error(`Unknown tool: ${name}`);
+        throw new Error(`Unknown method: ${method}`);
     }
   }
 
@@ -1650,5 +1640,7 @@ export class DataWarehouseMCPServer extends StandardMCPServer {
 }
 
 // Start the server if this file is run directly
-const server = new DataWarehouseMCPServer();
-server.start().catch(console.error);
+if (import.meta.url === `file://${process.argv[1]}`) {
+  const server = new DataWarehouseMCPServer();
+  server.start().catch(console.error);
+}

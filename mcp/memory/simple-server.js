@@ -218,7 +218,11 @@ class SimpleMemoryMCP {
 // Start the server if this file is run directly
 if (import.meta.url === `file://${process.argv[1]}`) {
   const server = new SimpleMemoryMCP();
-  server.start().catch(console.error);
+  server.start().catch(error => {
+    console.error('❌ Failed to start Memory MCP Server (STDIO):', error);
+    console.error('💡 Try using simple-server-http.js for HTTP transport instead');
+    process.exit(1);
+  });
 }
 
 export default SimpleMemoryMCP;

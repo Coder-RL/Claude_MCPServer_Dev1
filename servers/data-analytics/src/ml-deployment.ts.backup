@@ -1,4 +1,4 @@
-import { StandardMCPServer } from "../../shared/standard-mcp-server";
+import { BaseMCPServer } from "../../shared/base-server";
 import { MCPError } from '../../../shared/src/errors';
 import { withPerformanceMonitoring } from '../../../shared/src/monitoring';
 import { withRetry } from '../../../shared/src/retry';
@@ -983,7 +983,7 @@ export class MLDeploymentService {
 
   constructor(configPath: string = './data/ml-deployment') {
     this.configPath = configPath;
-    this.healthChecker = new HealthChecker("ml-deployment-service");
+    this.healthChecker = new HealthChecker();
   }
 
   async registerModel(model: Omit<MLModel, 'id' | 'created' | 'updated'>): Promise<string> {
@@ -1743,7 +1743,7 @@ export class MLDeploymentService {
   }
 }
 
-export class MLDeploymentMCPServer extends StandardMCPServer {
+export class MLDeploymentMCPServer extends BaseMCPServer {
   private mlDeploymentService: MLDeploymentService;
 
   constructor() {
@@ -1842,13 +1842,6 @@ export class MLDeploymentMCPServer extends StandardMCPServer {
     });
   }
 
-  async setupTools(): Promise<void> {
-    const tools = this.getMCPTools();
-    for (const tool of tools) {
-      this.registerTool(tool);
-    }
-  }
-
   protected getMCPTools() {
     return [
       {
@@ -1935,42 +1928,44 @@ export class MLDeploymentMCPServer extends StandardMCPServer {
     ];
   }
 
-  protected async handleToolCall(name: string, args: any): Promise<any> {
-    switch (name) {
+  protected async handleMCPRequest(method: string, params: any): Promise<any> {
+    switch (method) {
       case 'register_model':
-        return { id: await this.mlDeploymentService.registerModel(args) };
+        return { id: await this.mlDeploymentService.registerModel(params) };
 
       case 'deploy_model':
-        return { endpointId: await this.mlDeploymentService.deployModel(args.modelId, args.deploymentConfig) };
+        return { endpointId: await this.mlDeploymentService.deployModel(params.modelId, params.deploymentConfig) };
 
       case 'predict':
         const request: InferenceRequest = {
           id: `req_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`,
           modelId: '',
-          endpointId: args.endpointId,
-          input: args.input,
-          options: args.options,
-          metadata: args.metadata,
+          endpointId: params.endpointId,
+          input: params.input,
+          options: params.options,
+          metadata: params.metadata,
           timestamp: new Date()
         };
         return await this.mlDeploymentService.predict(request);
 
       case 'undeploy_model':
-        await this.mlDeploymentService.undeployModel(args.endpointId);
+        await this.mlDeploymentService.undeployModel(params.endpointId);
         return { success: true };
 
       case 'get_model_metrics':
-        return await this.mlDeploymentService.getModelMetrics(args.modelId);
+        return await this.mlDeploymentService.getModelMetrics(params.modelId);
 
       case 'get_endpoint_status':
-        return await this.mlDeploymentService.getEndpointStatus(args.endpointId);
+        return await this.mlDeploymentService.getEndpointStatus(params.endpointId);
 
       default:
-        throw new MCPError('METHOD_NOT_FOUND', `Unknown tool: ${name}`);
+        throw new MCPError('METHOD_NOT_FOUND', `Unknown method: ${method}`);
     }
   }
 }
 
 // Start the server if this file is run directly
-const server = new MLDeploymentMCPServer();
-server.start().catch(console.error);
+if (import.meta.url === `file://${process.argv[1]}`) {
+  const server = new MLDeploymentMCPServer();
+  server.start().catch(console.error);
+}

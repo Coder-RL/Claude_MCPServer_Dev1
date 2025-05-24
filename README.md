@@ -207,23 +207,58 @@ This project maintains detailed session documentation to enable seamless continu
 4. Review `docs/SESSION_NOTES.md` for detailed context
 5. Run `npm run start:week-12` to continue development
 
-## 🏁 Success Criteria
+## 🚨 CRITICAL ARCHITECTURE ISSUE DISCOVERED
 
-**Week 11 Complete When**:
-- [x] All 5 components implemented and tested
-- [x] MCP integration functional for all tools
-- [x] Health monitoring operational
-- [x] Performance metrics collecting
-- [x] Documentation updated
+### **MUST FIX BEFORE PROCEEDING**
 
-**Ready for Week 12 When**:
-- [x] Week 11 fully verified and documented
-- [x] Week 12 plan defined and approved
-- [x] Development environment prepared
-- [x] Session context documented
+**Root Cause**: BaseMCPServer violates MCP protocol by trying to be both STDIO and HTTP simultaneously.
+
+**Evidence**:
+- Memory-simple server configured for STDIO but started as HTTP server (port 3301)
+- Claude Desktop/Code require pure STDIO transport, not HTTP endpoints
+- 30+ data analytics servers inherit this broken hybrid architecture
+- MCP protocol compliance violation prevents proper Claude integration
+
+### **Immediate Actions Required**:
+1. Create `PureMCPServer` class with pure STDIO architecture
+2. Convert memory-simple to pure STDIO (remove HTTP server functionality)
+3. Fix data analytics servers to use pure STDIO transport
+4. Update startup scripts to remove HTTP health checks
+5. Test Claude Desktop/Code integration with corrected STDIO servers
+
+### **Technical Debt Resolution**:
+```typescript
+// NEW: Pure STDIO MCP Server (BaseMCPServer replacement)
+class PureMCPServer {
+  private server: Server;
+  
+  async start() {
+    const transport = new StdioServerTransport();
+    await this.server.connect(transport);
+    // NO HTTP SERVER - Pure STDIO only for Claude integration
+  }
+}
+```
+
+**Files requiring immediate fix**:
+- `servers/shared/base-server.ts` (remove hybrid architecture)
+- `mcp/memory/simple-server.js` (convert to pure STDIO)
+- All data analytics servers (remove HTTP inheritance)
+- `scripts/start-mcp-ecosystem.sh` (remove HTTP startup logic)
+
+## 🏁 Updated Success Criteria
+
+**Architecture Fix Complete When**:
+- [ ] PureMCPServer class created with pure STDIO architecture
+- [ ] Memory-simple converted to pure STDIO (no HTTP server)
+- [ ] Data analytics servers use pure STDIO transport
+- [ ] Claude Desktop/Code integration verified with STDIO
+- [ ] HTTP health checks removed from MCP servers
+
+**DO NOT PROCEED** with Week 12 until architecture is fixed!
 
 ---
 
-**Current Status**: Week 11 ✅ COMPLETE | Next: Week 12 🚧 READY TO START
+**Current Status**: 🚨 ARCHITECTURE CRISIS | Priority: Fix STDIO/HTTP confusion
 
-*Last Updated: Session completion - Week 11 Data Management and Analytics Server*
+*Last Updated: Architecture issue discovered - must fix before proceeding*

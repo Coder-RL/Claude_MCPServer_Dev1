@@ -1,4 +1,4 @@
-import { StandardMCPServer } from "../../shared/standard-mcp-server";
+import { BaseMCPServer } from "../../shared/base-server";
 import { MCPError } from '../../../shared/src/errors';
 import { withPerformanceMonitoring } from '../../../shared/src/monitoring';
 import { withRetry } from '../../../shared/src/retry';
@@ -1201,7 +1201,7 @@ export class DataGovernanceService {
 
   constructor(configPath: string = './data/data-governance') {
     this.configPath = configPath;
-    this.healthChecker = new HealthChecker("data-governance-service");
+    this.healthChecker = new HealthChecker();
   }
 
   async registerDataAsset(asset: Omit<DataAsset, 'id' | 'created' | 'updated'>): Promise<string> {
@@ -1974,7 +1974,7 @@ interface GovernanceMetrics {
   lifecycleManagedAssets: number;
 }
 
-export class DataGovernanceMCPServer extends StandardMCPServer {
+export class DataGovernanceMCPServer extends BaseMCPServer {
   private dataGovernanceService: DataGovernanceService;
 
   constructor() {
@@ -2083,13 +2083,6 @@ export class DataGovernanceMCPServer extends StandardMCPServer {
     });
   }
 
-  async setupTools(): Promise<void> {
-    const tools = this.getMCPTools();
-    for (const tool of tools) {
-      this.registerTool(tool);
-    }
-  }
-
   protected getMCPTools() {
     return [
       {
@@ -2194,35 +2187,37 @@ export class DataGovernanceMCPServer extends StandardMCPServer {
     ];
   }
 
-  protected async handleToolCall(name: string, args: any): Promise<any> {
-    switch (name) {
+  protected async handleMCPRequest(method: string, params: any): Promise<any> {
+    switch (method) {
       case 'register_data_asset':
-        return { id: await this.dataGovernanceService.registerDataAsset(args) };
+        return { id: await this.dataGovernanceService.registerDataAsset(params) };
 
       case 'assess_data_quality':
-        return { assessmentId: await this.dataGovernanceService.assessDataQuality(args.assetId, args.assessmentType || 'full') };
+        return { assessmentId: await this.dataGovernanceService.assessDataQuality(params.assetId, params.assessmentType || 'full') };
 
       case 'create_data_policy':
-        return { id: await this.dataGovernanceService.createDataPolicy(args) };
+        return { id: await this.dataGovernanceService.createDataPolicy(params) };
 
       case 'evaluate_compliance':
-        return await this.dataGovernanceService.evaluateCompliance(args.assetId, args.frameworks);
+        return await this.dataGovernanceService.evaluateCompliance(params.assetId, params.frameworks);
 
       case 'monitor_data_access':
-        return await this.dataGovernanceService.monitorDataAccess(args.assetId, args.period || 'daily');
+        return await this.dataGovernanceService.monitorDataAccess(params.assetId, params.period || 'daily');
 
       case 'trace_data_lineage':
-        return await this.dataGovernanceService.traceDataLineage(args.assetId, args.direction || 'both', args.depth || 3);
+        return await this.dataGovernanceService.traceDataLineage(params.assetId, params.direction || 'both', params.depth || 3);
 
       case 'get_governance_metrics':
         return await this.dataGovernanceService.getGovernanceMetrics();
 
       default:
-        throw new MCPError('METHOD_NOT_FOUND', `Unknown tool: ${name}`);
+        throw new MCPError('METHOD_NOT_FOUND', `Unknown method: ${method}`);
     }
   }
 }
 
 // Start the server if this file is run directly
-const server = new DataGovernanceMCPServer();
-server.start().catch(console.error);
+if (import.meta.url === `file://${process.argv[1]}`) {
+  const server = new DataGovernanceMCPServer();
+  server.start().catch(console.error);
+}

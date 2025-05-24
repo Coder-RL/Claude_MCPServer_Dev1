@@ -20,11 +20,21 @@ export abstract class BaseMCPServer {
   protected name: string;
   protected description: string;
   protected httpServer!: http.Server;
-  protected port: number = 8000;
+  protected port: number;
 
-  constructor(name: string, description: string) {
-    this.name = name;
-    this.description = description;
+  constructor(nameOrConfig: string | {name: string, port?: number, host?: string}, description?: string) {
+    if (typeof nameOrConfig === 'string') {
+      // Old style constructor: (name, description)
+      this.name = nameOrConfig;
+      this.description = description || '';
+      this.port = this.getPortFromEnvironment();
+    } else {
+      // New style constructor: ({name, port, host})
+      this.name = nameOrConfig.name;
+      this.description = ''; // Description not provided in config style
+      this.port = nameOrConfig.port || this.getPortFromEnvironment();
+    }
+    
     this.server = new Server(
       {
         name: this.name,
@@ -39,6 +49,38 @@ export abstract class BaseMCPServer {
 
     this.setupBaseHandlers();
     this.setupHttpServer();
+  }
+
+  private getPortFromEnvironment(): number {
+    // Try to get port from specific environment variable first
+    const envPort = process.env.PORT;
+    if (envPort && !isNaN(parseInt(envPort))) {
+      return parseInt(envPort);
+    }
+
+    // Map server names to their expected environment variables and default ports
+    const portMappings: Record<string, { env: string; default: number }> = {
+      'data-pipeline-server': { env: 'DATA_PIPELINE_PORT', default: 3011 },
+      'realtime-analytics-server': { env: 'REALTIME_ANALYTICS_PORT', default: 3012 },
+      'data-warehouse-server': { env: 'DATA_WAREHOUSE_PORT', default: 3013 },
+      'ml-deployment-server': { env: 'ML_DEPLOYMENT_PORT', default: 3014 },
+      'data-governance-server': { env: 'DATA_GOVERNANCE_PORT', default: 3015 },
+      'security-vulnerability-server': { env: 'SECURITY_VULNERABILITY_PORT', default: 3016 },
+      'ui-design-server': { env: 'UI_DESIGN_PORT', default: 3017 },
+      'optimization-server': { env: 'OPTIMIZATION_PORT', default: 3018 }
+    };
+
+    const mapping = portMappings[this.name];
+    if (mapping) {
+      const envValue = process.env[mapping.env];
+      if (envValue && !isNaN(parseInt(envValue))) {
+        return parseInt(envValue);
+      }
+      return mapping.default;
+    }
+
+    // Default fallback
+    return 8000;
   }
 
   private setupHttpServer(): void {
