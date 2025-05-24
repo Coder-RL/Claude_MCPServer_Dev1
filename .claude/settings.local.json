@@ -25,7 +25,12 @@
       "Bash(timeout 5s npx tsx servers/data-analytics/src/data-governance.ts)",
       "Bash(cp:*)",
       "Bash(timeout:*)",
-      "Bash(mkdir:*)"
+      "Bash(mkdir:*)",
+      "WebFetch(domain:docs.anthropic.com)",
+      "Bash(git --git-dir=/Users/robertlee/GitHubProjects/ClarusRev/.git --work-tree=/Users/robertlee/GitHubProjects/ClarusRev log --oneline -20)",
+      "Bash(git --git-dir=/Users/robertlee/GitHubProjects/ClarusRev/.git --work-tree=/Users/robertlee/GitHubProjects/ClarusRev log --oneline --since=\"2024-01-01\")",
+      "Bash(git --git-dir=/Users/robertlee/GitHubProjects/ClarusRev/.git --work-tree=/Users/robertlee/GitHubProjects/ClarusRev log --stat --since=\"2024-12-01\" -10)",
+      "Bash(./scripts/mcp-health-monitor.sh:*)"
     ],
     "deny": []
   }
