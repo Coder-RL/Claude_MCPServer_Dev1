@@ -14,6 +14,12 @@ bash verify-system-status.sh
 ```
 
 ### 2. Start MCP Ecosystem:
+**Option A - PM2 (Recommended for Production):**
+```bash
+./start-mcp-pm2.sh
+```
+
+**Option B - CLI (Legacy):**
 ```bash
 ./claude-mcp-setup start
 ```

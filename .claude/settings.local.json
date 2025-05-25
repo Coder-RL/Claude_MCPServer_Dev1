@@ -40,7 +40,21 @@
       "Bash(docker exec:*)",
       "Bash(./claude-mcp-setup start)",
       "Bash(git fetch:*)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "Bash(docker logs:*)",
+      "Bash(docker inspect:*)",
+      "Bash(if [ -t 0 ])",
+      "Bash(then echo \"✅ stdin IS a terminal (interactive mode)\")",
+      "Bash(else echo \"❌ stdin is NOT a terminal (redirected/background mode)\")",
+      "Bash(fi)",
+      "Bash(if [ -t 1 ])",
+      "Bash(then echo \"✅ stdout IS a terminal\")",
+      "Bash(else echo \"❌ stdout is NOT a terminal (redirected)\")",
+      "Bash(npm install:*)",
+      "Bash(pm2:*)",
+      "Bash(mv:*)",
+      "Bash(docker compose:*)",
+      "Bash(./start-mcp-pm2.sh:*)"
     ],
     "deny": []
   }
