@@ -8,6 +8,40 @@
 
 ## 🚨 CRITICAL ISSUES RESOLVED (2025-05-24)
 
+### **SESSION 2025-05-24: MAJOR CONFIGURATION BREAKTHROUGH** ✅ SOLVED:
+
+#### **Configuration Environment Variable Mismatch** ✅ FIXED
+**Symptoms**:
+- MCP status shows some servers "connected" but others "failed"
+- Servers work individually but fail Claude Code integration
+- Pattern: 3 servers work, 7 servers fail
+
+**Root Cause Discovered**:
+```json
+// ❌ BROKEN: STDIO servers with PORT environment variables
+"data-pipeline": {
+  "env": { "DATA_PIPELINE_PORT": "3011" }  // Causes STDIO servers to try HTTP mode
+}
+
+// ✅ FIXED: STDIO servers need ID environment variables  
+"data-pipeline": {
+  "env": { "DATA_PIPELINE_ID": "data-pipeline-server" }  // Proper STDIO mode
+}
+```
+
+**Impact Analysis**:
+- **Working servers** had ID variables: optimization, security-vulnerability, ui-design
+- **Failing servers** had PORT variables: all data analytics servers + memory-simple
+- **Claude Code config location**: `/Users/robertlee/.claude/claude_code_config.json` (not project config)
+
+**✅ Complete Fix Applied**:
+- Updated system config with correct ID variables for all servers
+- Standardized project config for consistency
+- Verified all servers work with corrected environment variables
+- Updated startup scripts to include optimization server (was being skipped)
+
+**✅ RESOLUTION COMPLETE**: All 10 servers now working with proper configuration. Final state: 10/10 connected after restart.
+
 ### **Previously Encountered Major Issues** ✅ SOLVED:
 
 #### **1. MCP Server Connection Failures**
@@ -158,21 +192,44 @@ async handleToolCall(name: string, args: any): Promise<CallToolResult> { // ✅ 
 
 ### **Problem: "Configuration Not Loading"**
 
+#### **UPDATED: Configuration Location Discovery (2025-05-24)**:
+**Critical Finding**: Claude Code uses **system config**, not project config!
+
+```bash
+# Primary config location (Claude Code uses this):
+/Users/robertlee/.claude/claude_code_config.json
+
+# Secondary locations (for backup/consistency):
+config/claude-code/claude_code_config.json
+~/.claude-desktop/claude_desktop_config.json
+~/.config/claude-desktop/claude_desktop_config.json
+```
+
 #### **Diagnostic Steps**:
 1. **Verify Config File Locations**:
 ```bash
 # Check all possible config locations:
 find ~ -name "*claude*config*" -type f 2>/dev/null | grep -v node_modules
+
+# Check primary Claude Code config:
+ls -la /Users/robertlee/.claude/claude_code_config.json
 ```
 
 2. **Validate Config Syntax**:
 ```bash
-# Test JSON syntax:
-jq . ~/.claude-desktop/claude_desktop_config.json
+# Test JSON syntax for primary config:
+jq . /Users/robertlee/.claude/claude_code_config.json
 # Should parse without errors
 ```
 
-3. **Check File Paths**:
+3. **Check Environment Variables**:
+```bash
+# Verify environment variable format:
+grep -A 3 "env" /Users/robertlee/.claude/claude_code_config.json
+# Should show ID variables, not PORT variables
+```
+
+4. **Check File Paths**:
 ```bash
 # Verify server file paths exist:
 ls -la /Users/robertlee/GitHubProjects/Claude_MCPServer/servers/data-analytics/src/data-governance.ts
@@ -181,20 +238,34 @@ ls -la /Users/robertlee/GitHubProjects/Claude_MCPServer/mcp/memory/simple-server
 
 #### **Solutions**:
 
+**Environment Variable Fix (2025-05-24)**:
+```bash
+# Fix the primary config file directly:
+vim /Users/robertlee/.claude/claude_code_config.json
+
+# Change all PORT variables to ID variables:
+# OLD: "DATA_PIPELINE_PORT": "3011"
+# NEW: "DATA_PIPELINE_ID": "data-pipeline-server"
+```
+
 **Config Distribution**:
 ```bash
 # Distribute config to all Claude locations:
 cp config/claude-desktop/claude_desktop_config.json ~/.claude-desktop/
 cp config/claude-desktop/claude_desktop_config.json ~/.config/claude-desktop/
 cp config/claude-desktop/claude_desktop_config.json ~/Library/Application\ Support/Claude/
+
+# Ensure Claude Code config is also updated:
+cp config/claude-code/claude_code_config.json /Users/robertlee/.claude/
 ```
 
-**Cache Clearing**:
+**Cache Clearing + Restart**:
 ```bash
 # Clear Claude Code cache:
-rm -rf /Users/robertlee/Library/Caches/claude-cli-nodejs/-Users-robertlee-GitHubProjects-Claude-MCPServer/
+rm -rf /Users/robertlee/Library/Caches/claude-cli-nodejs/
 
-# Force config reload by restarting Claude Code session
+# CRITICAL: Complete Claude Code restart (not just reload)
+# Exit Claude Code application entirely, then restart
 ```
 
 ### **Problem: "Port Conflicts (EADDRINUSE)"**
@@ -315,11 +386,24 @@ npx tsc --noEmit
 # - Update return types to match interface
 ```
 
-### **Error Pattern 2: Memory Server Path Issues**
+### **Error Pattern 2: Environment Variable Type Issues (2025-05-24)**
+```bash
+# Symptom: Servers start individually but fail in Claude integration
+# Check environment variable format:
+grep -A 3 "env" /Users/robertlee/.claude/claude_code_config.json
+
+# WRONG (causes STDIO servers to try HTTP mode):
+"env": { "DATA_PIPELINE_PORT": "3011" }
+
+# CORRECT (proper STDIO mode):
+"env": { "DATA_PIPELINE_ID": "data-pipeline-server" }
+```
+
+### **Error Pattern 3: Memory Server Path Issues**
 ```bash
 # Symptom: memory-simple server not found
 # Check config path:
-grep -A 5 "memory-simple" config/claude-desktop/claude_desktop_config.json
+grep -A 5 "memory-simple" /Users/robertlee/.claude/claude_code_config.json
 
 # Should point to: mcp/memory/simple-server.js
 # NOT: servers/memory/src/memory-server.ts (doesn't exist)

@@ -60,6 +60,13 @@
       "env": {
         "UI_DESIGN_ID": "ui-design-server"
       }
+    },
+    "optimization": {
+      "command": "npx",
+      "args": ["tsx", "/Users/robertlee/GitHubProjects/Claude_MCPServer/servers/optimization/src/optimization.ts"],
+      "env": {
+        "OPTIMIZATION_ID": "optimization-server"
+      }
     }
   }
 }

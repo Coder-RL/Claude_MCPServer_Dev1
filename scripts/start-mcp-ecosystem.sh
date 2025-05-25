@@ -178,8 +178,13 @@ main() {
         log "${RED}   ❌ ui-design: Failed to start${NC}"
     fi
     
-    # Optional HTTP servers (commented out - optimization server has issues)
-    log "${BLUE}⏩ Skipping optimization server (optional)${NC}"
+    # Additional optimization server
+    log "${BLUE}   Testing optimization...${NC}"
+    if timeout 3 npx tsx servers/optimization/src/optimization.ts </dev/null &>/dev/null; then
+        log "${GREEN}   ✅ optimization: 5 tools available${NC}"
+    else
+        log "${RED}   ❌ optimization: Failed to start${NC}"
+    fi
     
     # Step 5: Health checks
     log "${BLUE}🏥 Performing health checks...${NC}"
@@ -193,6 +198,7 @@ main() {
     services_status+="${GREEN}✅ Memory Server (STDIO, 5 tools)${NC}\n"
     services_status+="${GREEN}✅ Security Vulnerability Server (STDIO, 6 tools)${NC}\n"
     services_status+="${GREEN}✅ UI Design Server (STDIO, 8 tools)${NC}\n"
+    services_status+="${GREEN}✅ Optimization Server (STDIO, 5 tools)${NC}\n"
     
     # Sequential Thinking MCP
     services_status+="${GREEN}✅ Sequential Thinking MCP (STDIO, structured reasoning)${NC}\n"

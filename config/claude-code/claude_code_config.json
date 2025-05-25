@@ -4,7 +4,7 @@
       "command": "node",
       "args": ["/Users/robertlee/GitHubProjects/Claude_MCPServer/mcp/memory/simple-server.js"],
       "env": {
-        "PORT": "3301"
+        "MEMORY_ID": "memory-simple"
       }
     },
     "sequential-thinking": {
@@ -12,59 +12,59 @@
       "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"]
     },
     "data-pipeline": {
-      "command": "tsx",
-      "args": ["/Users/robertlee/GitHubProjects/Claude_MCPServer/servers/data-analytics/src/data-pipeline.ts"],
+      "command": "npx",
+      "args": ["tsx", "/Users/robertlee/GitHubProjects/Claude_MCPServer/servers/data-analytics/src/data-pipeline.ts"],
       "env": {
-        "DATA_PIPELINE_PORT": "3011"
+        "DATA_PIPELINE_ID": "data-pipeline-server"
       }
     },
     "realtime-analytics": {
-      "command": "tsx",
-      "args": ["/Users/robertlee/GitHubProjects/Claude_MCPServer/servers/data-analytics/src/realtime-analytics.ts"],
+      "command": "npx",
+      "args": ["tsx", "/Users/robertlee/GitHubProjects/Claude_MCPServer/servers/data-analytics/src/realtime-analytics.ts"],
       "env": {
-        "REALTIME_ANALYTICS_PORT": "3012"
+        "REALTIME_ANALYTICS_ID": "realtime-analytics-server"
       }
     },
     "data-warehouse": {
-      "command": "tsx",
-      "args": ["/Users/robertlee/GitHubProjects/Claude_MCPServer/servers/data-analytics/src/data-warehouse.ts"],
+      "command": "npx",
+      "args": ["tsx", "/Users/robertlee/GitHubProjects/Claude_MCPServer/servers/data-analytics/src/data-warehouse.ts"],
       "env": {
-        "DATA_WAREHOUSE_PORT": "3013"
+        "DATA_WAREHOUSE_ID": "data-warehouse-server"
       }
     },
     "ml-deployment": {
-      "command": "tsx",
-      "args": ["/Users/robertlee/GitHubProjects/Claude_MCPServer/servers/data-analytics/src/ml-deployment.ts"],
+      "command": "npx",
+      "args": ["tsx", "/Users/robertlee/GitHubProjects/Claude_MCPServer/servers/data-analytics/src/ml-deployment.ts"],
       "env": {
-        "ML_DEPLOYMENT_PORT": "3014"
+        "ML_DEPLOYMENT_ID": "ml-deployment-server"
       }
     },
     "data-governance": {
-      "command": "tsx",
-      "args": ["/Users/robertlee/GitHubProjects/Claude_MCPServer/servers/data-analytics/src/data-governance.ts"],
+      "command": "npx",
+      "args": ["tsx", "/Users/robertlee/GitHubProjects/Claude_MCPServer/servers/data-analytics/src/data-governance.ts"],
       "env": {
-        "DATA_GOVERNANCE_PORT": "3015"
+        "DATA_GOVERNANCE_ID": "data-governance-server"
       }
     },
     "security-vulnerability": {
-      "command": "tsx",
-      "args": ["/Users/robertlee/GitHubProjects/Claude_MCPServer/servers/security-vulnerability/src/security-vulnerability.ts"],
+      "command": "npx",
+      "args": ["tsx", "/Users/robertlee/GitHubProjects/Claude_MCPServer/servers/security-vulnerability/src/security-vulnerability.ts"],
       "env": {
-        "SECURITY_VULNERABILITY_PORT": "3016"
+        "SECURITY_ID": "security-vulnerability-server"
       }
     },
     "optimization": {
-      "command": "tsx",
-      "args": ["/Users/robertlee/GitHubProjects/Claude_MCPServer/servers/optimization/src/optimization.ts"],
+      "command": "npx",
+      "args": ["tsx", "/Users/robertlee/GitHubProjects/Claude_MCPServer/servers/optimization/src/optimization.ts"],
       "env": {
-        "OPTIMIZATION_PORT": "3017"
+        "OPTIMIZATION_ID": "optimization-server"
       }
     },
     "ui-design": {
-      "command": "tsx",
-      "args": ["/Users/robertlee/GitHubProjects/Claude_MCPServer/servers/ui-design/src/ui-design.ts"],
+      "command": "npx",
+      "args": ["tsx", "/Users/robertlee/GitHubProjects/Claude_MCPServer/servers/ui-design/src/ui-design.ts"],
       "env": {
-        "UI_DESIGN_PORT": "3018"
+        "UI_DESIGN_ID": "ui-design-server"
       }
     }
   }

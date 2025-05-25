@@ -31,7 +31,14 @@
       "Bash(git --git-dir=/Users/robertlee/GitHubProjects/ClarusRev/.git --work-tree=/Users/robertlee/GitHubProjects/ClarusRev log --oneline --since=\"2024-01-01\")",
       "Bash(git --git-dir=/Users/robertlee/GitHubProjects/ClarusRev/.git --work-tree=/Users/robertlee/GitHubProjects/ClarusRev log --stat --since=\"2024-12-01\" -10)",
       "Bash(./scripts/mcp-health-monitor.sh:*)",
-      "mcp__memory-simple__health_check"
+      "mcp__memory-simple__health_check",
+      "mcp__sequential-thinking__sequentialthinking",
+      "Bash(./claude-mcp-setup --help)",
+      "Bash(docker-compose up:*)",
+      "Bash(open:*)",
+      "Bash(docker-compose:*)",
+      "Bash(docker exec:*)",
+      "Bash(./claude-mcp-setup start)"
     ],
     "deny": []
   }
