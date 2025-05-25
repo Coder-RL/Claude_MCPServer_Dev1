@@ -38,7 +38,9 @@
       "Bash(open:*)",
       "Bash(docker-compose:*)",
       "Bash(docker exec:*)",
-      "Bash(./claude-mcp-setup start)"
+      "Bash(./claude-mcp-setup start)",
+      "Bash(git fetch:*)",
+      "Bash(git push:*)"
     ],
     "deny": []
   }
