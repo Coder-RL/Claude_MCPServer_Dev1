@@ -1,0 +1,307 @@
+{
+  "timestamp": "2025-05-26T23:28:02.386Z",
+  "config": {
+    "duration": 300000,
+    "concurrentClients": 10,
+    "requestsPerClient": 100,
+    "dataPayloadSizes": [
+      1024,
+      10240,
+      102400
+    ],
+    "memoryCheckInterval": 1000,
+    "gcTriggerInterval": 10000,
+    "maxMemoryThreshold": 524288000,
+    "servers": [
+      "data-governance",
+      "data-pipeline",
+      "data-warehouse",
+      "enhanced-memory",
+      "ml-deployment",
+      "optimization",
+      "realtime-analytics",
+      "security-vulnerability",
+      "sequential-thinking",
+      "ui-design"
+    ]
+  },
+  "duration": 208665,
+  "summary": {
+    "serverseTested": 10,
+    "averageScore": 0.9506647623389732,
+    "totalAlerts": 0,
+    "criticalAlerts": 0
+  },
+  "servers": [
+    {
+      "server": "data-governance",
+      "pid": 4556,
+      "monitoring": {
+        "duration": 208521,
+        "samples": 208,
+        "interval": 1000
+      },
+      "memory": {
+        "initial": "86.30 MB",
+        "final": "86.52 MB",
+        "peak": "87.56 MB",
+        "average": "86.55 MB",
+        "growth": "224.00 KB",
+        "stability": 0.9972229253123797
+      },
+      "alerts": {
+        "total": 0,
+        "critical": 0,
+        "warnings": 0,
+        "details": []
+      },
+      "efficiency": {
+        "score": 0.9456954201249519,
+        "rating": "Excellent"
+      }
+    },
+    {
+      "server": "data-pipeline",
+      "pid": 4557,
+      "monitoring": {
+        "duration": 208396,
+        "samples": 208,
+        "interval": 1000
+      },
+      "memory": {
+        "initial": "85.50 MB",
+        "final": "84.98 MB",
+        "peak": "85.73 MB",
+        "average": "85.19 MB",
+        "growth": "-528.00 KB",
+        "stability": 0.9974017314100765
+      },
+      "alerts": {
+        "total": 0,
+        "critical": 0,
+        "warnings": 0,
+        "details": []
+      },
+      "efficiency": {
+        "score": 0.9490669425640306,
+        "rating": "Excellent"
+      }
+    },
+    {
+      "server": "data-warehouse",
+      "pid": 4558,
+      "monitoring": {
+        "duration": 208277,
+        "samples": 207,
+        "interval": 1000
+      },
+      "memory": {
+        "initial": "84.91 MB",
+        "final": "84.53 MB",
+        "peak": "85.30 MB",
+        "average": "84.80 MB",
+        "growth": "-384.00 KB",
+        "stability": 0.9972071342648379
+      },
+      "alerts": {
+        "total": 0,
+        "critical": 0,
+        "warnings": 0,
+        "details": []
+      },
+      "efficiency": {
+        "score": 0.9488297287059351,
+        "rating": "Excellent"
+      }
+    },
+    {
+      "server": "enhanced-memory",
+      "pid": 4561,
+      "monitoring": {
+        "duration": 208160,
+        "samples": 207,
+        "interval": 1000
+      },
+      "memory": {
+        "initial": "84.16 MB",
+        "final": "83.97 MB",
+        "peak": "84.72 MB",
+        "average": "84.18 MB",
+        "growth": "-192.00 KB",
+        "stability": 0.9973854463994319
+      },
+      "alerts": {
+        "total": 0,
+        "critical": 0,
+        "warnings": 0,
+        "details": []
+      },
+      "efficiency": {
+        "score": 0.9486854285597728,
+        "rating": "Excellent"
+      }
+    },
+    {
+      "server": "ml-deployment",
+      "pid": 4559,
+      "monitoring": {
+        "duration": 208047,
+        "samples": 207,
+        "interval": 1000
+      },
+      "memory": {
+        "initial": "85.91 MB",
+        "final": "85.56 MB",
+        "peak": "86.31 MB",
+        "average": "85.78 MB",
+        "growth": "-352.00 KB",
+        "stability": 0.9973798150288595
+      },
+      "alerts": {
+        "total": 0,
+        "critical": 0,
+        "warnings": 0,
+        "details": []
+      },
+      "efficiency": {
+        "score": 0.9481956760115438,
+        "rating": "Excellent"
+      }
+    },
+    {
+      "server": "optimization",
+      "pid": 4565,
+      "monitoring": {
+        "duration": 207937,
+        "samples": 207,
+        "interval": 1000
+      },
+      "memory": {
+        "initial": "85.20 MB",
+        "final": "84.88 MB",
+        "peak": "86.11 MB",
+        "average": "85.09 MB",
+        "growth": "-336.00 KB",
+        "stability": 0.9972161558555126
+      },
+      "alerts": {
+        "total": 0,
+        "critical": 0,
+        "warnings": 0,
+        "details": []
+      },
+      "efficiency": {
+        "score": 0.948205212342205,
+        "rating": "Excellent"
+      }
+    },
+    {
+      "server": "realtime-analytics",
+      "pid": 4560,
+      "monitoring": {
+        "duration": 207826,
+        "samples": 207,
+        "interval": 1000
+      },
+      "memory": {
+        "initial": "83.16 MB",
+        "final": "83.22 MB",
+        "peak": "84.11 MB",
+        "average": "83.05 MB",
+        "growth": "64.00 KB",
+        "stability": 0.9971392073979379
+      },
+      "alerts": {
+        "total": 0,
+        "critical": 0,
+        "warnings": 0,
+        "details": []
+      },
+      "efficiency": {
+        "score": 0.9482025579591752,
+        "rating": "Excellent"
+      }
+    },
+    {
+      "server": "security-vulnerability",
+      "pid": 4563,
+      "monitoring": {
+        "duration": 207716,
+        "samples": 207,
+        "interval": 1000
+      },
+      "memory": {
+        "initial": "87.28 MB",
+        "final": "86.92 MB",
+        "peak": "88.19 MB",
+        "average": "87.16 MB",
+        "growth": "-368.00 KB",
+        "stability": 0.9972018954747863
+      },
+      "alerts": {
+        "total": 0,
+        "critical": 0,
+        "warnings": 0,
+        "details": []
+      },
+      "efficiency": {
+        "score": 0.9470463831899146,
+        "rating": "Excellent"
+      }
+    },
+    {
+      "server": "sequential-thinking",
+      "pid": 4562,
+      "monitoring": {
+        "duration": 207606,
+        "samples": 207,
+        "interval": 1000
+      },
+      "memory": {
+        "initial": "36.59 MB",
+        "final": "36.59 MB",
+        "peak": "36.59 MB",
+        "average": "36.59 MB",
+        "growth": "0 B",
+        "stability": 1
+      },
+      "alerts": {
+        "total": 0,
+        "critical": 0,
+        "warnings": 0,
+        "details": []
+      },
+      "efficiency": {
+        "score": 0.9780437499999999,
+        "rating": "Excellent"
+      }
+    },
+    {
+      "server": "ui-design",
+      "pid": 4564,
+      "monitoring": {
+        "duration": 207497,
+        "samples": 207,
+        "interval": 1000
+      },
+      "memory": {
+        "initial": "86.73 MB",
+        "final": "87.13 MB",
+        "peak": "88.23 MB",
+        "average": "87.03 MB",
+        "growth": "400.00 KB",
+        "stability": 0.9969725598305076
+      },
+      "alerts": {
+        "total": 0,
+        "critical": 0,
+        "warnings": 0,
+        "details": []
+      },
+      "efficiency": {
+        "score": 0.944676523932203,
+        "rating": "Excellent"
+      }
+    }
+  ]
+}
