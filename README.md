@@ -1,5 +1,22 @@
 # 🚀 Claude MCP Server Ecosystem
 
+## 🚨 **CRITICAL: Two Issues That Keep Causing Problems**
+
+### **1. GLOBAL CONFIG REQUIRED** 
+- MCP configs MUST be global (`~/.claude/claude_code_config.json`), NOT local/project-specific
+- Local configs are lost when changing directories
+
+### **2. STDIO TRANSPORT REQUIRED**
+- ALL MCP servers MUST use STDIO communication, NOT HTTP/ports  
+- Claude Code only supports STDIO transport
+
+### **Quick Fix for MCP Issues:**
+```bash
+# If MCP tools not working in Claude Code:
+exit  # Exit current session  
+claude --mcp-config ~/.claude/claude_code_config.json  # Restart with global config
+```
+
 **Status**: ✅ ENHANCED MEMORY SYSTEM IMPLEMENTED (2025-05-25)  
 **Servers**: 11 configured (10 + enhanced-memory with 6 optimization techniques)  
 **Tools**: 150+ available including advanced memory optimization
