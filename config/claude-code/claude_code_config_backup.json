@@ -1,0 +1,80 @@
+{
+  "mcpServers": {
+    "memory-simple": {
+      "command": "/Users/robertlee/.nvm/versions/node/v20.18.3/bin/node",
+      "args": ["/Users/robertlee/GitHubProjects/Claude_MCPServer/mcp/memory/simple-server.js"],
+      "env": {
+        "MEMORY_ID": "memory-simple"
+      }
+    },
+    "sequential-thinking": {
+      "command": "/Users/robertlee/.nvm/versions/node/v20.18.3/bin/npx",
+      "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"]
+    },
+    "data-pipeline": {
+      "command": "/Users/robertlee/.nvm/versions/node/v20.18.3/bin/npx",
+      "args": ["tsx", "/Users/robertlee/GitHubProjects/Claude_MCPServer/servers/data-analytics/src/data-pipeline.ts"],
+      "cwd": "/Users/robertlee/GitHubProjects/Claude_MCPServer",
+      "env": {
+        "DATA_PIPELINE_ID": "data-pipeline-server"
+      }
+    },
+    "realtime-analytics": {
+      "command": "/Users/robertlee/.nvm/versions/node/v20.18.3/bin/npx",
+      "args": ["tsx", "/Users/robertlee/GitHubProjects/Claude_MCPServer/servers/data-analytics/src/realtime-analytics.ts"],
+      "env": {
+        "REALTIME_ANALYTICS_ID": "realtime-analytics-server"
+      }
+    },
+    "data-warehouse": {
+      "command": "/Users/robertlee/.nvm/versions/node/v20.18.3/bin/npx",
+      "args": ["tsx", "/Users/robertlee/GitHubProjects/Claude_MCPServer/servers/data-analytics/src/data-warehouse.ts"],
+      "env": {
+        "DATA_WAREHOUSE_ID": "data-warehouse-server"
+      }
+    },
+    "ml-deployment": {
+      "command": "/Users/robertlee/.nvm/versions/node/v20.18.3/bin/npx",
+      "args": ["tsx", "/Users/robertlee/GitHubProjects/Claude_MCPServer/servers/data-analytics/src/ml-deployment.ts"],
+      "env": {
+        "ML_DEPLOYMENT_ID": "ml-deployment-server"
+      }
+    },
+    "data-governance": {
+      "command": "/Users/robertlee/.nvm/versions/node/v20.18.3/bin/npx",
+      "args": ["tsx", "/Users/robertlee/GitHubProjects/Claude_MCPServer/servers/data-analytics/src/data-governance.ts"],
+      "env": {
+        "DATA_GOVERNANCE_ID": "data-governance-server"
+      }
+    },
+    "security-vulnerability": {
+      "command": "/Users/robertlee/.nvm/versions/node/v20.18.3/bin/npx",
+      "args": ["tsx", "/Users/robertlee/GitHubProjects/Claude_MCPServer/servers/security-vulnerability/src/security-vulnerability.ts"],
+      "env": {
+        "SECURITY_ID": "security-vulnerability-server"
+      }
+    },
+    "optimization": {
+      "command": "/Users/robertlee/.nvm/versions/node/v20.18.3/bin/npx",
+      "args": ["tsx", "/Users/robertlee/GitHubProjects/Claude_MCPServer/servers/optimization/src/optimization.ts"],
+      "env": {
+        "OPTIMIZATION_ID": "optimization-server"
+      }
+    },
+    "ui-design": {
+      "command": "/Users/robertlee/.nvm/versions/node/v20.18.3/bin/npx",
+      "args": ["tsx", "/Users/robertlee/GitHubProjects/Claude_MCPServer/servers/ui-design/src/ui-design.ts"],
+      "env": {
+        "UI_DESIGN_ID": "ui-design-server"
+      }
+    },
+    "enhanced-memory": {
+      "command": "/Users/robertlee/.nvm/versions/node/v20.18.3/bin/npx",
+      "args": ["tsx", "/Users/robertlee/GitHubProjects/Claude_MCPServer/servers/memory/src/enhanced-memory-server.ts"],
+      "cwd": "/Users/robertlee/GitHubProjects/Claude_MCPServer",
+      "env": {
+        "ENHANCED_MEMORY_ID": "enhanced-memory-server"
+      }
+    }
+  }
+}

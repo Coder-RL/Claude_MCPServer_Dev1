@@ -86,21 +86,21 @@ module.exports = {
       log_file: './logs/pm2/realtime-analytics-combined.log'
     },
     {
-      name: 'memory-simple',
-      script: 'node',
-      args: ['mcp/memory/simple-server.js'],
+      name: 'enhanced-memory',
+      script: 'npx',
+      args: ['tsx', 'servers/memory/src/enhanced-memory-server.ts'],
       cwd: '/Users/robertlee/GitHubProjects/Claude_MCPServer',
       env: {
-        MEMORY_ID: 'memory-simple',
+        ENHANCED_MEMORY_ID: 'enhanced-memory-server',
         NODE_ENV: 'development'
       },
       autorestart: true,
       watch: false,
-      max_memory_restart: '300M',
+      max_memory_restart: '800M',  // Higher memory for advanced processing
       log_date_format: 'YYYY-MM-DD HH:mm:ss Z',
-      error_file: './logs/pm2/memory-simple-error.log',
-      out_file: './logs/pm2/memory-simple-out.log',
-      log_file: './logs/pm2/memory-simple-combined.log'
+      error_file: './logs/pm2/enhanced-memory-error.log',
+      out_file: './logs/pm2/enhanced-memory-out.log',
+      log_file: './logs/pm2/enhanced-memory-combined.log'
     },
     {
       name: 'sequential-thinking',

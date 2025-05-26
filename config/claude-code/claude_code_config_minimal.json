@@ -13,8 +13,11 @@
     },
     "enhanced-memory": {
       "command": "/Users/robertlee/.nvm/versions/node/v20.18.3/bin/npx",
-      "args": ["tsx", "/Users/robertlee/GitHubProjects/Claude_MCPServer/servers/memory/src/enhanced-memory-final.ts"],
-      "cwd": "/Users/robertlee/GitHubProjects/Claude_MCPServer"
+      "args": ["tsx", "/Users/robertlee/GitHubProjects/Claude_MCPServer/servers/memory/src/enhanced-memory-server.ts"],
+      "cwd": "/Users/robertlee/GitHubProjects/Claude_MCPServer",
+      "env": {
+        "ENHANCED_MEMORY_ID": "enhanced-memory-server"
+      }
     }
   }
 }
