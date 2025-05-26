@@ -1,0 +1,19 @@
+[
+  {
+    "name": "test_pipeline",
+    "sources": [
+      {
+        "type": "csv"
+      }
+    ],
+    "targets": [
+      {
+        "type": "database"
+      }
+    ],
+    "id": "pipeline_1748232038418_vwia73q8m",
+    "created": "2025-05-26T04:00:38.418Z",
+    "updated": "2025-05-26T04:00:38.418Z",
+    "runHistory": []
+  }
+]

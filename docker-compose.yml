@@ -1,0 +1,398 @@
+version: '3.8'
+
+services:
+  # Core Infrastructure
+  postgres:
+    image: postgres:16-alpine
+    container_name: claude-mcp-postgres
+    environment:
+      POSTGRES_DB: mcp_enhanced
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/migrations:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  redis:
+    image: redis:7-alpine
+    container_name: claude-mcp-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  etcd:
+    image: quay.io/coreos/etcd:v3.5.12
+    container_name: claude-mcp-etcd
+    ports:
+      - "2379:2379"
+      - "2380:2380"
+    environment:
+      ETCD_NAME: etcd0
+      ETCD_INITIAL_ADVERTISE_PEER_URLS: http://localhost:2380
+      ETCD_LISTEN_PEER_URLS: http://0.0.0.0:2380
+      ETCD_LISTEN_CLIENT_URLS: http://0.0.0.0:2379
+      ETCD_ADVERTISE_CLIENT_URLS: http://localhost:2379
+      ETCD_INITIAL_CLUSTER: etcd0=http://localhost:2380
+      ETCD_INITIAL_CLUSTER_TOKEN: etcd-cluster-1
+      ETCD_INITIAL_CLUSTER_STATE: new
+    healthcheck:
+      test: ["CMD", "etcdctl", "endpoint", "health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Orchestration Layer
+  orchestration:
+    build:
+      context: .
+      dockerfile: orchestration/Dockerfile
+    container_name: claude-mcp-orchestration
+    ports:
+      - "3100:3100"
+    environment:
+      NODE_ENV: development
+      PORT: 3100
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_NAME: mcp_enhanced
+      REDIS_URL: redis://redis:6379
+      ETCD_HOSTS: etcd:2379
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      etcd:
+        condition: service_healthy
+    volumes:
+      - ./orchestration:/app/orchestration
+      - ./shared:/app/shared
+      - ./database:/app/database
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3100/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # MCP Servers
+  inference-enhancement:
+    build:
+      context: .
+      dockerfile: servers/inference-enhancement/Dockerfile
+    container_name: claude-mcp-inference
+    ports:
+      - "3101:3101"
+    environment:
+      NODE_ENV: development
+      PORT: 3101
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_NAME: mcp_enhanced
+      REDIS_URL: redis://redis:6379
+      ORCHESTRATION_URL: http://orchestration:3100
+    depends_on:
+      orchestration:
+        condition: service_healthy
+    volumes:
+      - ./servers/inference-enhancement:/app/server
+      - ./shared:/app/shared
+
+  ui-testing:
+    build:
+      context: .
+      dockerfile: servers/ui-testing/Dockerfile
+    container_name: claude-mcp-ui-testing
+    ports:
+      - "3102:3102"
+    environment:
+      NODE_ENV: development
+      PORT: 3102
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_NAME: mcp_enhanced
+      SCREENSHOT_DIR: /app/screenshots
+      ORCHESTRATION_URL: http://orchestration:3100
+    depends_on:
+      orchestration:
+        condition: service_healthy
+    volumes:
+      - ./servers/ui-testing:/app/server
+      - ./shared:/app/shared
+      - screenshots_data:/app/screenshots
+
+  analytics:
+    build:
+      context: .
+      dockerfile: servers/analytics/Dockerfile
+    container_name: claude-mcp-analytics
+    ports:
+      - "3103:3103"
+    environment:
+      NODE_ENV: development
+      PORT: 3103
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_NAME: mcp_enhanced
+      ORCHESTRATION_URL: http://orchestration:3100
+    depends_on:
+      orchestration:
+        condition: service_healthy
+    volumes:
+      - ./servers/analytics:/app/server
+      - ./shared:/app/shared
+
+  code-quality:
+    build:
+      context: .
+      dockerfile: servers/code-quality/Dockerfile
+    container_name: claude-mcp-code-quality
+    ports:
+      - "3104:3104"
+    environment:
+      NODE_ENV: development
+      PORT: 3104
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_NAME: mcp_enhanced
+      ORCHESTRATION_URL: http://orchestration:3100
+    depends_on:
+      orchestration:
+        condition: service_healthy
+    volumes:
+      - ./servers/code-quality:/app/server
+      - ./shared:/app/shared
+
+  documentation:
+    build:
+      context: .
+      dockerfile: servers/documentation/Dockerfile
+    container_name: claude-mcp-documentation
+    ports:
+      - "3105:3105"
+    environment:
+      NODE_ENV: development
+      PORT: 3105
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_NAME: mcp_enhanced
+      ORCHESTRATION_URL: http://orchestration:3100
+    depends_on:
+      orchestration:
+        condition: service_healthy
+    volumes:
+      - ./servers/documentation:/app/server
+      - ./shared:/app/shared
+
+  memory-management:
+    build:
+      context: .
+      dockerfile: servers/memory-management/Dockerfile
+    container_name: claude-mcp-memory
+    ports:
+      - "3106:3106"
+    environment:
+      NODE_ENV: development
+      PORT: 3106
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_NAME: mcp_enhanced
+      REDIS_URL: redis://redis:6379
+      ORCHESTRATION_URL: http://orchestration:3100
+    depends_on:
+      orchestration:
+        condition: service_healthy
+    volumes:
+      - ./servers/memory-management:/app/server
+      - ./shared:/app/shared
+
+  web-access:
+    build:
+      context: .
+      dockerfile: servers/web-access/Dockerfile
+    container_name: claude-mcp-web-access
+    ports:
+      - "3107:3107"
+    environment:
+      NODE_ENV: development
+      PORT: 3107
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_NAME: mcp_enhanced
+      ORCHESTRATION_URL: http://orchestration:3100
+      # API keys should be provided via .env file
+      # GOOGLE_API_KEY: ${GOOGLE_API_KEY}
+      # GOOGLE_SEARCH_ENGINE_ID: ${GOOGLE_SEARCH_ENGINE_ID}
+      # BROWSERLESS_API_KEY: ${BROWSERLESS_API_KEY}
+    depends_on:
+      orchestration:
+        condition: service_healthy
+    volumes:
+      - ./servers/web-access:/app/server
+      - ./shared:/app/shared
+
+  # === MCP ENHANCEMENT SERVICES ===
+  
+  # Qdrant Vector Database for Memory MCP
+  qdrant:
+    image: qdrant/qdrant:v1.7.4
+    container_name: claude-mcp-qdrant
+    ports:
+      - "6333:6333"      # HTTP API
+      - "6334:6334"      # GRPC API
+    volumes:
+      - qdrant_data:/qdrant/storage
+    environment:
+      QDRANT__SERVICE__HTTP_PORT: 6333
+      QDRANT__SERVICE__GRPC_PORT: 6334
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:6333/ || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Memory MCP Server (OpenMemory)
+  memory-mcp:
+    image: node:20-alpine
+    container_name: claude-mcp-memory-server
+    working_dir: /app
+    ports:
+      - "3201:3201"
+    environment:
+      NODE_ENV: development
+      PORT: 3201
+      POSTGRES_URL: postgresql://postgres:postgres@postgres:5432/mcp_enhanced
+      QDRANT_URL: http://qdrant:6333
+      MEMORY_COLLECTION: claude_mcp_memories
+    depends_on:
+      postgres:
+        condition: service_healthy
+      qdrant:
+        condition: service_healthy
+    volumes:
+      - ./mcp/memory:/app
+      - ./package.json:/app/package.json
+    command: >
+      sh -c "
+        npm install pg &&
+        node server.js
+      "
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:3201/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Sequential Thinking MCP Server
+  sequential-thinking-mcp:
+    image: node:20-alpine
+    container_name: claude-mcp-sequential-thinking
+    working_dir: /app
+    ports:
+      - "3202:3202"
+    environment:
+      NODE_ENV: development
+      PORT: 3202
+    volumes:
+      - ./mcp/sequential-thinking:/app
+    command: >
+      sh -c "
+        npm install uuid &&
+        node -e \"
+        const http = require('http');
+        const server = http.createServer((req, res) => {
+          if (req.url === '/health') {
+            res.writeHead(200, {'Content-Type': 'application/json'});
+            res.end(JSON.stringify({status: 'healthy', service: 'sequential-thinking'}));
+          } else {
+            res.writeHead(200, {'Content-Type': 'application/json'});
+            res.end(JSON.stringify({message: 'Sequential Thinking MCP Server'}));
+          }
+        });
+        server.listen(3202, () => console.log('Sequential Thinking on 3202'));
+        \"
+      "
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:3202/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Filesystem MCP Server
+  filesystem-mcp:
+    image: node:20-alpine
+    container_name: claude-mcp-filesystem
+    working_dir: /app
+    ports:
+      - "3203:3203"
+    environment:
+      NODE_ENV: development
+      PORT: 3203
+      WORKSPACE_PATH: "/workspace"
+    volumes:
+      - ./mcp/filesystem:/app
+      - .:/workspace:ro  # Read-only access to entire codebase
+    command: >
+      sh -c "
+        echo 'const http = require(\"http\");
+        const fs = require(\"fs\");
+        const path = require(\"path\");
+        
+        const server = http.createServer((req, res) => {
+          if (req.url === \"/health\") {
+            res.writeHead(200, {\"Content-Type\": \"application/json\"});
+            res.end(JSON.stringify({status: \"healthy\", service: \"filesystem-mcp\"}));
+          } else {
+            res.writeHead(404);
+            res.end(\"Not Found\");
+          }
+        });
+        
+        server.listen(3203, () => console.log(\"Filesystem MCP on 3203\"));
+        ' > server.js &&
+        node server.js
+      "
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:3203/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  postgres_data:
+  redis_data:
+  screenshots_data:
+  qdrant_data:
+
+networks:
+  default:
+    name: claude-mcp-network

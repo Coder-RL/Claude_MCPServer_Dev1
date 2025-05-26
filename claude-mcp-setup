@@ -1,0 +1,37 @@
+#!/bin/bash
+
+# Claude MCP Setup - Simple wrapper for claude-mcp-wrapper.sh
+# Usage: ./claude-mcp-setup start
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+case "$1" in
+    start)
+        echo "🚀 Starting Claude Code with MCP servers..."
+        exec "$SCRIPT_DIR/scripts/claude-mcp-wrapper.sh"
+        ;;
+    *)
+        echo "Claude MCP Setup"
+        echo "Usage: $0 start"
+        echo ""
+        echo "This will:"
+        echo "  1. Set up global MCP configuration with correct STDIO settings"
+        echo "  2. Test MCP server readiness"
+        echo "  3. Start Claude Code with all 10 MCP servers enabled"
+        echo ""
+        echo "Available MCP servers:"
+        echo "  • data-governance (7 tools)"
+        echo "  • data-pipeline (3 tools)"
+        echo "  • data-warehouse (2 tools)"
+        echo "  • memory-simple (5 tools)"
+        echo "  • ml-deployment (6 tools)"
+        echo "  • optimization (5 tools)"
+        echo "  • realtime-analytics (3 tools)"
+        echo "  • security-vulnerability (6 tools)"
+        echo "  • sequential-thinking (reasoning)"
+        echo "  • ui-design (8 tools)"
+        echo ""
+        echo "Total: 45+ tools available"
+        exit 1
+        ;;
+esac

@@ -1,0 +1,19 @@
+{
+  "mcpServers": {
+    "filesystem-standard": {
+      "command": "npx",
+      "args": ["@modelcontextprotocol/server-filesystem", "/Users/robertlee"],
+      "env": {}
+    },
+    "enhanced-memory": {
+      "command": "node",
+      "args": ["/Users/robertlee/GitHubProjects/Claude_MCPServer/mcp/memory/enhanced-server-stdio.js"],
+      "env": {}
+    },
+    "sequential-thinking": {
+      "command": "npx", 
+      "args": ["@modelcontextprotocol/server-sequential-thinking"],
+      "env": {}
+    }
+  }
+}

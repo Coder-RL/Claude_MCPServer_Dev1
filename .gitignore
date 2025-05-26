@@ -1,0 +1,94 @@
+# =====================
+# Python & Virtualenv
+# =====================
+__pycache__/
+*.pyc
+*.pyo
+*.py[cod]
+*$py.class
+.venv/
+venv/
+.Python
+
+# =====================
+# Environment & Configs
+# =====================
+.env
+*.env
+.env.*
+.msmtprc
+~/.msmtprc
+msmtprc
+augment_monitor_gmail.py
+
+# =====================
+# MacOS System Files
+# =====================
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# =====================
+# Test Artifacts & Coverage
+# =====================
+.pytest_cache/
+.cache/
+coverage.xml
+*.cover
+tests/reports/
+tmp/
+junit.xml
+test-results.xml
+
+# =====================
+# Editor & IDE Metadata
+# =====================
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# =====================
+# Ollama/LLM Local Models (optional)
+# =====================
+*.bin
+*.ot
+ollama_models/
+
+# =====================
+# Log & Temp Files
+# =====================
+*.log
+*.tmp
+*.bak
+*.old
+*.swp
+
+# =====================
+# Test and Temporary Text Files
+# =====================
+# Exclude specific test files created during testing
+large_test_file.txt
+file_list.txt
+test_dir/*.txt
+many_files/*.txt
+
+# Keep important .txt files
+!requirements.txt
+!LICENSE.txt
+!NOTICE.txt
+!VERSION.txt
+!CONTRIBUTORS.txt
+
+# =====================
+# Project Dumps (MD Files and ZIPs)
+# =====================
+/Project Structure & Code MD Files/
+*.zip
+
+# Ignore temporary test results
+tmp/
+*.xml
+
+# Ignore project structure metadata
+project_structure.txt

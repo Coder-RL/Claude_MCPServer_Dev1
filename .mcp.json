@@ -1,0 +1,43 @@
+{
+  "mcpServers": {
+    "filesystem-standard": {
+      "command": "/Users/robertlee/.nvm/versions/node/v20.18.3/bin/npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/Users/robertlee"]
+    },
+    "sequential-thinking": {
+      "command": "/Users/robertlee/.nvm/versions/node/v20.18.3/bin/mcp-server-sequential-thinking"
+    },
+    "data-pipeline": {
+      "command": "/Users/robertlee/.nvm/versions/node/v20.18.3/bin/tsx",
+      "args": ["/Users/robertlee/GitHubProjects/Claude_MCPServer_Dev/servers/data-analytics/src/data-pipeline-fixed.ts"]
+    },
+    "data-governance": {
+      "command": "/Users/robertlee/.nvm/versions/node/v20.18.3/bin/tsx",
+      "args": ["/Users/robertlee/GitHubProjects/Claude_MCPServer_Dev/servers/data-analytics/src/data-governance-fixed.ts"]
+    },
+    "realtime-analytics": {
+      "command": "/Users/robertlee/.nvm/versions/node/v20.18.3/bin/tsx",
+      "args": ["/Users/robertlee/GitHubProjects/Claude_MCPServer_Dev/servers/data-analytics/src/realtime-analytics-fixed.ts"]
+    },
+    "data-warehouse": {
+      "command": "/Users/robertlee/.nvm/versions/node/v20.18.3/bin/tsx",
+      "args": ["/Users/robertlee/GitHubProjects/Claude_MCPServer_Dev/servers/data-analytics/src/data-warehouse-fixed.ts"]
+    },
+    "ml-deployment": {
+      "command": "/Users/robertlee/.nvm/versions/node/v20.18.3/bin/tsx",
+      "args": ["/Users/robertlee/GitHubProjects/Claude_MCPServer_Dev/servers/data-analytics/src/ml-deployment-fixed.ts"]
+    },
+    "security-vulnerability": {
+      "command": "/Users/robertlee/.nvm/versions/node/v20.18.3/bin/tsx",
+      "args": ["/Users/robertlee/GitHubProjects/Claude_MCPServer_Dev/servers/security-vulnerability/src/security-vulnerability-fixed.ts"]
+    },
+    "optimization": {
+      "command": "/Users/robertlee/.nvm/versions/node/v20.18.3/bin/tsx",
+      "args": ["/Users/robertlee/GitHubProjects/Claude_MCPServer_Dev/servers/optimization/src/optimization-fixed.ts"]
+    },
+    "ui-design": {
+      "command": "/Users/robertlee/.nvm/versions/node/v20.18.3/bin/tsx",
+      "args": ["/Users/robertlee/GitHubProjects/Claude_MCPServer_Dev/servers/ui-design/src/ui-design-fixed.ts"]
+    }
+  }
+}
