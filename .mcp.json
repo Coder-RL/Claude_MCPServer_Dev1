@@ -9,35 +9,35 @@
     },
     "data-pipeline": {
       "command": "/Users/robertlee/.nvm/versions/node/v20.18.3/bin/tsx",
-      "args": ["/Users/robertlee/GitHubProjects/Claude_MCPServer_Dev/servers/data-analytics/src/data-pipeline-fixed.ts"]
+      "args": ["/Users/robertlee/GitHubProjects/Claude_MCPServer_Dev1/servers/data-analytics/src/data-pipeline-fixed.ts"]
     },
     "data-governance": {
       "command": "/Users/robertlee/.nvm/versions/node/v20.18.3/bin/tsx",
-      "args": ["/Users/robertlee/GitHubProjects/Claude_MCPServer_Dev/servers/data-analytics/src/data-governance-fixed.ts"]
+      "args": ["/Users/robertlee/GitHubProjects/Claude_MCPServer_Dev1/servers/data-analytics/src/data-governance-fixed.ts"]
     },
     "realtime-analytics": {
       "command": "/Users/robertlee/.nvm/versions/node/v20.18.3/bin/tsx",
-      "args": ["/Users/robertlee/GitHubProjects/Claude_MCPServer_Dev/servers/data-analytics/src/realtime-analytics-fixed.ts"]
+      "args": ["/Users/robertlee/GitHubProjects/Claude_MCPServer_Dev1/servers/data-analytics/src/realtime-analytics-fixed.ts"]
     },
     "data-warehouse": {
       "command": "/Users/robertlee/.nvm/versions/node/v20.18.3/bin/tsx",
-      "args": ["/Users/robertlee/GitHubProjects/Claude_MCPServer_Dev/servers/data-analytics/src/data-warehouse-fixed.ts"]
+      "args": ["/Users/robertlee/GitHubProjects/Claude_MCPServer_Dev1/servers/data-analytics/src/data-warehouse-fixed.ts"]
     },
     "ml-deployment": {
       "command": "/Users/robertlee/.nvm/versions/node/v20.18.3/bin/tsx",
-      "args": ["/Users/robertlee/GitHubProjects/Claude_MCPServer_Dev/servers/data-analytics/src/ml-deployment-fixed.ts"]
+      "args": ["/Users/robertlee/GitHubProjects/Claude_MCPServer_Dev1/servers/data-analytics/src/ml-deployment-fixed.ts"]
     },
     "security-vulnerability": {
       "command": "/Users/robertlee/.nvm/versions/node/v20.18.3/bin/tsx",
-      "args": ["/Users/robertlee/GitHubProjects/Claude_MCPServer_Dev/servers/security-vulnerability/src/security-vulnerability-fixed.ts"]
+      "args": ["/Users/robertlee/GitHubProjects/Claude_MCPServer_Dev1/servers/security-vulnerability/src/security-vulnerability-fixed.ts"]
     },
     "optimization": {
       "command": "/Users/robertlee/.nvm/versions/node/v20.18.3/bin/tsx",
-      "args": ["/Users/robertlee/GitHubProjects/Claude_MCPServer_Dev/servers/optimization/src/optimization-fixed.ts"]
+      "args": ["/Users/robertlee/GitHubProjects/Claude_MCPServer_Dev1/servers/optimization/src/optimization-fixed.ts"]
     },
     "ui-design": {
       "command": "/Users/robertlee/.nvm/versions/node/v20.18.3/bin/tsx",
-      "args": ["/Users/robertlee/GitHubProjects/Claude_MCPServer_Dev/servers/ui-design/src/ui-design-fixed.ts"]
+      "args": ["/Users/robertlee/GitHubProjects/Claude_MCPServer_Dev1/servers/ui-design/src/ui-design-fixed.ts"]
     }
   }
 }
