@@ -126,4 +126,9 @@ export class AdvancedAICapabilitiesServer extends StandardMCPServer {
   }
 }
 
+if (require.main === module) {
+  const server = new AdvancedAICapabilitiesServer();
+  server.start().catch(console.error);
+}
+
 export default AdvancedAICapabilitiesServer;

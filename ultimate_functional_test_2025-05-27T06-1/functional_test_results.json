@@ -1,0 +1,80 @@
+{
+  "timestamp": "2025-05-27T06:13:06.426Z",
+  "npmServers": [
+    {
+      "name": "filesystem-standard",
+      "success": true,
+      "responses": 3,
+      "requestsSent": 2,
+      "stdout": "{\"result\":{\"protocolVersion\":\"2024-11-05\",\"capabilities\":{\"tools\":{}},\"serverInfo\":{\"name\":\"secure-filesystem-server\",\"version\":\"0.2.0\"}},\"jsonrpc\":\"2.0\",\"id\":1}\n{\"result\":{\"tools\":[{\"name\":\"read_file\",\"description\":\"Read the complete contents of a file from the file system. Handles various text encodings and provides detailed error messages if the file cannot be read. Use this tool when you need to examine the contents of a single file. Only works within allowed directories.\",\"inputSchema\":{\"ty",
+      "stderr": "Secure MCP Filesystem Server running on stdio\nAllowed directories: [ '/Users/robertlee/GitHubProjects/Claude_MCPServer_Dev1' ]\n",
+      "code": 0
+    },
+    {
+      "name": "sequential-thinking",
+      "success": true,
+      "responses": 4,
+      "requestsSent": 3,
+      "stdout": "{\"jsonrpc\":\"2.0\",\"id\":1,\"result\":{\"protocolVersion\":\"2024-11-05\",\"capabilities\":{\"tools\":{}},\"serverInfo\":{\"name\":\"sequential-thinking\",\"version\":\"1.0.0\"}}}\n{\"jsonrpc\":\"2.0\",\"id\":2,\"result\":{\"tools\":[{\"name\":\"think_step_by_step\",\"description\":\"Break down complex problems into sequential steps\",\"inputSchema\":{\"type\":\"object\",\"properties\":{\"problem\":{\"type\":\"string\",\"description\":\"The complex problem to analyze\"},\"context\":{\"type\":\"string\",\"description\":\"Additional context for the problem\"}},\"requ",
+      "stderr": "Sequential Thinking MCP Server running on stdio\n",
+      "code": 0
+    },
+    {
+      "name": "memory-enhanced",
+      "success": true,
+      "responses": 6,
+      "requestsSent": 3,
+      "stdout": "{\"result\":{\"protocolVersion\":\"2024-11-05\",\"capabilities\":{\"tools\":{}},\"serverInfo\":{\"name\":\"memory-server\",\"version\":\"0.6.3\"}},\"jsonrpc\":\"2.0\",\"id\":1}\n{\"result\":{\"tools\":[{\"name\":\"create_entities\",\"description\":\"Create multiple new entities in the knowledge graph\",\"inputSchema\":{\"type\":\"object\",\"properties\":{\"entities\":{\"type\":\"array\",\"items\":{\"type\":\"object\",\"properties\":{\"name\":{\"type\":\"string\",\"description\":\"The name of the entity\"},\"entityType\":{\"type\":\"string\",\"description\":\"The type of the",
+      "stderr": "Knowledge Graph MCP Server running on stdio\n",
+      "code": 0
+    }
+  ],
+  "typescriptServers": [
+    {
+      "name": "data-analytics-consolidated",
+      "success": true,
+      "stdout": "2025-05-27T06:13:15.644Z [DataAnalyticsConsolidated] \u001b[32minfo\u001b[39m: Data Analytics Consolidated Server running on stdio \n{\"result\":{\"protocolVersion\":\"2024-11-05\",\"capabilities\":{\"tools\":{}},\"serverI",
+      "stderr": "",
+      "code": 0
+    },
+    {
+      "name": "security-vulnerability",
+      "success": true,
+      "stdout": "{\"result\":{\"protocolVersion\":\"2024-11-05\",\"capabilities\":{\"tools\":{}},\"serverInfo\":{\"name\":\"security-vulnerability-server\",\"version\":\"1.0.0\"}},\"jsonrpc\":\"2.0\",\"id\":1}\n",
+      "stderr": "",
+      "code": 0
+    },
+    {
+      "name": "optimization",
+      "success": true,
+      "stdout": "{\"result\":{\"protocolVersion\":\"2024-11-05\",\"capabilities\":{\"tools\":{}},\"serverInfo\":{\"name\":\"optimization-server\",\"version\":\"1.0.0\"}},\"jsonrpc\":\"2.0\",\"id\":1}\n",
+      "stderr": "",
+      "code": 0
+    },
+    {
+      "name": "ui-design",
+      "success": true,
+      "stdout": "{\"result\":{\"protocolVersion\":\"2024-11-05\",\"capabilities\":{\"tools\":{}},\"serverInfo\":{\"name\":\"ui-design-server\",\"version\":\"1.0.0\"}},\"jsonrpc\":\"2.0\",\"id\":1}\n",
+      "stderr": "",
+      "code": 0
+    }
+  ],
+  "summary": {
+    "npmServers": {
+      "successful": 3,
+      "total": 3,
+      "successRate": "100.00%"
+    },
+    "typescriptServers": {
+      "successful": 4,
+      "total": 4,
+      "successRate": "100.00%"
+    },
+    "overall": {
+      "successful": 7,
+      "total": 7,
+      "successRate": "100.00%",
+      "readyForProduction": true
+    }
+  }
+}

@@ -141,4 +141,9 @@ export class InferenceEnhancementServer extends StandardMCPServer {
   }
 }
 
+if (require.main === module) {
+  const server = new InferenceEnhancementServer();
+  server.start().catch(console.error);
+}
+
 export default InferenceEnhancementServer;

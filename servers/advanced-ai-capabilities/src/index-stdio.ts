@@ -126,4 +126,21 @@ export class AdvancedAICapabilitiesServer extends StandardMCPServer {
   }
 }
 
+// ES module entry point
+if (import.meta.url === `file://${process.argv[1]}`) {
+  const config: AdvancedAIConfig = {
+    name: 'advanced-ai-capabilities',
+    version: '1.0.0',
+    features: {
+      neuralNetworkController: true,
+      gradientOptimizer: true,
+      lossFunctionManager: true,
+      activationOptimizer: true,
+      hyperparameterTuner: true
+    }
+  };
+  const server = new AdvancedAICapabilitiesServer(config);
+  server.start().catch(console.error);
+}
+
 export default AdvancedAICapabilitiesServer;

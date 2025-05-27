@@ -76,9 +76,9 @@ export class DynamicMemoryManager extends EventEmitter {
   private pools = new Map<string, MemoryPool>();
   private globalAllocations = new Map<string, MemoryAllocation>();
   private memoryPressureThresholds = {
-    warning: 0.7,    // 70% memory usage
-    critical: 0.85,  // 85% memory usage  
-    emergency: 0.95  // 95% memory usage
+    warning: 0.65,   // 65% memory usage (earlier warning)
+    critical: 0.80,  // 80% memory usage (earlier intervention)
+    emergency: 0.90  // 90% memory usage (more room for recovery)
   };
   private optimizationInterval: NodeJS.Timeout | null = null;
   private monitoringInterval: NodeJS.Timeout | null = null;
@@ -112,27 +112,27 @@ export class DynamicMemoryManager extends EventEmitter {
       {
         id: 'tensor-pool',
         name: 'Tensor Operations Pool',
-        size: Math.floor(this.totalSystemMemory * 0.4), // 40% for tensors
+        size: Math.floor(this.totalSystemMemory * 0.35), // 35% for tensors (reduced)
         blockSize: 1024 * 1024, // 1MB blocks
         policy: {
           strategy: 'buddy_system' as const,
-          compactionThreshold: 0.3,
+          compactionThreshold: 0.25, // Earlier compaction
           autoResize: true,
-          maxSize: Math.floor(this.totalSystemMemory * 0.6),
-          growthFactor: 1.5
+          maxSize: Math.floor(this.totalSystemMemory * 0.5), // Reduced max
+          growthFactor: 1.3 // More conservative growth
         }
       },
       {
         id: 'cache-pool',
         name: 'Caching Pool',
-        size: Math.floor(this.totalSystemMemory * 0.25), // 25% for caching
+        size: Math.floor(this.totalSystemMemory * 0.30), // 30% for caching (increased)
         blockSize: 64 * 1024, // 64KB blocks
         policy: {
           strategy: 'best_fit' as const,
-          compactionThreshold: 0.4,
+          compactionThreshold: 0.3, // Earlier compaction
           autoResize: true,
-          maxSize: Math.floor(this.totalSystemMemory * 0.4),
-          growthFactor: 1.3
+          maxSize: Math.floor(this.totalSystemMemory * 0.45), // Increased max
+          growthFactor: 1.4 // Faster growth for caching
         }
       },
       {
@@ -773,7 +773,25 @@ export class DynamicMemoryManager extends EventEmitter {
     this.monitoringInterval = setInterval(() => {
       this.updatePoolStatistics();
       this.checkMemoryPressure();
-    }, 5000); // Monitor every 5 seconds
+      this.emitMemoryMetrics();
+    }, 3000); // Monitor every 3 seconds for faster response
+  }
+
+  private emitMemoryMetrics(): void {
+    const usage = this.getCurrentMemoryUsage();
+    const ratio = usage / this.totalSystemMemory;
+    
+    this.emit('memoryMetrics', {
+      timestamp: Date.now(),
+      totalUsage: usage,
+      utilization: ratio,
+      pools: Array.from(this.pools.entries()).map(([id, pool]) => ({
+        id,
+        utilization: pool.allocatedSize / pool.totalSize,
+        fragmentation: pool.stats.fragmentationRatio,
+        allocations: pool.allocations.size
+      }))
+    });
   }
 
   private startPeriodicOptimization(): void {

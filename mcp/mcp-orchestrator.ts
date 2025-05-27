@@ -13,9 +13,12 @@ export interface MCPServiceConfig {
   name: string;
   port: number;
   healthEndpoint: string;
-  type: 'memory' | 'sequential-thinking' | 'filesystem';
+  type: 'memory' | 'sequential-thinking' | 'filesystem' | 'data-analytics' | 'ai-capabilities';
   dependencies?: string[];
   enabled: boolean;
+  memoryLimit?: number;
+  cpuLimit?: number;
+  priority: 'low' | 'medium' | 'high' | 'critical';
 }
 
 export class MCPOrchestrator {
@@ -23,6 +26,8 @@ export class MCPOrchestrator {
   private healthChecker: HealthChecker;
   private services: Map<string, MCPServiceConfig> = new Map();
   private healthCheckInterval: NodeJS.Timeout | null = null;
+  private memoryMonitoringInterval: NodeJS.Timeout | null = null;
+  private resourceMetrics: Map<string, any> = new Map();
 
   constructor(serviceRegistry: ServiceRegistry) {
     this.serviceRegistry = serviceRegistry;
@@ -38,7 +43,10 @@ export class MCPOrchestrator {
       healthEndpoint: 'http://localhost:3201/health',
       type: 'memory',
       dependencies: ['postgres', 'qdrant'],
-      enabled: true
+      enabled: true,
+      memoryLimit: 512 * 1024 * 1024, // 512MB
+      cpuLimit: 1.0, // 1 CPU core
+      priority: 'high'
     });
 
     // Sequential Thinking MCP Service Configuration  
@@ -48,7 +56,10 @@ export class MCPOrchestrator {
       healthEndpoint: 'http://localhost:3202/health',
       type: 'sequential-thinking',
       dependencies: [],
-      enabled: true
+      enabled: true,
+      memoryLimit: 256 * 1024 * 1024, // 256MB
+      cpuLimit: 0.5, // 0.5 CPU core
+      priority: 'medium'
     });
 
     // Filesystem MCP Service Configuration
@@ -58,7 +69,36 @@ export class MCPOrchestrator {
       healthEndpoint: 'http://localhost:3203/health', 
       type: 'filesystem',
       dependencies: [],
-      enabled: true
+      enabled: true,
+      memoryLimit: 128 * 1024 * 1024, // 128MB
+      cpuLimit: 0.3, // 0.3 CPU core
+      priority: 'medium'
+    });
+
+    // Data Analytics Consolidated Service
+    this.services.set('data-analytics-mcp', {
+      name: 'data-analytics-mcp',
+      port: 3204,
+      healthEndpoint: 'http://localhost:3204/health',
+      type: 'data-analytics',
+      dependencies: ['memory-mcp'],
+      enabled: true,
+      memoryLimit: 1024 * 1024 * 1024, // 1GB
+      cpuLimit: 2.0, // 2 CPU cores
+      priority: 'high'
+    });
+
+    // AI Capabilities Consolidated Service
+    this.services.set('ai-capabilities-mcp', {
+      name: 'ai-capabilities-mcp',
+      port: 3205,
+      healthEndpoint: 'http://localhost:3205/health',
+      type: 'ai-capabilities',
+      dependencies: ['memory-mcp'],
+      enabled: true,
+      memoryLimit: 768 * 1024 * 1024, // 768MB
+      cpuLimit: 1.5, // 1.5 CPU cores
+      priority: 'high'
     });
 
     logger.info(`Initialized ${this.services.size} MCP services`);
@@ -98,6 +138,9 @@ export class MCPOrchestrator {
     // Start health monitoring
     this.startHealthMonitoring();
     
+    // Start resource monitoring
+    this.startResourceMonitoring();
+    
     logger.info('🚀 MCP Orchestrator started successfully');
   }
 
@@ -129,6 +172,58 @@ export class MCPOrchestrator {
     }, 30000); // Check every 30 seconds
 
     logger.info('🏥 Started MCP health monitoring');
+  }
+
+  private startResourceMonitoring(): void {
+    this.memoryMonitoringInterval = setInterval(async () => {
+      await this.monitorResourceUsage();
+    }, 10000); // Monitor every 10 seconds
+
+    logger.info('📊 Started MCP resource monitoring');
+  }
+
+  private async monitorResourceUsage(): Promise<void> {
+    for (const [serviceId, config] of this.services) {
+      if (!config.enabled) continue;
+
+      try {
+        // Get process stats (simplified - in real implementation would use process monitoring)
+        const processStats = await this.getProcessStats(serviceId);
+        
+        const resourceUsage = {
+          serviceId,
+          timestamp: Date.now(),
+          memoryUsage: processStats.memory,
+          cpuUsage: processStats.cpu,
+          memoryLimit: config.memoryLimit || 0,
+          cpuLimit: config.cpuLimit || 0,
+          memoryUtilization: config.memoryLimit ? processStats.memory / config.memoryLimit : 0,
+          cpuUtilization: config.cpuLimit ? processStats.cpu / config.cpuLimit : 0
+        };
+
+        this.resourceMetrics.set(serviceId, resourceUsage);
+
+        // Check for resource violations
+        if (resourceUsage.memoryUtilization > 0.9) {
+          logger.warn(`⚠️ High memory usage for ${serviceId}: ${(resourceUsage.memoryUtilization * 100).toFixed(1)}%`);
+        }
+
+        if (resourceUsage.cpuUtilization > 0.9) {
+          logger.warn(`⚠️ High CPU usage for ${serviceId}: ${(resourceUsage.cpuUtilization * 100).toFixed(1)}%`);
+        }
+
+      } catch (error) {
+        logger.error(`Failed to monitor resources for ${serviceId}:`, error);
+      }
+    }
+  }
+
+  private async getProcessStats(serviceId: string): Promise<{ memory: number; cpu: number }> {
+    // Simplified implementation - in real usage would use process monitoring tools
+    return {
+      memory: Math.random() * 100 * 1024 * 1024, // Random memory usage for demo
+      cpu: Math.random() * 0.5 // Random CPU usage for demo
+    };
   }
 
   private async performHealthChecks(): Promise<void> {

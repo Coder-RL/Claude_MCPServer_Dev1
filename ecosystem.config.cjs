@@ -3,8 +3,8 @@ module.exports = {
     {
       name: 'data-governance',
       script: 'npx',
-      args: ['tsx', 'servers/data-analytics/src/data-governance.ts'],
-      cwd: '/Users/robertlee/GitHubProjects/Claude_MCPServer',
+      args: ['tsx', 'servers/data-analytics/src/data-governance-fixed.ts'],
+      cwd: '/Users/robertlee/GitHubProjects/Claude_MCPServer_Dev1',
       env: {
         DATA_GOVERNANCE_ID: 'data-governance-server',
         NODE_ENV: 'development'
@@ -20,8 +20,8 @@ module.exports = {
     {
       name: 'data-pipeline',
       script: 'npx',
-      args: ['tsx', 'servers/data-analytics/src/data-pipeline.ts'],
-      cwd: '/Users/robertlee/GitHubProjects/Claude_MCPServer',
+      args: ['tsx', 'servers/data-analytics/src/data-pipeline-fixed.ts'],
+      cwd: '/Users/robertlee/GitHubProjects/Claude_MCPServer_Dev1',
       env: {
         DATA_PIPELINE_ID: 'data-pipeline-server',
         NODE_ENV: 'development'
@@ -37,8 +37,8 @@ module.exports = {
     {
       name: 'data-warehouse',
       script: 'npx',
-      args: ['tsx', 'servers/data-analytics/src/data-warehouse.ts'],
-      cwd: '/Users/robertlee/GitHubProjects/Claude_MCPServer',
+      args: ['tsx', 'servers/data-analytics/src/data-warehouse-fixed.ts'],
+      cwd: '/Users/robertlee/GitHubProjects/Claude_MCPServer_Dev1',
       env: {
         DATA_WAREHOUSE_ID: 'data-warehouse-server',
         NODE_ENV: 'development'
@@ -54,8 +54,8 @@ module.exports = {
     {
       name: 'ml-deployment',
       script: 'npx',
-      args: ['tsx', 'servers/data-analytics/src/ml-deployment.ts'],
-      cwd: '/Users/robertlee/GitHubProjects/Claude_MCPServer',
+      args: ['tsx', 'servers/data-analytics/src/ml-deployment-fixed.ts'],
+      cwd: '/Users/robertlee/GitHubProjects/Claude_MCPServer_Dev1',
       env: {
         ML_DEPLOYMENT_ID: 'ml-deployment-server',
         NODE_ENV: 'development'
@@ -71,8 +71,8 @@ module.exports = {
     {
       name: 'realtime-analytics',
       script: 'npx',
-      args: ['tsx', 'servers/data-analytics/src/realtime-analytics.ts'],
-      cwd: '/Users/robertlee/GitHubProjects/Claude_MCPServer',
+      args: ['tsx', 'servers/data-analytics/src/realtime-analytics-fixed.ts'],
+      cwd: '/Users/robertlee/GitHubProjects/Claude_MCPServer_Dev1',
       env: {
         REALTIME_ANALYTICS_ID: 'realtime-analytics-server',
         NODE_ENV: 'development'
@@ -89,7 +89,7 @@ module.exports = {
       name: 'enhanced-memory',
       script: 'npx',
       args: ['tsx', 'servers/memory/src/enhanced-memory-server.ts'],
-      cwd: '/Users/robertlee/GitHubProjects/Claude_MCPServer',
+      cwd: '/Users/robertlee/GitHubProjects/Claude_MCPServer_Dev1',
       env: {
         ENHANCED_MEMORY_ID: 'enhanced-memory-server',
         NODE_ENV: 'development'
@@ -106,7 +106,7 @@ module.exports = {
       name: 'sequential-thinking',
       script: 'node',
       args: ['mcp/sequential-thinking/server.js'],
-      cwd: '/Users/robertlee/GitHubProjects/Claude_MCPServer',
+      cwd: '/Users/robertlee/GitHubProjects/Claude_MCPServer_Dev1',
       env: {
         SEQUENTIAL_THINKING_ID: 'sequential-thinking-server',
         NODE_ENV: 'development'
@@ -122,8 +122,8 @@ module.exports = {
     {
       name: 'security-vulnerability',
       script: 'npx',
-      args: ['tsx', 'servers/security-vulnerability/src/security-vulnerability.ts'],
-      cwd: '/Users/robertlee/GitHubProjects/Claude_MCPServer',
+      args: ['tsx', 'servers/security-vulnerability/src/security-vulnerability-fixed.ts'],
+      cwd: '/Users/robertlee/GitHubProjects/Claude_MCPServer_Dev1',
       env: {
         SECURITY_ID: 'security-vulnerability-server',
         NODE_ENV: 'development'
@@ -139,8 +139,8 @@ module.exports = {
     {
       name: 'ui-design',
       script: 'npx',
-      args: ['tsx', 'servers/ui-design/src/ui-design.ts'],
-      cwd: '/Users/robertlee/GitHubProjects/Claude_MCPServer',
+      args: ['tsx', 'servers/ui-design/src/ui-design-fixed.ts'],
+      cwd: '/Users/robertlee/GitHubProjects/Claude_MCPServer_Dev1',
       env: {
         UI_DESIGN_ID: 'ui-design-server',
         NODE_ENV: 'development'
@@ -156,8 +156,8 @@ module.exports = {
     {
       name: 'optimization',
       script: 'npx',
-      args: ['tsx', 'servers/optimization/src/optimization.ts'],
-      cwd: '/Users/robertlee/GitHubProjects/Claude_MCPServer',
+      args: ['tsx', 'servers/optimization/src/optimization-fixed.ts'],
+      cwd: '/Users/robertlee/GitHubProjects/Claude_MCPServer_Dev1',
       env: {
         OPTIMIZATION_ID: 'optimization-server',
         NODE_ENV: 'development'

@@ -141,4 +141,25 @@ export class InferenceEnhancementServer extends StandardMCPServer {
   }
 }
 
+// ES module entry point
+if (import.meta.url === `file://${process.argv[1]}`) {
+  const config: InferenceEnhancementConfig = {
+    name: 'inference-enhancement',
+    version: '1.0.0',
+    features: {
+      enablePerformanceMonitoring: true,
+      enableHealthCheck: true,
+      maxEmbeddingsPerRequest: 1000,
+      defaultSearchLimit: 10
+    },
+    embedding: {
+      provider: 'mock',
+      model: 'text-embedding-3-small',
+      dimensions: 1536
+    }
+  };
+  const server = new InferenceEnhancementServer(config);
+  server.start().catch(console.error);
+}
+
 export default InferenceEnhancementServer;
