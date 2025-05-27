@@ -61,7 +61,7 @@ services:
       dockerfile: orchestration/Dockerfile
     container_name: claude-mcp-orchestration-dev1
     ports:
-      - "3110:3100"
+      - "3200:3100"
     environment:
       NODE_ENV: development
       PORT: 3100

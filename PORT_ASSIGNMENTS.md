@@ -14,7 +14,7 @@
 - **2390**: etcd peer (Docker) [was 2380]
 
 ### HTTP Services - Dev1 (Original + 10)
-- **3110**: Orchestration [was 3100]
+- **3200**: Orchestration [was 3100] (avoiding 3100 conflict)
 - **3111**: Inference Enhancement [was 3101]
 - **3112**: UI Testing [was 3102]
 - **3113**: Analytics [was 3103]
